@@ -16,19 +16,14 @@
       --line: #eee5dc;
       --soft: #fff4e4;
       --pink: #ffe8ec;
-      --yellow: #fff4bd;
       --accent: #f08a5d;
       --accent-dark: #d9693f;
       --card: #ffffff;
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
-    html {
-      scroll-behavior: smooth;
-    }
+    html { scroll-behavior: smooth; }
 
     body {
       margin: 0;
@@ -40,7 +35,7 @@
     header {
       padding: 26px 34px;
       display: flex;
-      justify-content: space-between;
+      justify-content: flex-end;
       align-items: center;
       border-bottom: 1px solid var(--line);
       background: rgba(255, 253, 248, 0.96);
@@ -49,26 +44,15 @@
       z-index: 10;
     }
 
-    .logo {
-      font-family: "Baloo 2", cursive;
-      font-size: 31px;
-      font-weight: 800;
-      color: var(--text);
-      text-decoration: none;
-      line-height: 1;
-    }
-
     nav a {
-      margin-left: 24px;
+      margin-left: 28px;
       color: var(--text);
       text-decoration: none;
       font-size: 16px;
       font-weight: 800;
     }
 
-    nav a:hover {
-      color: var(--accent-dark);
-    }
+    nav a:hover { color: var(--accent-dark); }
 
     .hero-video {
       width: 100%;
@@ -160,9 +144,7 @@
       transition: transform 0.2s ease;
     }
 
-    .card:hover {
-      transform: translateY(-3px);
-    }
+    .card:hover { transform: translateY(-3px); }
 
     .image {
       aspect-ratio: 1 / 1;
@@ -183,9 +165,7 @@
       display: block;
     }
 
-    .card-body {
-      padding: 19px;
-    }
+    .card-body { padding: 19px; }
 
     .card h3 {
       font-family: "Baloo 2", cursive;
@@ -211,9 +191,7 @@
       font-weight: 800;
     }
 
-    .price {
-      font-size: 18px;
-    }
+    .price { font-size: 18px; }
 
     .stock {
       font-size: 13px;
@@ -378,12 +356,8 @@
 
     @media (max-width: 850px) {
       header {
-        display: block;
-        text-align: center;
-      }
-
-      nav {
-        margin-top: 14px;
+        justify-content: center;
+        padding: 22px 18px;
       }
 
       nav a {
@@ -405,10 +379,6 @@
     }
 
     @media (max-width: 560px) {
-      header {
-        padding: 22px 18px;
-      }
-
       nav a {
         font-size: 15px;
         margin: 0 6px;
@@ -432,12 +402,11 @@
 
 <body id="top">
   <header>
-    <a class="logo" href="/" id="logo">Lisha Studio</a>
     <nav>
       <a href="/">Home</a>
-      <a href="#products">Products</a>
+      <a href="/#products">Products</a>
       <a href="/about.html">About</a>
-      <a href="#contact">Contact</a>
+      <a href="/#contact">Contact</a>
     </nav>
   </header>
 
@@ -466,9 +435,7 @@
 
     <section class="contact" id="contact">
       <h2 class="section-title">Contact</h2>
-      <p id="contactNote">
-        For custom orders, collaborations, or questions, feel free to contact me.
-      </p>
+      <p id="contactNote">For custom orders, collaborations, or questions, feel free to contact me.</p>
       <div class="contact-links" id="contactLinks"></div>
     </section>
   </main>
@@ -529,7 +496,9 @@
     }
 
     function rowsToObjects(rows) {
+      if (!rows.length) return [];
       const headers = rows[0].map(h => h.trim().toLowerCase());
+
       return rows.slice(1)
         .filter(row => row.some(cell => String(cell).trim() !== ""))
         .map(row => {
@@ -543,7 +512,7 @@
 
     async function loadCSV(url) {
       const response = await fetch(url + "&cacheBust=" + Date.now());
-      if (!response.ok) throw new Error("Could not load CSV");
+      if (!response.ok) throw new Error("Could not load CSV: " + url);
       const text = await response.text();
       return rowsToObjects(parseCSV(text));
     }
@@ -563,7 +532,7 @@
     function money(value) {
       const number = Number(value);
       if (Number.isNaN(number)) return value || "";
-      return "USD" + number.toFixed(2);
+      return "USD $" + number.toFixed(2);
     }
 
     function createVideo(videoUrl) {
@@ -571,6 +540,7 @@
 
       if (!videoUrl) {
         videoArea.style.display = "none";
+        videoArea.innerHTML = "";
         return;
       }
 
@@ -598,11 +568,11 @@
       const subtitle = siteSettings.herosubtitle || "Handmade art objects, candles, gifts, and playful little things.";
       const video = siteSettings.herovideo || "";
       const contactNote = siteSettings.contactnote || "For custom orders, collaborations, or questions, feel free to contact me.";
-      const Email = siteSettings.contactemail || "";
-      const Youtube = siteSettings.contactinstagram || "";
+      const contactEmail = siteSettings.contactemail || "";
+      const contactInstagram = siteSettings.contactinstagram || "";
+      const contactYoutube = siteSettings.contactyoutube || "";
 
       document.title = title + " | Handmade Art Objects";
-      document.getElementById("logo").textContent = title;
       document.getElementById("heroTitle").textContent = title;
       document.getElementById("heroSubtitle").textContent = subtitle;
       document.getElementById("contactNote").textContent = contactNote;
@@ -616,6 +586,10 @@
 
       if (contactInstagram) {
         contactLinks.innerHTML += `<a href="${contactInstagram}" target="_blank" rel="noopener">Instagram</a>`;
+      }
+
+      if (contactYoutube) {
+        contactLinks.innerHTML += `<a href="${contactYoutube}" target="_blank" rel="noopener">YouTube</a>`;
       }
 
       createVideo(video);
