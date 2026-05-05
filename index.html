@@ -563,7 +563,7 @@
     function money(value) {
       const number = Number(value);
       if (Number.isNaN(number)) return value || "";
-      return "USD $" + number.toFixed(2);
+      return "USD" + number.toFixed(2);
     }
 
     function createVideo(videoUrl) {
@@ -598,8 +598,8 @@
       const subtitle = siteSettings.herosubtitle || "Handmade art objects, candles, gifts, and playful little things.";
       const video = siteSettings.herovideo || "";
       const contactNote = siteSettings.contactnote || "For custom orders, collaborations, or questions, feel free to contact me.";
-      const contactEmail = siteSettings.contactemail || "";
-      const contactInstagram = siteSettings.contactinstagram || "";
+      const Email = siteSettings.contactemail || "";
+      const Youtube = siteSettings.contactinstagram || "";
 
       document.title = title + " | Handmade Art Objects";
       document.getElementById("logo").textContent = title;
