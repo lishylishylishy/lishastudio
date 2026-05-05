@@ -21,9 +21,13 @@
       --card: #ffffff;
     }
 
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+    }
 
-    html { scroll-behavior: smooth; }
+    html {
+      scroll-behavior: smooth;
+    }
 
     body {
       margin: 0;
@@ -52,7 +56,9 @@
       font-weight: 800;
     }
 
-    nav a:hover { color: var(--accent-dark); }
+    nav a:hover {
+      color: var(--accent-dark);
+    }
 
     .hero-video {
       width: 100%;
@@ -142,9 +148,12 @@
       overflow: hidden;
       box-shadow: 0 14px 34px rgba(80, 51, 32, 0.08);
       transition: transform 0.2s ease;
+      cursor: pointer;
     }
 
-    .card:hover { transform: translateY(-3px); }
+    .card:hover {
+      transform: translateY(-3px);
+    }
 
     .image {
       position: relative;
@@ -194,7 +203,9 @@
       box-shadow: 0 8px 18px rgba(80, 51, 32, 0.08);
     }
 
-    .card-body { padding: 19px; }
+    .card-body {
+      padding: 19px;
+    }
 
     .card h3 {
       font-family: "Baloo 2", cursive;
@@ -220,7 +231,9 @@
       font-weight: 800;
     }
 
-    .price { font-size: 18px; }
+    .price {
+      font-size: 18px;
+    }
 
     .stock {
       font-size: 13px;
@@ -235,9 +248,9 @@
       display: block;
       width: 100%;
       text-align: center;
-      border: 1px solid var(--line);
-      color: var(--accent-dark);
-      background: var(--soft);
+      border: 1px solid var(--text);
+      color: var(--text);
+      background: white;
       text-decoration: none;
       border-radius: 999px;
       padding: 12px 14px;
@@ -249,18 +262,6 @@
     }
 
     .button:hover {
-      background: var(--accent);
-      border-color: var(--accent);
-      color: white;
-    }
-
-    .button.black {
-      border-color: var(--text);
-      background: white;
-      color: var(--text);
-    }
-
-    .button.black:hover {
       background: var(--text);
       color: white;
     }
@@ -454,7 +455,9 @@
       line-height: 1.7;
     }
 
-    .details-list strong { color: var(--text); }
+    .details-list strong {
+      color: var(--text);
+    }
 
     @media (max-width: 850px) {
       header {
@@ -462,14 +465,22 @@
         padding: 22px 18px;
       }
 
-      nav a { margin: 0 9px; }
+      nav a {
+        margin: 0 9px;
+      }
 
-      .grid { grid-template-columns: repeat(2, 1fr); }
+      .grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
 
       .hero-video video,
-      .hero-video iframe { height: 300px; }
+      .hero-video iframe {
+        height: 300px;
+      }
 
-      .modal-layout { grid-template-columns: 1fr; }
+      .modal-layout {
+        grid-template-columns: 1fr;
+      }
     }
 
     @media (max-width: 560px) {
@@ -478,14 +489,22 @@
         margin: 0 6px;
       }
 
-      .hero { padding-top: 58px; }
+      .hero {
+        padding-top: 58px;
+      }
 
-      .grid { grid-template-columns: 1fr; }
+      .grid {
+        grid-template-columns: 1fr;
+      }
 
       .filters input,
-      .filters select { width: 100%; }
+      .filters select {
+        width: 100%;
+      }
 
-      .modal-layout { padding: 24px; }
+      .modal-layout {
+        padding: 24px;
+      }
     }
   </style>
 </head>
@@ -705,12 +724,12 @@
     }
 
     function productPrice(group) {
-      const activeOrSoldout = group.rows.filter(row => {
+      const rowsForPrice = group.rows.filter(row => {
         const s = getStatus(row);
         return s === "active" || s === "soldout";
       });
 
-      const prices = activeOrSoldout
+      const prices = rowsForPrice
         .map(row => Number(val(row, "price")))
         .filter(n => !Number.isNaN(n));
 
@@ -740,10 +759,9 @@
 
     function productCard(group) {
       const badge = statusLabel(group.status);
-      const buttonText = group.rows.length > 1 ? "View options" : "View details";
 
       return `
-        <article class="card">
+        <article class="card" onclick="openProductModal('${group.id}')">
           <div class="image">
             ${imageBlock(group.displayRow, 0, badge)}
           </div>
@@ -754,7 +772,6 @@
               <div class="price">${productPrice(group)}</div>
               <div class="stock">${productStock(group)}</div>
             </div>
-            <button class="button" onclick="openProductModal('${group.id}')">${buttonText}</button>
           </div>
         </article>
       `;
@@ -790,6 +807,7 @@
       if (youtube) links.innerHTML += `<a href="${youtube}" target="_blank" rel="noopener">YouTube</a>`;
 
       const videoArea = document.getElementById("videoArea");
+
       if (!video) {
         videoArea.style.display = "none";
         videoArea.innerHTML = "";
@@ -870,9 +888,10 @@
         status === "soldout" ? "Sold out" :
         "Coming soon";
 
-      const priceText = status === "active" || status === "soldout"
-        ? money(val(selectedRow, "price"))
-        : "";
+      const priceText =
+        status === "active" || status === "soldout"
+          ? money(val(selectedRow, "price"))
+          : "";
 
       const skuButtons = group.rows.length > 1
         ? `
@@ -896,7 +915,7 @@
       }).join("");
 
       const actionButton = status === "active"
-        ? `<button class="button black" onclick="alert('Cart will be added later.')">Add to cart</button>`
+        ? `<button class="button" onclick="alert('Cart will be added later.')">Add to cart</button>`
         : `<button class="button disabled">${stockText}</button>`;
 
       document.getElementById("modalContent").innerHTML = `
@@ -966,9 +985,11 @@
         document.getElementById("categoryFilter").addEventListener("change", renderProducts);
 
         document.getElementById("modalClose").addEventListener("click", closeProductModal);
+
         document.getElementById("productModal").addEventListener("click", event => {
           if (event.target.id === "productModal") closeProductModal();
         });
+
         document.addEventListener("keydown", event => {
           if (event.key === "Escape") closeProductModal();
         });
