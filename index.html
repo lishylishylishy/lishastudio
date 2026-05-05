@@ -7,22 +7,27 @@
   <meta name="description" content="Lisha Studio handmade art objects, candles, gifts, and playful little things." />
 
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700&family=Nunito:wght@400;500;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Nunito:wght@400;500;600;700;800&display=swap');
 
     :root {
       --bg: #fffdf8;
       --text: #1f1b18;
       --muted: #756d66;
       --line: #eee5dc;
-      --soft: #fff1df;
+      --soft: #fff4e4;
       --pink: #ffe8ec;
-      --yellow: #fff3b8;
+      --yellow: #fff4bd;
       --accent: #f08a5d;
       --accent-dark: #d9693f;
+      --card: #ffffff;
     }
 
     * {
       box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
     }
 
     body {
@@ -32,21 +37,13 @@
       font-family: "Nunito", Arial, sans-serif;
     }
 
-    .announcement {
-      background: var(--yellow);
-      text-align: center;
-      padding: 10px 16px;
-      font-size: 15px;
-      font-weight: 700;
-    }
-
     header {
-      padding: 24px 28px;
+      padding: 26px 34px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       border-bottom: 1px solid var(--line);
-      background: rgba(255, 253, 248, 0.95);
+      background: rgba(255, 253, 248, 0.96);
       position: sticky;
       top: 0;
       z-index: 10;
@@ -54,61 +51,55 @@
 
     .logo {
       font-family: "Baloo 2", cursive;
-      font-size: 30px;
-      font-weight: 700;
+      font-size: 31px;
+      font-weight: 800;
       color: var(--text);
       text-decoration: none;
+      line-height: 1;
     }
 
     nav a {
-      margin-left: 20px;
+      margin-left: 24px;
       color: var(--text);
       text-decoration: none;
-      font-size: 15px;
-      font-weight: 700;
+      font-size: 16px;
+      font-weight: 800;
+    }
+
+    nav a:hover {
+      color: var(--accent-dark);
     }
 
     .hero-video {
       width: 100%;
-      max-height: 460px;
+      max-height: 420px;
       background: var(--soft);
       overflow: hidden;
       border-bottom: 1px solid var(--line);
+      display: none;
     }
 
     .hero-video video,
     .hero-video iframe {
       width: 100%;
-      height: 460px;
+      height: 420px;
       display: block;
       object-fit: cover;
       border: 0;
     }
 
-    .video-placeholder {
-      height: 360px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 24px;
-      font-family: "Baloo 2", cursive;
-      font-size: 30px;
-      color: var(--accent-dark);
-    }
-
     .hero {
       max-width: 980px;
       margin: 0 auto;
-      padding: 64px 24px 44px;
+      padding: 84px 24px 56px;
       text-align: center;
     }
 
     .hero h1 {
       font-family: "Baloo 2", cursive;
-      font-size: clamp(46px, 8vw, 78px);
+      font-size: clamp(48px, 8vw, 82px);
       line-height: 0.95;
-      margin: 0 0 16px;
+      margin: 0 0 14px;
       letter-spacing: -1px;
     }
 
@@ -123,14 +114,15 @@
     .section {
       max-width: 1120px;
       margin: 0 auto;
-      padding: 32px 24px 70px;
+      padding: 38px 24px 78px;
     }
 
     .section-title {
       font-family: "Baloo 2", cursive;
-      font-size: 38px;
+      font-size: 40px;
       margin: 0 0 24px;
       text-align: center;
+      line-height: 1;
     }
 
     .filters {
@@ -138,7 +130,7 @@
       justify-content: center;
       gap: 12px;
       flex-wrap: wrap;
-      margin-bottom: 28px;
+      margin-bottom: 30px;
     }
 
     .filters input,
@@ -146,10 +138,10 @@
       border: 1px solid var(--line);
       background: white;
       border-radius: 999px;
-      padding: 12px 16px;
+      padding: 13px 17px;
       font-family: "Nunito", sans-serif;
       font-size: 15px;
-      min-width: 190px;
+      min-width: 210px;
       outline: none;
     }
 
@@ -160,11 +152,11 @@
     }
 
     .card {
-      background: white;
+      background: var(--card);
       border: 1px solid var(--line);
-      border-radius: 26px;
+      border-radius: 28px;
       overflow: hidden;
-      box-shadow: 0 12px 30px rgba(80, 51, 32, 0.08);
+      box-shadow: 0 14px 34px rgba(80, 51, 32, 0.08);
       transition: transform 0.2s ease;
     }
 
@@ -192,13 +184,13 @@
     }
 
     .card-body {
-      padding: 18px;
+      padding: 19px;
     }
 
     .card h3 {
       font-family: "Baloo 2", cursive;
-      font-size: 24px;
-      line-height: 1.1;
+      font-size: 25px;
+      line-height: 1.08;
       margin: 0 0 8px;
     }
 
@@ -215,8 +207,8 @@
       justify-content: space-between;
       gap: 12px;
       align-items: center;
-      margin-bottom: 14px;
-      font-weight: 700;
+      margin-bottom: 12px;
+      font-weight: 800;
     }
 
     .price {
@@ -232,12 +224,18 @@
       white-space: nowrap;
     }
 
+    .actions {
+      display: grid;
+      gap: 10px;
+    }
+
     .button {
       display: block;
       width: 100%;
       text-align: center;
       border: 1px solid var(--text);
       color: var(--text);
+      background: white;
       text-decoration: none;
       border-radius: 999px;
       padding: 12px 14px;
@@ -250,20 +248,31 @@
       color: white;
     }
 
+    .button.soft {
+      border-color: var(--line);
+      background: var(--soft);
+      color: var(--accent-dark);
+    }
+
+    .button.soft:hover {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: white;
+    }
+
     .button.disabled {
       opacity: 0.45;
       pointer-events: none;
     }
 
-    .about {
-      background: #fff8ed;
+    .contact {
       border-top: 1px solid var(--line);
-      border-bottom: 1px solid var(--line);
-      padding: 52px 24px;
+      padding: 62px 24px;
       text-align: center;
+      background: #ffffff;
     }
 
-    .about p {
+    .contact p {
       max-width: 720px;
       margin: 0 auto;
       color: var(--muted);
@@ -271,11 +280,92 @@
       font-size: 17px;
     }
 
+    .contact-links {
+      margin-top: 24px;
+      display: flex;
+      justify-content: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .contact-links a {
+      color: var(--text);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 11px 16px;
+      text-decoration: none;
+      font-weight: 800;
+      background: var(--soft);
+    }
+
+    .contact-links a:hover {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+
+    .detail-page {
+      display: none;
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 56px 24px 86px;
+    }
+
+    .detail-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 38px;
+      align-items: start;
+    }
+
+    .detail-image {
+      aspect-ratio: 1 / 1;
+      background: linear-gradient(135deg, var(--soft), var(--pink));
+      border: 1px solid var(--line);
+      border-radius: 34px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: "Baloo 2", cursive;
+      font-size: 80px;
+      color: var(--accent-dark);
+      box-shadow: 0 14px 34px rgba(80, 51, 32, 0.08);
+    }
+
+    .detail-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .detail-info h1 {
+      font-family: "Baloo 2", cursive;
+      font-size: clamp(42px, 6vw, 68px);
+      line-height: 0.95;
+      margin: 0 0 16px;
+    }
+
+    .detail-info p {
+      color: var(--muted);
+      line-height: 1.8;
+      font-size: 17px;
+    }
+
+    .back-link {
+      display: inline-block;
+      margin-bottom: 24px;
+      color: var(--accent-dark);
+      font-weight: 800;
+      text-decoration: none;
+    }
+
     footer {
       text-align: center;
       padding: 32px 20px;
       color: var(--muted);
       font-size: 14px;
+      border-top: 1px solid var(--line);
     }
 
     .loading,
@@ -293,7 +383,7 @@
       }
 
       nav {
-        margin-top: 12px;
+        margin-top: 14px;
       }
 
       nav a {
@@ -308,9 +398,26 @@
       .hero-video iframe {
         height: 300px;
       }
+
+      .detail-layout {
+        grid-template-columns: 1fr;
+      }
     }
 
     @media (max-width: 560px) {
+      header {
+        padding: 22px 18px;
+      }
+
+      nav a {
+        font-size: 15px;
+        margin: 0 6px;
+      }
+
+      .hero {
+        padding-top: 58px;
+      }
+
       .grid {
         grid-template-columns: 1fr;
       }
@@ -323,24 +430,20 @@
   </style>
 </head>
 
-<body>
-  <div class="announcement" id="announcement">Loading...</div>
-
+<body id="top">
   <header>
     <a class="logo" href="/" id="logo">Lisha Studio</a>
     <nav>
       <a href="/">Home</a>
       <a href="#products">Products</a>
-      <a href="#about">About</a>
-      <a href="mailto:ldeng123@asu.edu">Contact</a>
+      <a href="/about.html">About</a>
+      <a href="#contact">Contact</a>
     </nav>
   </header>
 
-  <section class="hero-video" id="videoArea">
-    <div class="video-placeholder">✦ handmade little things ✦</div>
-  </section>
+  <section class="hero-video" id="videoArea"></section>
 
-  <main>
+  <main id="homePage">
     <section class="hero">
       <h1 id="heroTitle">Lisha Studio</h1>
       <p id="heroSubtitle">Handmade art objects, candles, gifts, and playful little things.</p>
@@ -361,12 +464,18 @@
       </div>
     </section>
 
-    <section class="about" id="about">
-      <p>
-        Lisha Studio is a small handmade art studio exploring playful shapes,
-        soft colors, candles, gifts, and artful everyday objects.
+    <section class="contact" id="contact">
+      <h2 class="section-title">Contact</h2>
+      <p id="contactNote">
+        For custom orders, collaborations, or questions, feel free to contact me.
       </p>
+      <div class="contact-links" id="contactLinks"></div>
     </section>
+  </main>
+
+  <main class="detail-page" id="detailPage">
+    <a class="back-link" href="/">← Back to shop</a>
+    <div class="detail-layout" id="detailContent"></div>
   </main>
 
   <footer>
@@ -378,6 +487,7 @@
     const PRODUCTS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRQ5vcuUBnI85arPNNe2h-aqwqq_9RpCBN0oewhCexPjWd-nX7YW-j3ii_5JlwvZZ7VlyjZ_RSTVwD5/pub?gid=22339288&single=true&output=csv";
 
     let allProducts = [];
+    let siteSettings = {};
 
     function parseCSV(text) {
       const rows = [];
@@ -442,19 +552,29 @@
       return obj[key.toLowerCase()] || "";
     }
 
+    function slugify(text) {
+      return String(text)
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "");
+    }
+
     function money(value) {
       const number = Number(value);
       if (Number.isNaN(number)) return value || "";
-      return "USD" + number.toFixed(2);
+      return "USD $" + number.toFixed(2);
     }
 
     function createVideo(videoUrl) {
       const videoArea = document.getElementById("videoArea");
 
       if (!videoUrl) {
-        videoArea.innerHTML = '<div class="video-placeholder">✦ handmade little things ✦</div>';
+        videoArea.style.display = "none";
         return;
       }
+
+      videoArea.style.display = "block";
 
       if (videoUrl.includes("youtube.com") || videoUrl.includes("youtu.be") || videoUrl.includes("vimeo.com")) {
         videoArea.innerHTML = `<iframe src="${videoUrl}" allowfullscreen></iframe>`;
@@ -468,24 +588,36 @@
     }
 
     function applySettings(settingsRows) {
-      const settings = {};
-
       settingsRows.forEach(row => {
         const key = getValue(row, "key");
         const value = getValue(row, "value");
-        if (key) settings[key] = value;
+        if (key) siteSettings[key.toLowerCase()] = value;
       });
 
-      const title = settings.heroTitle || settings.herotitle || "Lisha Studio";
-      const subtitle = settings.heroSubtitle || settings.herosubtitle || "Handmade art objects, candles, gifts, and playful little things.";
-      const announcement = settings.announcement || "New handmade pieces coming soon.";
-      const video = settings.heroVideo || settings.herovideo || "";
+      const title = siteSettings.herotitle || "Lisha Studio";
+      const subtitle = siteSettings.herosubtitle || "Handmade art objects, candles, gifts, and playful little things.";
+      const video = siteSettings.herovideo || "";
+      const contactNote = siteSettings.contactnote || "For custom orders, collaborations, or questions, feel free to contact me.";
+      const contactEmail = siteSettings.contactemail || "";
+      const contactInstagram = siteSettings.contactinstagram || "";
 
       document.title = title + " | Handmade Art Objects";
       document.getElementById("logo").textContent = title;
       document.getElementById("heroTitle").textContent = title;
       document.getElementById("heroSubtitle").textContent = subtitle;
-      document.getElementById("announcement").textContent = announcement;
+      document.getElementById("contactNote").textContent = contactNote;
+
+      const contactLinks = document.getElementById("contactLinks");
+      contactLinks.innerHTML = "";
+
+      if (contactEmail) {
+        contactLinks.innerHTML += `<a href="mailto:${contactEmail}">Email</a>`;
+      }
+
+      if (contactInstagram) {
+        contactLinks.innerHTML += `<a href="${contactInstagram}" target="_blank" rel="noopener">Instagram</a>`;
+      }
+
       createVideo(video);
     }
 
@@ -509,12 +641,13 @@
       const description = getValue(product, "description");
       const paymentLink = getValue(product, "paymentlink");
       const soldOut = stock <= 0;
+      const slug = slugify(name);
 
       const imageHTML = image
         ? `<img src="${image}" alt="${name}">`
         : `<span>${name ? name.charAt(0) : "✦"}</span>`;
 
-      const buttonHTML = paymentLink && !soldOut
+      const buyButton = paymentLink && !soldOut
         ? `<a class="button" href="${paymentLink}" target="_blank" rel="noopener">Buy now</a>`
         : `<a class="button disabled" href="#">${soldOut ? "Sold out" : "Coming soon"}</a>`;
 
@@ -528,7 +661,10 @@
               <div class="price">${money(price)}</div>
               <div class="stock">${soldOut ? "Sold out" : stock + " in stock"}</div>
             </div>
-            ${buttonHTML}
+            <div class="actions">
+              <a class="button soft" href="/?product=${slug}">View details</a>
+              ${buyButton}
+            </div>
           </div>
         </article>
       `;
@@ -560,6 +696,55 @@
       grid.innerHTML = visibleProducts.map(productCard).join("");
     }
 
+    function renderProductDetail() {
+      const params = new URLSearchParams(window.location.search);
+      const productSlug = params.get("product");
+
+      if (!productSlug) return false;
+
+      const product = allProducts.find(item => slugify(getValue(item, "name")) === productSlug);
+
+      if (!product) return false;
+
+      document.getElementById("homePage").style.display = "none";
+      document.getElementById("detailPage").style.display = "block";
+
+      const name = getValue(product, "name");
+      const price = getValue(product, "price");
+      const stock = Number(getValue(product, "stock") || 0);
+      const category = getValue(product, "category");
+      const image = getValue(product, "image");
+      const description = getValue(product, "description");
+      const paymentLink = getValue(product, "paymentlink");
+      const soldOut = stock <= 0;
+
+      const imageHTML = image
+        ? `<img src="${image}" alt="${name}">`
+        : `<span>${name ? name.charAt(0) : "✦"}</span>`;
+
+      const buyButton = paymentLink && !soldOut
+        ? `<a class="button" href="${paymentLink}" target="_blank" rel="noopener">Buy now</a>`
+        : `<a class="button disabled" href="#">${soldOut ? "Sold out" : "Coming soon"}</a>`;
+
+      document.title = name + " | Lisha Studio";
+
+      document.getElementById("detailContent").innerHTML = `
+        <div class="detail-image">${imageHTML}</div>
+        <div class="detail-info">
+          <h1>${name}</h1>
+          <div class="meta">
+            <div class="price">${money(price)}</div>
+            <div class="stock">${soldOut ? "Sold out" : stock + " in stock"}</div>
+          </div>
+          <p><strong>Category:</strong> ${category || "Handmade"}</p>
+          <p>${description}</p>
+          ${buyButton}
+        </div>
+      `;
+
+      return true;
+    }
+
     async function init() {
       try {
         const [settingsRows, productRows] = await Promise.all([
@@ -570,11 +755,15 @@
         applySettings(settingsRows);
         allProducts = productRows;
 
-        renderCategories(allProducts);
-        renderProducts();
+        const isDetailPage = renderProductDetail();
 
-        document.getElementById("searchInput").addEventListener("input", renderProducts);
-        document.getElementById("categoryFilter").addEventListener("change", renderProducts);
+        if (!isDetailPage) {
+          renderCategories(allProducts);
+          renderProducts();
+
+          document.getElementById("searchInput").addEventListener("input", renderProducts);
+          document.getElementById("categoryFilter").addEventListener("change", renderProducts);
+        }
       } catch (error) {
         console.error(error);
         document.getElementById("productGrid").innerHTML = '<div class="error">Could not load products. Please check the Google Sheets links.</div>';
