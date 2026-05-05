@@ -22,6 +22,7 @@
     }
 
     * { box-sizing: border-box; }
+
     html { scroll-behavior: smooth; }
 
     body {
@@ -159,7 +160,9 @@
       color: var(--accent-dark);
     }
 
-    .image img {
+    .image img,
+    .modal-main-image img,
+    .thumb img {
       width: 100%;
       height: 100%;
       object-fit: cover;
@@ -365,14 +368,6 @@
       color: var(--accent-dark);
     }
 
-    .modal-main-image img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      position: relative;
-      z-index: 1;
-    }
-
     .thumbs {
       display: flex;
       gap: 10px;
@@ -389,12 +384,6 @@
       background: var(--soft);
       cursor: pointer;
       padding: 0;
-    }
-
-    .thumb img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
     }
 
     .modal-info h2 {
@@ -445,18 +434,34 @@
     .details-list strong { color: var(--text); }
 
     @media (max-width: 850px) {
-      header { justify-content: center; padding: 22px 18px; }
+      header {
+        justify-content: center;
+        padding: 22px 18px;
+      }
+
       nav a { margin: 0 9px; }
+
       .grid { grid-template-columns: repeat(2, 1fr); }
-      .hero-video video, .hero-video iframe { height: 300px; }
+
+      .hero-video video,
+      .hero-video iframe { height: 300px; }
+
       .modal-layout { grid-template-columns: 1fr; }
     }
 
     @media (max-width: 560px) {
-      nav a { font-size: 15px; margin: 0 6px; }
+      nav a {
+        font-size: 15px;
+        margin: 0 6px;
+      }
+
       .hero { padding-top: 58px; }
+
       .grid { grid-template-columns: 1fr; }
-      .filters input, .filters select { width: 100%; }
+
+      .filters input,
+      .filters select { width: 100%; }
+
       .modal-layout { padding: 24px; }
     }
   </style>
@@ -616,28 +621,22 @@
       return "";
     }
 
-    function imageBase(row) {
+    function imageUrl(name) {
+      return `/images/${name}.jpg`;
+    }
+
+    function coverImage(row) {
+      return imageUrl(`${val(row, "id")}-cover`);
+    }
+
+    function skuImage(row) {
       const id = val(row, "id");
       const sku = val(row, "sku");
-      return sku ? `${id}-${sku}` : id;
+      return sku ? imageUrl(`${id}-${sku}`) : coverImage(row);
     }
 
-    function imageFallbackBase(row) {
-      return val(row, "id");
-    }
-
-    function imagePaths(row, index) {
-      const primary = imageBase(row);
-      const fallback = imageFallbackBase(row);
-
-      const bases = primary === fallback ? [primary] : [primary, fallback];
-
-      return bases.flatMap(base => [
-        `/images/${base}-${index}.jpg`,
-        `/images/${base}-${index}.jpeg`,
-        `/images/${base}-${index}.png`,
-        `/images/${base}-${index}.webp`
-      ]);
+    function detailImage(row, number) {
+      return imageUrl(`${val(row, "id")}-${number}`);
     }
 
     function fallbackLetter(row) {
@@ -645,44 +644,11 @@
       return name ? name.charAt(0).toUpperCase() : "✦";
     }
 
-    function tryNextImage(img) {
-      const paths = JSON.parse(img.dataset.paths || "[]");
-      let index = Number(img.dataset.index || 0) + 1;
-
-      if (index < paths.length) {
-        img.dataset.index = index;
-        img.src = paths[index];
-      } else {
-        img.style.display = "none";
-      }
-    }
-
-    function tryNextThumbImage(img) {
-      const paths = JSON.parse(img.dataset.paths || "[]");
-      let index = Number(img.dataset.index || 0) + 1;
-
-      if (index < paths.length) {
-        img.dataset.index = index;
-        img.src = paths[index];
-      } else {
-        img.parentElement.style.display = "none";
-      }
-    }
-
-    function imageBlock(row, index = 0, badge = "") {
-      const paths = imagePaths(row, index);
-      const fallback = fallbackLetter(row);
-
+    function imageBlock(src, row, badge = "") {
       return `
         ${badge ? `<div class="badge">${badge}</div>` : ""}
-        <span class="fallback-letter">${fallback}</span>
-        <img
-          src="${paths[0]}"
-          data-paths='${JSON.stringify(paths)}'
-          data-index="0"
-          alt="${val(row, "name")}"
-          onerror="tryNextImage(this)"
-        >
+        <span class="fallback-letter">${fallbackLetter(row)}</span>
+        <img src="${src}" alt="${val(row, "name")}" loading="lazy" onerror="this.style.display='none'">
       `;
     }
 
@@ -720,12 +686,12 @@
     }
 
     function productPrice(group) {
-      const rowsForPrice = group.rows.filter(row => {
-        const s = getStatus(row);
-        return s === "active" || s === "soldout";
+      const validRows = group.rows.filter(row => {
+        const status = getStatus(row);
+        return status === "active" || status === "soldout";
       });
 
-      const prices = rowsForPrice
+      const prices = validRows
         .map(row => Number(val(row, "price")))
         .filter(n => !Number.isNaN(n));
 
@@ -734,8 +700,7 @@
       const min = Math.min(...prices);
       const max = Math.max(...prices);
 
-      if (min === max) return money(min);
-      return "From " + money(min);
+      return min === max ? money(min) : "From " + money(min);
     }
 
     function productStock(group) {
@@ -755,11 +720,12 @@
 
     function productCard(group) {
       const badge = statusLabel(group.status);
+      const cover = coverImage(group.displayRow);
 
       return `
         <article class="card" onclick="openProductModal('${group.id}')">
           <div class="image">
-            ${imageBlock(group.displayRow, 0, badge)}
+            ${imageBlock(cover, group.displayRow, badge)}
           </div>
           <div class="card-body">
             <h3>${group.name}</h3>
@@ -809,6 +775,7 @@
         videoArea.innerHTML = "";
       } else {
         videoArea.style.display = "block";
+
         if (video.includes("youtube.com") || video.includes("youtu.be") || video.includes("vimeo.com")) {
           videoArea.innerHTML = `<iframe src="${video}" allowfullscreen></iframe>`;
         } else {
@@ -821,11 +788,11 @@
       const select = document.getElementById("categoryFilter");
       select.innerHTML = `<option value="all">All categories</option>`;
 
-      const categories = [...new Set(productGroups.map(g => g.category).filter(Boolean))].sort();
-
-      categories.forEach(category => {
-        select.innerHTML += `<option value="${category}">${category}</option>`;
-      });
+      [...new Set(productGroups.map(group => group.category).filter(Boolean))]
+        .sort()
+        .forEach(category => {
+          select.innerHTML += `<option value="${category}">${category}</option>`;
+        });
     }
 
     function renderProducts() {
@@ -844,10 +811,7 @@
           val(row, "longdescription")
         ].join(" ")).join(" ").toLowerCase();
 
-        const matchesSearch = text.includes(query);
-        const matchesCategory = category === "all" || group.category === category;
-
-        return matchesSearch && matchesCategory;
+        return text.includes(query) && (category === "all" || group.category === category);
       });
 
       grid.innerHTML = filtered.length
@@ -856,13 +820,13 @@
     }
 
     function openProductModal(id) {
-      const group = productGroups.find(g => g.id === id);
+      const group = productGroups.find(group => group.id === id);
       if (!group) return;
 
       const firstActive = group.rows.find(row => getStatus(row) === "active");
-      const firstVisible = firstActive || group.displayRow;
+      const selectedRow = firstActive || group.displayRow;
 
-      renderModal(group, firstVisible);
+      renderModal(group, selectedRow, coverImage(group.displayRow));
 
       document.getElementById("productModal").style.display = "flex";
       document.body.style.overflow = "hidden";
@@ -873,7 +837,15 @@
       document.body.style.overflow = "";
     }
 
-    function renderModal(group, selectedRow) {
+    function thumb(src, row, badge) {
+      return `
+        <button class="thumb" onclick="setModalImage('${src}', '${fallbackLetter(row)}', '${badge}')">
+          <img src="${src}" alt="${val(row, "name")} image" loading="lazy" onerror="this.parentElement.style.display='none'">
+        </button>
+      `;
+    }
+
+    function renderModal(group, selectedRow, mainImageSrc) {
       const status = getStatus(selectedRow);
       const badge = statusLabel(status);
       const sku = val(selectedRow, "sku");
@@ -901,22 +873,16 @@
         `
         : "";
 
-      const thumbs = [0, 1, 2, 3, 4].map(index => {
-        const paths = imagePaths(selectedRow, index);
-        const pathsText = JSON.stringify(paths).replace(/"/g, "&quot;");
+      const coverThumb = thumb(coverImage(group.displayRow), group.displayRow, badge);
 
-        return `
-          <button class="thumb" onclick="setModalImageFromPaths(${pathsText}, '${fallbackLetter(selectedRow)}', '${badge}')">
-            <img
-              src="${paths[0]}"
-              data-paths='${JSON.stringify(paths)}'
-              data-index="0"
-              alt="${val(selectedRow, "name")} image ${index + 1}"
-              onerror="tryNextThumbImage(this)"
-            >
-          </button>
-        `;
-      }).join("");
+      const skuThumbs = group.rows
+        .filter(row => val(row, "sku"))
+        .map(row => thumb(skuImage(row), row, badge))
+        .join("");
+
+      const detailThumbs = [1, 2, 3, 4, 5]
+        .map(number => thumb(detailImage(group.displayRow, number), group.displayRow, badge))
+        .join("");
 
       const actionButton = status === "active"
         ? `<button class="button" onclick="alert('Cart will be added later.')">Add to cart</button>`
@@ -925,9 +891,13 @@
       document.getElementById("modalContent").innerHTML = `
         <div>
           <div class="modal-main-image" id="modalMainImage">
-            ${imageBlock(selectedRow, 0, badge)}
+            ${imageBlock(mainImageSrc, selectedRow, badge)}
           </div>
-          <div class="thumbs">${thumbs}</div>
+          <div class="thumbs">
+            ${coverThumb}
+            ${skuThumbs}
+            ${detailThumbs}
+          </div>
         </div>
 
         <div class="modal-info">
@@ -957,24 +927,21 @@
     }
 
     function selectSku(groupId, skuLabel) {
-      const group = productGroups.find(g => g.id === groupId);
+      const group = productGroups.find(group => group.id === groupId);
       if (!group) return;
 
       const selected = group.rows.find(row => (val(row, "sku") || "Default") === skuLabel);
-      if (selected) renderModal(group, selected);
+
+      if (selected) {
+        renderModal(group, selected, skuImage(selected));
+      }
     }
 
-    function setModalImageFromPaths(paths, fallback, badge) {
+    function setModalImage(src, fallback, badge) {
       document.getElementById("modalMainImage").innerHTML = `
         ${badge ? `<div class="badge">${badge}</div>` : ""}
         <span class="fallback-letter">${fallback}</span>
-        <img
-          src="${paths[0]}"
-          data-paths='${JSON.stringify(paths)}'
-          data-index="0"
-          alt="Product image"
-          onerror="tryNextImage(this)"
-        >
+        <img src="${src}" alt="Product image" onerror="this.style.display='none'">
       `;
     }
 
