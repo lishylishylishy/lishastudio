@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>About | Lisha Studio</title>
-  <meta name="description" content="About Lisha Studio, a handmade art studio creating playful objects, candles, gifts, and everyday art pieces." />
 
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Nunito:wght@400;500;600;700;800&display=swap');
@@ -20,9 +19,9 @@
       --accent-dark: #d9693f;
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
 
     body {
       margin: 0;
@@ -34,7 +33,7 @@
     header {
       padding: 26px 34px;
       display: flex;
-      justify-content: space-between;
+      justify-content: flex-end;
       align-items: center;
       border-bottom: 1px solid var(--line);
       background: rgba(255, 253, 248, 0.96);
@@ -43,31 +42,38 @@
       z-index: 10;
     }
 
-    .logo {
-      font-family: "Baloo 2", cursive;
-      font-size: 31px;
-      font-weight: 800;
-      color: var(--text);
-      text-decoration: none;
-      line-height: 1;
-    }
-
     nav a {
-      margin-left: 24px;
+      margin-left: 28px;
       color: var(--text);
       text-decoration: none;
       font-size: 16px;
       font-weight: 800;
     }
 
-    nav a:hover {
-      color: var(--accent-dark);
+    nav a:hover { color: var(--accent-dark); }
+
+    .hero-video {
+      width: 100%;
+      max-height: 420px;
+      background: var(--soft);
+      overflow: hidden;
+      border-bottom: 1px solid var(--line);
+      display: none;
+    }
+
+    .hero-video video,
+    .hero-video iframe {
+      width: 100%;
+      height: 420px;
+      display: block;
+      object-fit: cover;
+      border: 0;
     }
 
     main {
       max-width: 980px;
       margin: 0 auto;
-      padding: 72px 24px 90px;
+      padding: 76px 24px 90px;
     }
 
     .intro {
@@ -109,7 +115,8 @@
       color: var(--muted);
       line-height: 1.8;
       font-size: 17px;
-      margin: 0 0 16px;
+      margin: 0;
+      white-space: pre-line;
     }
 
     .highlight {
@@ -132,12 +139,8 @@
 
     @media (max-width: 700px) {
       header {
-        display: block;
-        text-align: center;
-      }
-
-      nav {
-        margin-top: 14px;
+        justify-content: center;
+        padding: 22px 18px;
       }
 
       nav a {
@@ -147,13 +150,17 @@
       .story-card {
         padding: 24px;
       }
+
+      .hero-video video,
+      .hero-video iframe {
+        height: 300px;
+      }
     }
   </style>
 </head>
 
 <body>
   <header>
-    <a class="logo" href="/">Lisha Studio</a>
     <nav>
       <a href="/">Home</a>
       <a href="/#products">Products</a>
@@ -162,44 +169,25 @@
     </nav>
   </header>
 
+  <section class="hero-video" id="videoArea"></section>
+
   <main>
     <section class="intro">
-      <h1>About Lisha Studio</h1>
-      <p>
-        A handmade art studio for playful objects, soft colors, gifts, candles,
-        and little pieces that make everyday spaces feel warmer.
-      </p>
+      <h1 id="aboutTitle">About Lisha Studio</h1>
+      <p id="aboutSubtitle">Handmade art objects for playful everyday spaces.</p>
     </section>
 
     <section class="story-card">
-      <h2>Hello, I’m Lisha.</h2>
-      <p>
-        Lisha Studio is where I create handmade objects inspired by small joys,
-        cozy spaces, cute shapes, and everyday visual details.
-      </p>
-      <p>
-        The studio started with handmade candles, and it is slowly growing into
-        a collection of art objects, decorative pieces, gifts, and playful little things.
-      </p>
-      <p>
-        Each piece is made in small batches, with attention to shape, color,
-        texture, and the feeling it brings into a room.
-      </p>
+      <h2 id="aboutStoryTitle">Hello, I’m Lisha.</h2>
+      <p id="aboutStoryText">Lisha Studio is where I create handmade objects inspired by small joys, cozy spaces, cute shapes, and everyday visual details.</p>
     </section>
 
     <section class="story-card">
-      <h2>What I make</h2>
-      <p>
-        I make handmade candles, fruit-inspired objects, cute character pieces,
-        decorative home details, and experimental handmade art pieces.
-      </p>
-      <p>
-        Some pieces are functional, some are decorative, and some are simply made
-        to be delightful.
-      </p>
+      <h2 id="aboutSecondTitle">What I make</h2>
+      <p id="aboutSecondText">I make candles, decorative objects, gifts, and playful handmade art pieces.</p>
     </section>
 
-    <div class="highlight">
+    <div class="highlight" id="aboutHighlight">
       ✦ handmade pieces for cozy, playful, artful everyday spaces ✦
     </div>
   </main>
@@ -207,5 +195,96 @@
   <footer>
     © 2026 Lisha Studio · Handmade art objects
   </footer>
+
+  <script>
+    const SETTINGS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRQ5vcuUBnI85arPNNe2h-aqwqq_9RpCBN0oewhCexPjWd-nX7YW-j3ii_5JlwvZZ7VlyjZ_RSTVwD5/pub?gid=0&single=true&output=csv";
+
+    function parseCSV(text) {
+      const rows = [];
+      let row = [];
+      let value = "";
+      let inQuotes = false;
+
+      for (let i = 0; i < text.length; i++) {
+        const char = text[i];
+        const nextChar = text[i + 1];
+
+        if (char === '"' && inQuotes && nextChar === '"') {
+          value += '"';
+          i++;
+        } else if (char === '"') {
+          inQuotes = !inQuotes;
+        } else if (char === "," && !inQuotes) {
+          row.push(value);
+          value = "";
+        } else if ((char === "\n" || char === "\r") && !inQuotes) {
+          if (value || row.length) {
+            row.push(value);
+            rows.push(row);
+            row = [];
+            value = "";
+          }
+          if (char === "\r" && nextChar === "\n") i++;
+        } else {
+          value += char;
+        }
+      }
+
+      if (value || row.length) {
+        row.push(value);
+        rows.push(row);
+      }
+
+      return rows;
+    }
+
+    function rowsToSettings(rows) {
+      const settings = {};
+      rows.slice(1).forEach(row => {
+        const key = row[0] ? row[0].trim().toLowerCase() : "";
+        const value = row[1] ? row[1].trim() : "";
+        if (key) settings[key] = value;
+      });
+      return settings;
+    }
+
+    async function loadSettings() {
+      const response = await fetch(SETTINGS_CSV_URL + "&cacheBust=" + Date.now());
+      const text = await response.text();
+      return rowsToSettings(parseCSV(text));
+    }
+
+    function createVideo(videoUrl) {
+      const videoArea = document.getElementById("videoArea");
+
+      if (!videoUrl) {
+        videoArea.style.display = "none";
+        return;
+      }
+
+      videoArea.style.display = "block";
+
+      if (videoUrl.includes("youtube.com") || videoUrl.includes("youtu.be") || videoUrl.includes("vimeo.com")) {
+        videoArea.innerHTML = `<iframe src="${videoUrl}" allowfullscreen></iframe>`;
+      } else {
+        videoArea.innerHTML = `
+          <video autoplay muted loop playsinline>
+            <source src="${videoUrl}" />
+          </video>
+        `;
+      }
+    }
+
+    loadSettings().then(settings => {
+      document.getElementById("aboutTitle").textContent = settings.abouttitle || "About Lisha Studio";
+      document.getElementById("aboutSubtitle").textContent = settings.aboutsubtitle || "Handmade art objects for playful everyday spaces.";
+      document.getElementById("aboutStoryTitle").textContent = settings.aboutstorytitle || "Hello, I’m Lisha.";
+      document.getElementById("aboutStoryText").textContent = settings.aboutstorytext || "Lisha Studio is where I create handmade objects inspired by small joys, cozy spaces, cute shapes, and everyday visual details.";
+      document.getElementById("aboutSecondTitle").textContent = settings.aboutsecondtitle || "What I make";
+      document.getElementById("aboutSecondText").textContent = settings.aboutsecondtext || "I make candles, decorative objects, gifts, and playful handmade art pieces.";
+      document.getElementById("aboutHighlight").textContent = settings.abouthighlight || "✦ handmade pieces for cozy, playful, artful everyday spaces ✦";
+      createVideo(settings.herovideo || "");
+    });
+  </script>
 </body>
 </html>
