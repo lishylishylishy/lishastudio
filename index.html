@@ -1,11 +1,271 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Lisha Studio！！！</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lisha Studio | Handmade Art Objects</title>
+  <meta name="description" content="Lisha Studio is a handmade art studio featuring candles, small objects, gifts, decor, and playful handmade pieces." />
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #ffffff;
+      color: #111111;
+    }
+
+    header {
+      border-bottom: 1px solid #eeeeee;
+      padding: 22px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-decoration: none;
+      color: #111111;
+    }
+
+    nav a {
+      margin-left: 22px;
+      text-decoration: none;
+      color: #111111;
+      font-size: 15px;
+    }
+
+    .hero {
+      padding: 80px 32px 60px;
+      max-width: 1100px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .hero h1 {
+      font-size: 56px;
+      line-height: 1.05;
+      margin: 0 0 20px;
+      font-weight: 700;
+    }
+
+    .hero p {
+      font-size: 18px;
+      line-height: 1.6;
+      color: #555555;
+      max-width: 680px;
+      margin: 0 auto 32px;
+    }
+
+    .button {
+      display: inline-block;
+      padding: 14px 24px;
+      border: 1px solid #111111;
+      text-decoration: none;
+      color: #111111;
+      font-size: 15px;
+      transition: 0.2s;
+    }
+
+    .button:hover {
+      background: #111111;
+      color: #ffffff;
+    }
+
+    .section {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 40px 32px 70px;
+    }
+
+    .section h2 {
+      font-size: 28px;
+      margin-bottom: 28px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 28px;
+    }
+
+    .item {
+      border: 1px solid #eeeeee;
+      padding: 18px;
+      background: #ffffff;
+    }
+
+    .image-box {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      background: #f5f1eb;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 42px;
+      margin-bottom: 16px;
+    }
+
+    .item h3 {
+      margin: 0 0 8px;
+      font-size: 18px;
+    }
+
+    .item p {
+      margin: 0 0 14px;
+      color: #666666;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .price {
+      font-weight: 700;
+      margin-bottom: 14px;
+    }
+
+    .small-link {
+      color: #111111;
+      text-decoration: underline;
+      font-size: 14px;
+    }
+
+    .about {
+      border-top: 1px solid #eeeeee;
+      border-bottom: 1px solid #eeeeee;
+      padding: 56px 32px;
+      text-align: center;
+      background: #fafafa;
+    }
+
+    .about p {
+      max-width: 720px;
+      margin: 0 auto;
+      color: #555555;
+      line-height: 1.7;
+      font-size: 16px;
+    }
+
+    footer {
+      padding: 32px;
+      text-align: center;
+      color: #777777;
+      font-size: 14px;
+    }
+
+    @media (max-width: 800px) {
+      header {
+        display: block;
+        text-align: center;
+      }
+
+      nav {
+        margin-top: 16px;
+      }
+
+      nav a {
+        margin: 0 10px;
+      }
+
+      .hero h1 {
+        font-size: 40px;
+      }
+
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
 </head>
+
 <body>
-  <h1>Lisha Studio</h1>
-  <p>My Cloudflare Pages website is working.</p>
+  <header>
+    <a class="logo" href="/">Lisha Studio</a>
+    <nav>
+      <a href="/">Home</a>
+      <a href="#featured">Products</a>
+      <a href="#about">About</a>
+      <a href="mailto:ldeng123@asu.edu">Contact</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <h1>Handmade art objects for playful everyday spaces.</h1>
+      <p>
+        Lisha Studio creates small-batch handmade pieces, including candles,
+        decorative objects, gifts, and artful home details.
+      </p>
+      <a class="button" href="#featured">View Featured Pieces</a>
+    </section>
+
+    <section class="section" id="featured">
+      <h2>Featured</h2>
+
+      <div class="grid">
+        <div class="item">
+          <div class="image-box">🍐</div>
+          <h3>Pear Candle</h3>
+          <p>A soft fruit-inspired handmade piece for shelves, gifts, and cozy corners.</p>
+          <div class="price">$28.89</div>
+          <a class="small-link" href="#">View details</a>
+        </div>
+
+        <div class="item">
+          <div class="image-box">🍄</div>
+          <h3>Mushroom Candle</h3>
+          <p>A playful handmade object with a whimsical shape and warm studio feel.</p>
+          <div class="price">$23.89 - $48.89</div>
+          <a class="small-link" href="#">View details</a>
+        </div>
+
+        <div class="item">
+          <div class="image-box">👾</div>
+          <h3>Monster Candle</h3>
+          <p>A character-inspired art object for collectors, gifts, and fun displays.</p>
+          <div class="price">$18.89 - $38.89</div>
+          <a class="small-link" href="#">View details</a>
+        </div>
+
+        <div class="item">
+          <div class="image-box">🧡</div>
+          <h3>Persimmon Candle</h3>
+          <p>A warm seasonal piece inspired by fruit, color, and handmade texture.</p>
+          <div class="price">$28.89</div>
+          <a class="small-link" href="#">View details</a>
+        </div>
+
+        <div class="item">
+          <div class="image-box">🍒</div>
+          <h3>Cherry Candle</h3>
+          <p>A small decorative candle with a bright, sweet, giftable personality.</p>
+          <div class="price">$28.89</div>
+          <a class="small-link" href="#">View details</a>
+        </div>
+
+        <div class="item">
+          <div class="image-box">✦</div>
+          <h3>More Handmade Pieces</h3>
+          <p>New handmade art objects, decor, and gift pieces will be added soon.</p>
+          <div class="price">Coming soon</div>
+          <a class="small-link" href="mailto:ldeng123@asu.edu">Ask about custom work</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="about" id="about">
+      <p>
+        Lisha Studio is a small handmade art studio exploring playful shapes,
+        soft colors, and everyday objects. Each piece is made in small batches,
+        with future collections expanding beyond candles into more handmade art,
+        gifts, and decorative pieces.
+      </p>
+    </section>
+  </main>
+
+  <footer>
+    © 2026 Lisha Studio · Handmade art objects
+  </footer>
 </body>
 </html>
