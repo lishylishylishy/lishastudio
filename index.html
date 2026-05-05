@@ -21,13 +21,8 @@
       --card: #ffffff;
     }
 
-    * {
-      box-sizing: border-box;
-    }
-
-    html {
-      scroll-behavior: smooth;
-    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
 
     body {
       margin: 0;
@@ -56,9 +51,7 @@
       font-weight: 800;
     }
 
-    nav a:hover {
-      color: var(--accent-dark);
-    }
+    nav a:hover { color: var(--accent-dark); }
 
     .hero-video {
       width: 100%;
@@ -151,9 +144,7 @@
       cursor: pointer;
     }
 
-    .card:hover {
-      transform: translateY(-3px);
-    }
+    .card:hover { transform: translateY(-3px); }
 
     .image {
       position: relative;
@@ -203,9 +194,7 @@
       box-shadow: 0 8px 18px rgba(80, 51, 32, 0.08);
     }
 
-    .card-body {
-      padding: 19px;
-    }
+    .card-body { padding: 19px; }
 
     .card h3 {
       font-family: "Baloo 2", cursive;
@@ -231,9 +220,7 @@
       font-weight: 800;
     }
 
-    .price {
-      font-size: 18px;
-    }
+    .price { font-size: 18px; }
 
     .stock {
       font-size: 13px;
@@ -455,56 +442,22 @@
       line-height: 1.7;
     }
 
-    .details-list strong {
-      color: var(--text);
-    }
+    .details-list strong { color: var(--text); }
 
     @media (max-width: 850px) {
-      header {
-        justify-content: center;
-        padding: 22px 18px;
-      }
-
-      nav a {
-        margin: 0 9px;
-      }
-
-      .grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-
-      .hero-video video,
-      .hero-video iframe {
-        height: 300px;
-      }
-
-      .modal-layout {
-        grid-template-columns: 1fr;
-      }
+      header { justify-content: center; padding: 22px 18px; }
+      nav a { margin: 0 9px; }
+      .grid { grid-template-columns: repeat(2, 1fr); }
+      .hero-video video, .hero-video iframe { height: 300px; }
+      .modal-layout { grid-template-columns: 1fr; }
     }
 
     @media (max-width: 560px) {
-      nav a {
-        font-size: 15px;
-        margin: 0 6px;
-      }
-
-      .hero {
-        padding-top: 58px;
-      }
-
-      .grid {
-        grid-template-columns: 1fr;
-      }
-
-      .filters input,
-      .filters select {
-        width: 100%;
-      }
-
-      .modal-layout {
-        padding: 24px;
-      }
+      nav a { font-size: 15px; margin: 0 6px; }
+      .hero { padding-top: 58px; }
+      .grid { grid-template-columns: 1fr; }
+      .filters input, .filters select { width: 100%; }
+      .modal-layout { padding: 24px; }
     }
   </style>
 </head>
@@ -658,7 +611,6 @@
     }
 
     function statusLabel(status) {
-      if (status === "active") return "Available";
       if (status === "soldout") return "Sold out";
       if (status === "comingsoon") return "Coming soon";
       return "";
@@ -670,8 +622,22 @@
       return sku ? `${id}-${sku}` : id;
     }
 
-    function imagePath(row, index) {
-      return `/images/${imageBase(row)}-${index}.jpg`;
+    function imageFallbackBase(row) {
+      return val(row, "id");
+    }
+
+    function imagePaths(row, index) {
+      const primary = imageBase(row);
+      const fallback = imageFallbackBase(row);
+
+      const bases = primary === fallback ? [primary] : [primary, fallback];
+
+      return bases.flatMap(base => [
+        `/images/${base}-${index}.jpg`,
+        `/images/${base}-${index}.jpeg`,
+        `/images/${base}-${index}.png`,
+        `/images/${base}-${index}.webp`
+      ]);
     }
 
     function fallbackLetter(row) {
@@ -679,14 +645,44 @@
       return name ? name.charAt(0).toUpperCase() : "✦";
     }
 
+    function tryNextImage(img) {
+      const paths = JSON.parse(img.dataset.paths || "[]");
+      let index = Number(img.dataset.index || 0) + 1;
+
+      if (index < paths.length) {
+        img.dataset.index = index;
+        img.src = paths[index];
+      } else {
+        img.style.display = "none";
+      }
+    }
+
+    function tryNextThumbImage(img) {
+      const paths = JSON.parse(img.dataset.paths || "[]");
+      let index = Number(img.dataset.index || 0) + 1;
+
+      if (index < paths.length) {
+        img.dataset.index = index;
+        img.src = paths[index];
+      } else {
+        img.parentElement.style.display = "none";
+      }
+    }
+
     function imageBlock(row, index = 0, badge = "") {
-      const src = imagePath(row, index);
+      const paths = imagePaths(row, index);
       const fallback = fallbackLetter(row);
 
       return `
         ${badge ? `<div class="badge">${badge}</div>` : ""}
         <span class="fallback-letter">${fallback}</span>
-        <img src="${src}" alt="${val(row, "name")}" onerror="this.style.display='none'">
+        <img
+          src="${paths[0]}"
+          data-paths='${JSON.stringify(paths)}'
+          data-index="0"
+          alt="${val(row, "name")}"
+          onerror="tryNextImage(this)"
+        >
       `;
     }
 
@@ -906,10 +902,18 @@
         : "";
 
       const thumbs = [0, 1, 2, 3, 4].map(index => {
-        const src = imagePath(selectedRow, index);
+        const paths = imagePaths(selectedRow, index);
+        const pathsText = JSON.stringify(paths).replace(/"/g, "&quot;");
+
         return `
-          <button class="thumb" onclick="setModalImage('${src}', '${fallbackLetter(selectedRow)}', '${badge}')">
-            <img src="${src}" alt="${val(selectedRow, "name")} image ${index + 1}" onerror="this.parentElement.style.display='none'">
+          <button class="thumb" onclick="setModalImageFromPaths(${pathsText}, '${fallbackLetter(selectedRow)}', '${badge}')">
+            <img
+              src="${paths[0]}"
+              data-paths='${JSON.stringify(paths)}'
+              data-index="0"
+              alt="${val(selectedRow, "name")} image ${index + 1}"
+              onerror="tryNextThumbImage(this)"
+            >
           </button>
         `;
       }).join("");
@@ -960,11 +964,17 @@
       if (selected) renderModal(group, selected);
     }
 
-    function setModalImage(src, fallback, badge) {
+    function setModalImageFromPaths(paths, fallback, badge) {
       document.getElementById("modalMainImage").innerHTML = `
         ${badge ? `<div class="badge">${badge}</div>` : ""}
         <span class="fallback-letter">${fallback}</span>
-        <img src="${src}" alt="Product image" onerror="this.style.display='none'">
+        <img
+          src="${paths[0]}"
+          data-paths='${JSON.stringify(paths)}'
+          data-index="0"
+          alt="Product image"
+          onerror="tryNextImage(this)"
+        >
       `;
     }
 
