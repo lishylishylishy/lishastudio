@@ -147,6 +147,7 @@
     .card:hover { transform: translateY(-3px); }
 
     .image {
+      position: relative;
       aspect-ratio: 1 / 1;
       background: linear-gradient(135deg, var(--soft), var(--pink));
       display: flex;
@@ -163,6 +164,20 @@
       height: 100%;
       object-fit: cover;
       display: block;
+    }
+
+    .badge {
+      position: absolute;
+      top: 14px;
+      left: 14px;
+      background: rgba(255, 253, 248, 0.94);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 7px 12px;
+      font-size: 13px;
+      font-weight: 900;
+      color: var(--accent-dark);
+      box-shadow: 0 8px 18px rgba(80, 51, 32, 0.08);
     }
 
     .card-body { padding: 19px; }
@@ -202,11 +217,6 @@
       white-space: nowrap;
     }
 
-    .actions {
-      display: grid;
-      gap: 10px;
-    }
-
     .button {
       display: block;
       width: 100%;
@@ -219,6 +229,7 @@
       padding: 12px 14px;
       font-weight: 800;
       transition: 0.2s ease;
+      cursor: pointer;
     }
 
     .button:hover {
@@ -282,62 +293,6 @@
       border-color: var(--accent);
     }
 
-    .detail-page {
-      display: none;
-      max-width: 980px;
-      margin: 0 auto;
-      padding: 56px 24px 86px;
-    }
-
-    .detail-layout {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 38px;
-      align-items: start;
-    }
-
-    .detail-image {
-      aspect-ratio: 1 / 1;
-      background: linear-gradient(135deg, var(--soft), var(--pink));
-      border: 1px solid var(--line);
-      border-radius: 34px;
-      overflow: hidden;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: "Baloo 2", cursive;
-      font-size: 80px;
-      color: var(--accent-dark);
-      box-shadow: 0 14px 34px rgba(80, 51, 32, 0.08);
-    }
-
-    .detail-image img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .detail-info h1 {
-      font-family: "Baloo 2", cursive;
-      font-size: clamp(42px, 6vw, 68px);
-      line-height: 0.95;
-      margin: 0 0 16px;
-    }
-
-    .detail-info p {
-      color: var(--muted);
-      line-height: 1.8;
-      font-size: 17px;
-    }
-
-    .back-link {
-      display: inline-block;
-      margin-bottom: 24px;
-      color: var(--accent-dark);
-      font-weight: 800;
-      text-decoration: none;
-    }
-
     footer {
       text-align: center;
       padding: 32px 20px;
@@ -352,6 +307,141 @@
       color: var(--muted);
       padding: 36px;
       grid-column: 1 / -1;
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(31, 27, 24, 0.45);
+      z-index: 50;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 22px;
+    }
+
+    .modal {
+      width: min(980px, 100%);
+      max-height: 90vh;
+      overflow: auto;
+      background: var(--bg);
+      border-radius: 34px;
+      border: 1px solid var(--line);
+      box-shadow: 0 30px 90px rgba(31, 27, 24, 0.25);
+      position: relative;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 18px;
+      right: 18px;
+      border: 1px solid var(--line);
+      background: white;
+      border-radius: 999px;
+      width: 40px;
+      height: 40px;
+      font-size: 22px;
+      cursor: pointer;
+      z-index: 3;
+    }
+
+    .modal-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 28px;
+      padding: 34px;
+    }
+
+    .modal-main-image {
+      position: relative;
+      aspect-ratio: 1 / 1;
+      border-radius: 28px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      background: linear-gradient(135deg, var(--soft), var(--pink));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: "Baloo 2", cursive;
+      font-size: 78px;
+      color: var(--accent-dark);
+    }
+
+    .modal-main-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .thumbs {
+      display: flex;
+      gap: 10px;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+
+    .thumb {
+      width: 72px;
+      height: 72px;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      overflow: hidden;
+      background: var(--soft);
+      cursor: pointer;
+    }
+
+    .thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .modal-info h2 {
+      font-family: "Baloo 2", cursive;
+      font-size: clamp(38px, 5vw, 58px);
+      line-height: 0.95;
+      margin: 0 0 12px;
+    }
+
+    .modal-info p {
+      color: var(--muted);
+      line-height: 1.75;
+      font-size: 16px;
+    }
+
+    .sku-options {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 16px 0;
+    }
+
+    .sku-option {
+      border: 1px solid var(--line);
+      background: white;
+      border-radius: 999px;
+      padding: 9px 14px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .sku-option.active {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+
+    .details-list {
+      margin: 14px 0 18px;
+      padding: 0;
+      list-style: none;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.7;
+    }
+
+    .details-list strong {
+      color: var(--text);
     }
 
     @media (max-width: 850px) {
@@ -373,7 +463,7 @@
         height: 300px;
       }
 
-      .detail-layout {
+      .modal-layout {
         grid-template-columns: 1fr;
       }
     }
@@ -396,6 +486,10 @@
       .filters select {
         width: 100%;
       }
+
+      .modal-layout {
+        padding: 24px;
+      }
     }
   </style>
 </head>
@@ -412,14 +506,14 @@
 
   <section class="hero-video" id="videoArea"></section>
 
-  <main id="homePage">
+  <main>
     <section class="hero">
       <h1 id="heroTitle">Lisha Studio</h1>
       <p id="heroSubtitle">Handmade art objects, candles, gifts, and playful little things.</p>
     </section>
 
     <section class="section" id="products">
-      <h2 class="section-title">Featured Pieces</h2>
+      <h2 class="section-title" id="featuredTitle">Featured Pieces</h2>
 
       <div class="filters">
         <input id="searchInput" type="search" placeholder="Search pieces..." />
@@ -440,10 +534,12 @@
     </section>
   </main>
 
-  <main class="detail-page" id="detailPage">
-    <a class="back-link" href="/">← Back to shop</a>
-    <div class="detail-layout" id="detailContent"></div>
-  </main>
+  <div class="modal-backdrop" id="productModal">
+    <div class="modal">
+      <button class="modal-close" id="modalClose">×</button>
+      <div class="modal-layout" id="modalContent"></div>
+    </div>
+  </div>
 
   <footer>
     © 2026 Lisha Studio · Handmade art objects
@@ -453,7 +549,8 @@
     const SETTINGS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRQ5vcuUBnI85arPNNe2h-aqwqq_9RpCBN0oewhCexPjWd-nX7YW-j3ii_5JlwvZZ7VlyjZ_RSTVwD5/pub?gid=0&single=true&output=csv";
     const PRODUCTS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRQ5vcuUBnI85arPNNe2h-aqwqq_9RpCBN0oewhCexPjWd-nX7YW-j3ii_5JlwvZZ7VlyjZ_RSTVwD5/pub?gid=22339288&single=true&output=csv";
 
-    let allProducts = [];
+    let allRows = [];
+    let groupedProducts = [];
     let siteSettings = {};
 
     function parseCSV(text) {
@@ -521,18 +618,63 @@
       return obj[key.toLowerCase()] || "";
     }
 
-    function slugify(text) {
-      return String(text)
-        .toLowerCase()
-        .trim()
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/^-+|-+$/g, "");
+    function cleanStatus(row) {
+      return getValue(row, "status").toLowerCase().trim();
+    }
+
+    function isHidden(row) {
+      return cleanStatus(row) === "hidden";
+    }
+
+    function rowHasRequiredInfo(row) {
+      return Boolean(
+        getValue(row, "id") &&
+        getValue(row, "name") &&
+        getValue(row, "price") &&
+        getValue(row, "category")
+      );
+    }
+
+    function rowIsActive(row) {
+      return cleanStatus(row) === "active" && rowHasRequiredInfo(row);
+    }
+
+    function rowIsSoldOut(row) {
+      return rowIsActive(row) && Number(getValue(row, "stock") || 0) <= 0;
+    }
+
+    function rowIsComingSoon(row) {
+      if (isHidden(row)) return false;
+      if (cleanStatus(row) !== "active") return true;
+      if (!rowHasRequiredInfo(row)) return true;
+      return false;
     }
 
     function money(value) {
       const number = Number(value);
-      if (Number.isNaN(number)) return value || "";
-      return "USD $" + number.toFixed(2);
+      if (Number.isNaN(number)) return "";
+      return "USD " + number.toFixed(2);
+    }
+
+    function imageBaseFor(row) {
+      const id = getValue(row, "id");
+      const sku = getValue(row, "sku");
+      return sku ? `${id}-${sku}` : id;
+    }
+
+    function imagePath(row, index) {
+      return `/images/${imageBaseFor(row)}-${index}.jpg`;
+    }
+
+    function imageFallbackText(row) {
+      const name = getValue(row, "name");
+      return name ? name.charAt(0) : "✦";
+    }
+
+    function createImageHTML(row, index = 0) {
+      const fallback = imageFallbackText(row);
+      const src = imagePath(row, index);
+      return `<img src="${src}" alt="${getValue(row, "name")}" onerror="this.replaceWith(document.createTextNode('${fallback}'))">`;
     }
 
     function createVideo(videoUrl) {
@@ -564,17 +706,19 @@
         if (key) siteSettings[key.toLowerCase()] = value;
       });
 
-      const title = siteSettings.herotitle || "Lisha Studio";
-      const subtitle = siteSettings.herosubtitle || "Handmade art objects, candles, gifts, and playful little things.";
-      const video = siteSettings.herovideo || "";
-      const contactNote = siteSettings.contactnote || "For custom orders, collaborations, or questions, feel free to contact me.";
-      const contactEmail = siteSettings.contactemail || "";
-      const contactInstagram = siteSettings.contactinstagram || "";
-      const contactYoutube = siteSettings.contactyoutube || "";
+      const title = siteSettings["index.herotitle"] || siteSettings.herotitle || "Lisha Studio";
+      const subtitle = siteSettings["index.herosubtitle"] || siteSettings.herosubtitle || "Handmade art objects, candles, gifts, and playful little things.";
+      const featuredTitle = siteSettings["index.featuredtitle"] || "Featured Pieces";
+      const video = siteSettings["index.herovideo"] || siteSettings.herovideo || "";
+      const contactNote = siteSettings["contact.note"] || siteSettings.contactnote || "For custom orders, collaborations, or questions, feel free to contact me.";
+      const contactEmail = siteSettings["contact.email"] || siteSettings.contactemail || "";
+      const contactInstagram = siteSettings["contact.instagram"] || siteSettings.contactinstagram || "";
+      const contactYoutube = siteSettings["contact.youtube"] || siteSettings.contactyoutube || siteSettings.youtube || "";
 
       document.title = title + " | Handmade Art Objects";
       document.getElementById("heroTitle").textContent = title;
       document.getElementById("heroSubtitle").textContent = subtitle;
+      document.getElementById("featuredTitle").textContent = featuredTitle;
       document.getElementById("contactNote").textContent = contactNote;
 
       const contactLinks = document.getElementById("contactLinks");
@@ -595,9 +739,85 @@
       createVideo(video);
     }
 
+    function groupProducts(rows) {
+      const visibleRows = rows.filter(row => !isHidden(row));
+      const map = new Map();
+
+      visibleRows.forEach(row => {
+        const id = getValue(row, "id");
+        if (!id) return;
+
+        if (!map.has(id)) {
+          map.set(id, []);
+        }
+
+        map.get(id).push(row);
+      });
+
+      return Array.from(map.entries()).map(([id, variants]) => {
+        const first = variants[0];
+        const activeVariants = variants.filter(row => rowIsActive(row));
+        const purchasableVariants = activeVariants.filter(row => Number(getValue(row, "stock") || 0) > 0);
+
+        let displayRow = purchasableVariants[0] || activeVariants[0] || first;
+
+        let state = "comingsoon";
+        if (variants.every(row => rowIsComingSoon(row))) {
+          state = "comingsoon";
+        } else if (activeVariants.length > 0 && activeVariants.every(row => Number(getValue(row, "stock") || 0) <= 0)) {
+          state = "soldout";
+        } else if (purchasableVariants.length > 0) {
+          state = "active";
+        }
+
+        return {
+          id,
+          name: getValue(first, "name"),
+          category: getValue(first, "category"),
+          variants,
+          displayRow,
+          state
+        };
+      });
+    }
+
+    function badgeText(state) {
+      if (state === "soldout") return "Sold out";
+      if (state === "comingsoon") return "Coming soon";
+      return "";
+    }
+
+    function priceText(product) {
+      const prices = product.variants
+        .filter(row => rowIsActive(row))
+        .map(row => Number(getValue(row, "price")))
+        .filter(num => !Number.isNaN(num));
+
+      if (!prices.length) return "";
+
+      const min = Math.min(...prices);
+      const max = Math.max(...prices);
+
+      if (min === max) return money(min);
+      return "From " + money(min);
+    }
+
+    function stockText(product) {
+      if (product.state === "comingsoon") return "Coming soon";
+      if (product.state === "soldout") return "Sold out";
+
+      const total = product.variants
+        .filter(row => rowIsActive(row))
+        .reduce((sum, row) => sum + Number(getValue(row, "stock") || 0), 0);
+
+      return total + " in stock";
+    }
+
     function renderCategories(products) {
       const select = document.getElementById("categoryFilter");
-      const categories = [...new Set(products.map(p => getValue(p, "category")).filter(Boolean))].sort();
+      select.innerHTML = '<option value="all">All categories</option>';
+
+      const categories = [...new Set(products.map(p => p.category).filter(Boolean))].sort();
 
       categories.forEach(category => {
         const option = document.createElement("option");
@@ -608,37 +828,27 @@
     }
 
     function productCard(product) {
-      const name = getValue(product, "name");
-      const price = getValue(product, "price");
-      const stock = Number(getValue(product, "stock") || 0);
-      const image = getValue(product, "image");
-      const description = getValue(product, "description");
-      const paymentLink = getValue(product, "paymentlink");
-      const soldOut = stock <= 0;
-      const slug = slugify(name);
-
-      const imageHTML = image
-        ? `<img src="${image}" alt="${name}">`
-        : `<span>${name ? name.charAt(0) : "✦"}</span>`;
-
-      const buyButton = paymentLink && !soldOut
-        ? `<a class="button" href="${paymentLink}" target="_blank" rel="noopener">Buy now</a>`
-        : `<a class="button disabled" href="#">${soldOut ? "Sold out" : "Coming soon"}</a>`;
+      const row = product.displayRow;
+      const badge = badgeText(product.state);
+      const description = getValue(row, "shortdescription") || getValue(row, "longdescription") || "";
+      const hasMultipleSku = product.variants.length > 1;
 
       return `
         <article class="card">
-          <div class="image">${imageHTML}</div>
+          <div class="image">
+            ${badge ? `<div class="badge">${badge}</div>` : ""}
+            ${createImageHTML(row, 0)}
+          </div>
           <div class="card-body">
-            <h3>${name}</h3>
+            <h3>${product.name}</h3>
             <p class="desc">${description}</p>
             <div class="meta">
-              <div class="price">${money(price)}</div>
-              <div class="stock">${soldOut ? "Sold out" : stock + " in stock"}</div>
+              <div class="price">${priceText(product)}</div>
+              <div class="stock">${stockText(product)}</div>
             </div>
-            <div class="actions">
-              <a class="button soft" href="/?product=${slug}">View details</a>
-              ${buyButton}
-            </div>
+            <button class="button soft" onclick="openProductModal('${product.id}')">
+              ${hasMultipleSku ? "View options" : "View details"}
+            </button>
           </div>
         </article>
       `;
@@ -649,74 +859,146 @@
       const query = document.getElementById("searchInput").value.toLowerCase().trim();
       const category = document.getElementById("categoryFilter").value;
 
-      const visibleProducts = allProducts.filter(product => {
-        const status = getValue(product, "status").toLowerCase();
-        const name = getValue(product, "name");
-        const desc = getValue(product, "description");
-        const productCategory = getValue(product, "category");
+      const filtered = groupedProducts.filter(product => {
+        const text = product.variants.map(row => [
+          getValue(row, "name"),
+          getValue(row, "category"),
+          getValue(row, "shortdescription"),
+          getValue(row, "longdescription"),
+          getValue(row, "materials"),
+          getValue(row, "sku")
+        ].join(" ")).join(" ").toLowerCase();
 
-        const active = status === "active" || status === "";
-        const matchesSearch = (name + " " + desc + " " + productCategory).toLowerCase().includes(query);
-        const matchesCategory = category === "all" || productCategory === category;
+        const matchesSearch = text.includes(query);
+        const matchesCategory = category === "all" || product.category === category;
 
-        return active && matchesSearch && matchesCategory;
+        return matchesSearch && matchesCategory;
       });
 
-      if (!visibleProducts.length) {
+      if (!filtered.length) {
         grid.innerHTML = '<div class="error">No products found.</div>';
         return;
       }
 
-      grid.innerHTML = visibleProducts.map(productCard).join("");
+      grid.innerHTML = filtered.map(productCard).join("");
     }
 
-    function renderProductDetail() {
-      const params = new URLSearchParams(window.location.search);
-      const productSlug = params.get("product");
+    function openProductModal(productId) {
+      const product = groupedProducts.find(p => p.id === productId);
+      if (!product) return;
 
-      if (!productSlug) return false;
+      const activeVariants = product.variants.filter(row => !isHidden(row));
+      const firstAvailable = activeVariants.find(row => rowIsActive(row) && Number(getValue(row, "stock") || 0) > 0);
+      const selected = firstAvailable || product.displayRow;
 
-      const product = allProducts.find(item => slugify(getValue(item, "name")) === productSlug);
+      renderModal(product, selected);
+      document.getElementById("productModal").style.display = "flex";
+      document.body.style.overflow = "hidden";
+    }
 
-      if (!product) return false;
+    function closeProductModal() {
+      document.getElementById("productModal").style.display = "none";
+      document.body.style.overflow = "";
+    }
 
-      document.getElementById("homePage").style.display = "none";
-      document.getElementById("detailPage").style.display = "block";
+    function renderModal(product, selectedRow) {
+      const modal = document.getElementById("modalContent");
+      const sku = getValue(selectedRow, "sku");
+      const variants = product.variants.filter(row => !isHidden(row));
+      const selectedStatus = rowIsComingSoon(selectedRow)
+        ? "comingsoon"
+        : rowIsSoldOut(selectedRow)
+          ? "soldout"
+          : "active";
 
-      const name = getValue(product, "name");
-      const price = getValue(product, "price");
-      const stock = Number(getValue(product, "stock") || 0);
-      const category = getValue(product, "category");
-      const image = getValue(product, "image");
-      const description = getValue(product, "description");
-      const paymentLink = getValue(product, "paymentlink");
-      const soldOut = stock <= 0;
+      const badge = badgeText(selectedStatus);
+      const price = rowIsActive(selectedRow) ? money(getValue(selectedRow, "price")) : "";
+      const stock = rowIsActive(selectedRow)
+        ? Number(getValue(selectedRow, "stock") || 0)
+        : 0;
 
-      const imageHTML = image
-        ? `<img src="${image}" alt="${name}">`
-        : `<span>${name ? name.charAt(0) : "✦"}</span>`;
+      const stockLabel = selectedStatus === "comingsoon"
+        ? "Coming soon"
+        : selectedStatus === "soldout"
+          ? "Sold out"
+          : stock + " in stock";
 
-      const buyButton = paymentLink && !soldOut
-        ? `<a class="button" href="${paymentLink}" target="_blank" rel="noopener">Buy now</a>`
-        : `<a class="button disabled" href="#">${soldOut ? "Sold out" : "Coming soon"}</a>`;
-
-      document.title = name + " | Lisha Studio";
-
-      document.getElementById("detailContent").innerHTML = `
-        <div class="detail-image">${imageHTML}</div>
-        <div class="detail-info">
-          <h1>${name}</h1>
-          <div class="meta">
-            <div class="price">${money(price)}</div>
-            <div class="stock">${soldOut ? "Sold out" : stock + " in stock"}</div>
+      const skuButtons = variants.length > 1
+        ? `
+          <div class="sku-options">
+            ${variants.map(row => {
+              const value = getValue(row, "sku") || "default";
+              const label = getValue(row, "sku") || "Default";
+              const isActive = row === selectedRow;
+              return `<button class="sku-option ${isActive ? "active" : ""}" onclick="selectSku('${product.id}', '${value}')">${label}</button>`;
+            }).join("")}
           </div>
-          <p><strong>Category:</strong> ${category || "Handmade"}</p>
-          <p>${description}</p>
-          ${buyButton}
+        `
+        : "";
+
+      const thumbs = [0, 1, 2, 3, 4].map(index => {
+        const src = imagePath(selectedRow, index);
+        return `
+          <button class="thumb" onclick="setMainImage('${src}', '${imageFallbackText(selectedRow)}')">
+            <img src="${src}" alt="${getValue(selectedRow, "name")} image ${index + 1}" onerror="this.parentElement.style.display='none'">
+          </button>
+        `;
+      }).join("");
+
+      const buttonText = selectedStatus === "active" ? "Add to cart" : stockLabel;
+      const buttonClass = selectedStatus === "active" ? "button" : "button disabled";
+
+      modal.innerHTML = `
+        <div>
+          <div class="modal-main-image" id="modalMainImage">
+            ${badge ? `<div class="badge">${badge}</div>` : ""}
+            ${createImageHTML(selectedRow, 0)}
+          </div>
+          <div class="thumbs">${thumbs}</div>
+        </div>
+
+        <div class="modal-info">
+          <h2>${getValue(selectedRow, "name")}</h2>
+          <p>${getValue(selectedRow, "longdescription") || getValue(selectedRow, "shortdescription") || ""}</p>
+
+          ${skuButtons}
+
+          <div class="meta">
+            <div class="price">${price}</div>
+            <div class="stock">${stockLabel}</div>
+          </div>
+
+          <ul class="details-list">
+            ${sku ? `<li><strong>Option:</strong> ${sku}</li>` : ""}
+            ${getValue(selectedRow, "category") ? `<li><strong>Category:</strong> ${getValue(selectedRow, "category")}</li>` : ""}
+            ${getValue(selectedRow, "materials") ? `<li><strong>Materials:</strong> ${getValue(selectedRow, "materials")}</li>` : ""}
+            ${getValue(selectedRow, "weight") ? `<li><strong>Weight:</strong> ${getValue(selectedRow, "weight")}</li>` : ""}
+            ${(getValue(selectedRow, "length") || getValue(selectedRow, "width") || getValue(selectedRow, "height")) ? `<li><strong>Size:</strong> ${getValue(selectedRow, "length")} × ${getValue(selectedRow, "width")} × ${getValue(selectedRow, "height")}</li>` : ""}
+          </ul>
+
+          <button class="${buttonClass}" onclick="alert('Cart will be added in the next step.')">${buttonText}</button>
         </div>
       `;
+    }
 
-      return true;
+    function selectSku(productId, skuValue) {
+      const product = groupedProducts.find(p => p.id === productId);
+      if (!product) return;
+
+      const selected = product.variants.find(row => {
+        const sku = getValue(row, "sku") || "default";
+        return sku === skuValue;
+      });
+
+      if (selected) {
+        renderModal(product, selected);
+      }
+    }
+
+    function setMainImage(src, fallback) {
+      document.getElementById("modalMainImage").innerHTML = `
+        <img src="${src}" alt="Product image" onerror="this.replaceWith(document.createTextNode('${fallback}'))">
+      `;
     }
 
     async function init() {
@@ -727,17 +1009,23 @@
         ]);
 
         applySettings(settingsRows);
-        allProducts = productRows;
+        allRows = productRows;
+        groupedProducts = groupProducts(allRows);
 
-        const isDetailPage = renderProductDetail();
+        renderCategories(groupedProducts);
+        renderProducts();
 
-        if (!isDetailPage) {
-          renderCategories(allProducts);
-          renderProducts();
+        document.getElementById("searchInput").addEventListener("input", renderProducts);
+        document.getElementById("categoryFilter").addEventListener("change", renderProducts);
 
-          document.getElementById("searchInput").addEventListener("input", renderProducts);
-          document.getElementById("categoryFilter").addEventListener("change", renderProducts);
-        }
+        document.getElementById("modalClose").addEventListener("click", closeProductModal);
+        document.getElementById("productModal").addEventListener("click", event => {
+          if (event.target.id === "productModal") closeProductModal();
+        });
+
+        document.addEventListener("keydown", event => {
+          if (event.key === "Escape") closeProductModal();
+        });
       } catch (error) {
         console.error(error);
         document.getElementById("productGrid").innerHTML = '<div class="error">Could not load products. Please check the Google Sheets links.</div>';
