@@ -4,262 +4,367 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Lisha Studio | Handmade Art Objects</title>
-  <meta name="description" content="Lisha Studio is a handmade art studio featuring candles, small objects, gifts, decor, and playful handmade pieces." />
+  <meta name="description" content="Lisha Studio handmade art objects, candles, gifts, and playful little things." />
 
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700&family=Nunito:wght@400;500;600;700&display=swap');
+
+    :root {
+      --bg: #fffdf8;
+      --text: #1f1b18;
+      --muted: #756d66;
+      --line: #eee5dc;
+      --soft: #fff1df;
+      --pink: #ffe8ec;
+      --yellow: #fff3b8;
+      --accent: #f08a5d;
+      --accent-dark: #d9693f;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
-      font-family: Arial, Helvetica, sans-serif;
-      background: #ffffff;
-      color: #111111;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Nunito", Arial, sans-serif;
+    }
+
+    .announcement {
+      background: var(--yellow);
+      text-align: center;
+      padding: 10px 16px;
+      font-size: 15px;
+      font-weight: 700;
     }
 
     header {
-      border-bottom: 1px solid #eeeeee;
-      padding: 22px 32px;
+      padding: 24px 28px;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255, 253, 248, 0.95);
+      position: sticky;
+      top: 0;
+      z-index: 10;
     }
 
     .logo {
-      font-size: 24px;
+      font-family: "Baloo 2", cursive;
+      font-size: 30px;
       font-weight: 700;
-      letter-spacing: 0.5px;
+      color: var(--text);
       text-decoration: none;
-      color: #111111;
     }
 
     nav a {
-      margin-left: 22px;
+      margin-left: 20px;
+      color: var(--text);
       text-decoration: none;
-      color: #111111;
       font-size: 15px;
+      font-weight: 700;
+    }
+
+    .hero-video {
+      width: 100%;
+      max-height: 460px;
+      background: var(--soft);
+      overflow: hidden;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .hero-video video,
+    .hero-video iframe {
+      width: 100%;
+      height: 460px;
+      display: block;
+      object-fit: cover;
+      border: 0;
+    }
+
+    .video-placeholder {
+      height: 360px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 24px;
+      font-family: "Baloo 2", cursive;
+      font-size: 30px;
+      color: var(--accent-dark);
     }
 
     .hero {
-      padding: 80px 32px 60px;
-      max-width: 1100px;
+      max-width: 980px;
       margin: 0 auto;
+      padding: 64px 24px 44px;
       text-align: center;
     }
 
     .hero h1 {
-      font-size: 56px;
-      line-height: 1.05;
-      margin: 0 0 20px;
-      font-weight: 700;
+      font-family: "Baloo 2", cursive;
+      font-size: clamp(46px, 8vw, 78px);
+      line-height: 0.95;
+      margin: 0 0 16px;
+      letter-spacing: -1px;
     }
 
     .hero p {
-      font-size: 18px;
-      line-height: 1.6;
-      color: #555555;
-      max-width: 680px;
-      margin: 0 auto 32px;
-    }
-
-    .button {
-      display: inline-block;
-      padding: 14px 24px;
-      border: 1px solid #111111;
-      text-decoration: none;
-      color: #111111;
-      font-size: 15px;
-      transition: 0.2s;
-    }
-
-    .button:hover {
-      background: #111111;
-      color: #ffffff;
+      max-width: 660px;
+      margin: 0 auto;
+      color: var(--muted);
+      font-size: 19px;
+      line-height: 1.7;
     }
 
     .section {
-      max-width: 1100px;
+      max-width: 1120px;
       margin: 0 auto;
-      padding: 40px 32px 70px;
+      padding: 32px 24px 70px;
     }
 
-    .section h2 {
-      font-size: 28px;
+    .section-title {
+      font-family: "Baloo 2", cursive;
+      font-size: 38px;
+      margin: 0 0 24px;
+      text-align: center;
+    }
+
+    .filters {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
       margin-bottom: 28px;
+    }
+
+    .filters input,
+    .filters select {
+      border: 1px solid var(--line);
+      background: white;
+      border-radius: 999px;
+      padding: 12px 16px;
+      font-family: "Nunito", sans-serif;
+      font-size: 15px;
+      min-width: 190px;
+      outline: none;
     }
 
     .grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 28px;
+      gap: 26px;
     }
 
-    .item {
-      border: 1px solid #eeeeee;
-      padding: 18px;
-      background: #ffffff;
+    .card {
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 26px;
+      overflow: hidden;
+      box-shadow: 0 12px 30px rgba(80, 51, 32, 0.08);
+      transition: transform 0.2s ease;
     }
 
-    .image-box {
-      width: 100%;
+    .card:hover {
+      transform: translateY(-3px);
+    }
+
+    .image {
       aspect-ratio: 1 / 1;
-      background: #f5f1eb;
+      background: linear-gradient(135deg, var(--soft), var(--pink));
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 42px;
-      margin-bottom: 16px;
+      overflow: hidden;
+      font-family: "Baloo 2", cursive;
+      font-size: 58px;
+      color: var(--accent-dark);
     }
 
-    .item h3 {
+    .image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .card-body {
+      padding: 18px;
+    }
+
+    .card h3 {
+      font-family: "Baloo 2", cursive;
+      font-size: 24px;
+      line-height: 1.1;
       margin: 0 0 8px;
-      font-size: 18px;
     }
 
-    .item p {
-      margin: 0 0 14px;
-      color: #666666;
-      font-size: 14px;
-      line-height: 1.5;
+    .desc {
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.55;
+      min-height: 46px;
+      margin: 0 0 12px;
+    }
+
+    .meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 14px;
+      font-weight: 700;
     }
 
     .price {
-      font-weight: 700;
-      margin-bottom: 14px;
+      font-size: 18px;
     }
 
-    .small-link {
-      color: #111111;
-      text-decoration: underline;
-      font-size: 14px;
+    .stock {
+      font-size: 13px;
+      color: var(--accent-dark);
+      background: var(--soft);
+      border-radius: 999px;
+      padding: 5px 10px;
+      white-space: nowrap;
+    }
+
+    .button {
+      display: block;
+      width: 100%;
+      text-align: center;
+      border: 1px solid var(--text);
+      color: var(--text);
+      text-decoration: none;
+      border-radius: 999px;
+      padding: 12px 14px;
+      font-weight: 800;
+      transition: 0.2s ease;
+    }
+
+    .button:hover {
+      background: var(--text);
+      color: white;
+    }
+
+    .button.disabled {
+      opacity: 0.45;
+      pointer-events: none;
     }
 
     .about {
-      border-top: 1px solid #eeeeee;
-      border-bottom: 1px solid #eeeeee;
-      padding: 56px 32px;
+      background: #fff8ed;
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 52px 24px;
       text-align: center;
-      background: #fafafa;
     }
 
     .about p {
       max-width: 720px;
       margin: 0 auto;
-      color: #555555;
-      line-height: 1.7;
-      font-size: 16px;
+      color: var(--muted);
+      line-height: 1.8;
+      font-size: 17px;
     }
 
     footer {
-      padding: 32px;
       text-align: center;
-      color: #777777;
+      padding: 32px 20px;
+      color: var(--muted);
       font-size: 14px;
     }
 
-    @media (max-width: 800px) {
+    .loading,
+    .error {
+      text-align: center;
+      color: var(--muted);
+      padding: 36px;
+      grid-column: 1 / -1;
+    }
+
+    @media (max-width: 850px) {
       header {
         display: block;
         text-align: center;
       }
 
       nav {
-        margin-top: 16px;
+        margin-top: 12px;
       }
 
       nav a {
-        margin: 0 10px;
-      }
-
-      .hero h1 {
-        font-size: 40px;
+        margin: 0 9px;
       }
 
       .grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .hero-video video,
+      .hero-video iframe {
+        height: 300px;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .grid {
         grid-template-columns: 1fr;
+      }
+
+      .filters input,
+      .filters select {
+        width: 100%;
       }
     }
   </style>
 </head>
 
 <body>
+  <div class="announcement" id="announcement">Loading...</div>
+
   <header>
-    <a class="logo" href="/">Lisha Studio</a>
+    <a class="logo" href="/" id="logo">Lisha Studio</a>
     <nav>
       <a href="/">Home</a>
-      <a href="#featured">Products</a>
+      <a href="#products">Products</a>
       <a href="#about">About</a>
       <a href="mailto:ldeng123@asu.edu">Contact</a>
     </nav>
   </header>
 
+  <section class="hero-video" id="videoArea">
+    <div class="video-placeholder">✦ handmade little things ✦</div>
+  </section>
+
   <main>
     <section class="hero">
-      <h1>Handmade art objects for playful everyday spaces.</h1>
-      <p>
-        Lisha Studio creates small-batch handmade pieces, including candles,
-        decorative objects, gifts, and artful home details.
-      </p>
-      <a class="button" href="#featured">View Featured Pieces</a>
+      <h1 id="heroTitle">Lisha Studio</h1>
+      <p id="heroSubtitle">Handmade art objects, candles, gifts, and playful little things.</p>
     </section>
 
-    <section class="section" id="featured">
-      <h2>Featured</h2>
+    <section class="section" id="products">
+      <h2 class="section-title">Featured Pieces</h2>
 
-      <div class="grid">
-        <div class="item">
-          <div class="image-box">🍐</div>
-          <h3>Pear Candle</h3>
-          <p>A soft fruit-inspired handmade piece for shelves, gifts, and cozy corners.</p>
-          <div class="price">$28.89</div>
-          <a class="small-link" href="#">View details</a>
-        </div>
+      <div class="filters">
+        <input id="searchInput" type="search" placeholder="Search pieces..." />
+        <select id="categoryFilter">
+          <option value="all">All categories</option>
+        </select>
+      </div>
 
-        <div class="item">
-          <div class="image-box">🍄</div>
-          <h3>Mushroom Candle</h3>
-          <p>A playful handmade object with a whimsical shape and warm studio feel.</p>
-          <div class="price">$23.89 - $48.89</div>
-          <a class="small-link" href="#">View details</a>
-        </div>
-
-        <div class="item">
-          <div class="image-box">👾</div>
-          <h3>Monster Candle</h3>
-          <p>A character-inspired art object for collectors, gifts, and fun displays.</p>
-          <div class="price">$18.89 - $38.89</div>
-          <a class="small-link" href="#">View details</a>
-        </div>
-
-        <div class="item">
-          <div class="image-box">🧡</div>
-          <h3>Persimmon Candle</h3>
-          <p>A warm seasonal piece inspired by fruit, color, and handmade texture.</p>
-          <div class="price">$28.89</div>
-          <a class="small-link" href="#">View details</a>
-        </div>
-
-        <div class="item">
-          <div class="image-box">🍒</div>
-          <h3>Cherry Candle</h3>
-          <p>A small decorative candle with a bright, sweet, giftable personality.</p>
-          <div class="price">$28.89</div>
-          <a class="small-link" href="#">View details</a>
-        </div>
-
-        <div class="item">
-          <div class="image-box">✦</div>
-          <h3>More Handmade Pieces</h3>
-          <p>New handmade art objects, decor, and gift pieces will be added soon.</p>
-          <div class="price">Coming soon</div>
-          <a class="small-link" href="mailto:ldeng123@asu.edu">Ask about custom work</a>
-        </div>
+      <div class="grid" id="productGrid">
+        <div class="loading">Loading products...</div>
       </div>
     </section>
 
     <section class="about" id="about">
       <p>
         Lisha Studio is a small handmade art studio exploring playful shapes,
-        soft colors, and everyday objects. Each piece is made in small batches,
-        with future collections expanding beyond candles into more handmade art,
-        gifts, and decorative pieces.
+        soft colors, candles, gifts, and artful everyday objects.
       </p>
     </section>
   </main>
@@ -267,5 +372,216 @@
   <footer>
     © 2026 Lisha Studio · Handmade art objects
   </footer>
+
+  <script>
+    const SETTINGS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRQ5vcuUBnI85arPNNe2h-aqwqq_9RpCBN0oewhCexPjWd-nX7YW-j3ii_5JlwvZZ7VlyjZ_RSTVwD5/pub?gid=0&single=true&output=csv";
+    const PRODUCTS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRQ5vcuUBnI85arPNNe2h-aqwqq_9RpCBN0oewhCexPjWd-nX7YW-j3ii_5JlwvZZ7VlyjZ_RSTVwD5/pub?gid=22339288&single=true&output=csv";
+
+    let allProducts = [];
+
+    function parseCSV(text) {
+      const rows = [];
+      let row = [];
+      let value = "";
+      let inQuotes = false;
+
+      for (let i = 0; i < text.length; i++) {
+        const char = text[i];
+        const nextChar = text[i + 1];
+
+        if (char === '"' && inQuotes && nextChar === '"') {
+          value += '"';
+          i++;
+        } else if (char === '"') {
+          inQuotes = !inQuotes;
+        } else if (char === "," && !inQuotes) {
+          row.push(value);
+          value = "";
+        } else if ((char === "\n" || char === "\r") && !inQuotes) {
+          if (value || row.length) {
+            row.push(value);
+            rows.push(row);
+            row = [];
+            value = "";
+          }
+          if (char === "\r" && nextChar === "\n") i++;
+        } else {
+          value += char;
+        }
+      }
+
+      if (value || row.length) {
+        row.push(value);
+        rows.push(row);
+      }
+
+      return rows;
+    }
+
+    function rowsToObjects(rows) {
+      const headers = rows[0].map(h => h.trim().toLowerCase());
+      return rows.slice(1)
+        .filter(row => row.some(cell => String(cell).trim() !== ""))
+        .map(row => {
+          const obj = {};
+          headers.forEach((header, index) => {
+            obj[header] = row[index] ? row[index].trim() : "";
+          });
+          return obj;
+        });
+    }
+
+    async function loadCSV(url) {
+      const response = await fetch(url + "&cacheBust=" + Date.now());
+      if (!response.ok) throw new Error("Could not load CSV");
+      const text = await response.text();
+      return rowsToObjects(parseCSV(text));
+    }
+
+    function getValue(obj, key) {
+      return obj[key.toLowerCase()] || "";
+    }
+
+    function money(value) {
+      const number = Number(value);
+      if (Number.isNaN(number)) return value || "";
+      return "$" + number.toFixed(2);
+    }
+
+    function createVideo(videoUrl) {
+      const videoArea = document.getElementById("videoArea");
+
+      if (!videoUrl) {
+        videoArea.innerHTML = '<div class="video-placeholder">✦ handmade little things ✦</div>';
+        return;
+      }
+
+      if (videoUrl.includes("youtube.com") || videoUrl.includes("youtu.be") || videoUrl.includes("vimeo.com")) {
+        videoArea.innerHTML = `<iframe src="${videoUrl}" allowfullscreen></iframe>`;
+      } else {
+        videoArea.innerHTML = `
+          <video autoplay muted loop playsinline>
+            <source src="${videoUrl}" />
+          </video>
+        `;
+      }
+    }
+
+    function applySettings(settingsRows) {
+      const settings = {};
+
+      settingsRows.forEach(row => {
+        const key = getValue(row, "key");
+        const value = getValue(row, "value");
+        if (key) settings[key] = value;
+      });
+
+      const title = settings.heroTitle || settings.herotitle || "Lisha Studio";
+      const subtitle = settings.heroSubtitle || settings.herosubtitle || "Handmade art objects, candles, gifts, and playful little things.";
+      const announcement = settings.announcement || "New handmade pieces coming soon.";
+      const video = settings.heroVideo || settings.herovideo || "";
+
+      document.title = title + " | Handmade Art Objects";
+      document.getElementById("logo").textContent = title;
+      document.getElementById("heroTitle").textContent = title;
+      document.getElementById("heroSubtitle").textContent = subtitle;
+      document.getElementById("announcement").textContent = announcement;
+      createVideo(video);
+    }
+
+    function renderCategories(products) {
+      const select = document.getElementById("categoryFilter");
+      const categories = [...new Set(products.map(p => getValue(p, "category")).filter(Boolean))].sort();
+
+      categories.forEach(category => {
+        const option = document.createElement("option");
+        option.value = category;
+        option.textContent = category;
+        select.appendChild(option);
+      });
+    }
+
+    function productCard(product) {
+      const name = getValue(product, "name");
+      const price = getValue(product, "price");
+      const stock = Number(getValue(product, "stock") || 0);
+      const image = getValue(product, "image");
+      const description = getValue(product, "description");
+      const paymentLink = getValue(product, "paymentlink");
+      const soldOut = stock <= 0;
+
+      const imageHTML = image
+        ? `<img src="${image}" alt="${name}">`
+        : `<span>${name ? name.charAt(0) : "✦"}</span>`;
+
+      const buttonHTML = paymentLink && !soldOut
+        ? `<a class="button" href="${paymentLink}" target="_blank" rel="noopener">Buy now</a>`
+        : `<a class="button disabled" href="#">${soldOut ? "Sold out" : "Coming soon"}</a>`;
+
+      return `
+        <article class="card">
+          <div class="image">${imageHTML}</div>
+          <div class="card-body">
+            <h3>${name}</h3>
+            <p class="desc">${description}</p>
+            <div class="meta">
+              <div class="price">${money(price)}</div>
+              <div class="stock">${soldOut ? "Sold out" : stock + " in stock"}</div>
+            </div>
+            ${buttonHTML}
+          </div>
+        </article>
+      `;
+    }
+
+    function renderProducts() {
+      const grid = document.getElementById("productGrid");
+      const query = document.getElementById("searchInput").value.toLowerCase().trim();
+      const category = document.getElementById("categoryFilter").value;
+
+      const visibleProducts = allProducts.filter(product => {
+        const status = getValue(product, "status").toLowerCase();
+        const name = getValue(product, "name");
+        const desc = getValue(product, "description");
+        const productCategory = getValue(product, "category");
+
+        const active = status === "active" || status === "";
+        const matchesSearch = (name + " " + desc + " " + productCategory).toLowerCase().includes(query);
+        const matchesCategory = category === "all" || productCategory === category;
+
+        return active && matchesSearch && matchesCategory;
+      });
+
+      if (!visibleProducts.length) {
+        grid.innerHTML = '<div class="error">No products found.</div>';
+        return;
+      }
+
+      grid.innerHTML = visibleProducts.map(productCard).join("");
+    }
+
+    async function init() {
+      try {
+        const [settingsRows, productRows] = await Promise.all([
+          loadCSV(SETTINGS_CSV_URL),
+          loadCSV(PRODUCTS_CSV_URL)
+        ]);
+
+        applySettings(settingsRows);
+        allProducts = productRows;
+
+        renderCategories(allProducts);
+        renderProducts();
+
+        document.getElementById("searchInput").addEventListener("input", renderProducts);
+        document.getElementById("categoryFilter").addEventListener("change", renderProducts);
+      } catch (error) {
+        console.error(error);
+        document.getElementById("productGrid").innerHTML = '<div class="error">Could not load products. Please check the Google Sheets links.</div>';
+      }
+    }
+
+    init();
+  </script>
 </body>
 </html>
