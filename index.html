@@ -54,46 +54,76 @@
 
     nav a:hover { color: var(--accent-dark); }
 
-    .hero-video {
-      width: 100%;
-      max-height: 420px;
-      background: var(--soft);
-      overflow: hidden;
-      border-bottom: 1px solid var(--line);
-      display: none;
-    }
+.hero-video {
+  position: relative;
+  width: 100%;
+  height: min(56.25vw, 720px);
+  min-height: 460px;
+  background: var(--soft);
+  overflow: hidden;
+  border-bottom: 1px solid var(--line);
+  display: none;
+}
 
-    .hero-video video,
-    .hero-video iframe {
-      width: 100%;
-      height: 420px;
-      display: block;
-      object-fit: cover;
-      border: 0;
-    }
+.hero-media {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
 
-    .hero {
-      max-width: 980px;
-      margin: 0 auto;
-      padding: 84px 24px 56px;
-      text-align: center;
-    }
+.hero-media video,
+.hero-media iframe {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  border: 0;
+}
 
-    .hero h1 {
-      font-family: "Baloo 2", cursive;
-      font-size: clamp(48px, 8vw, 82px);
-      line-height: 0.95;
-      margin: 0 0 14px;
-      letter-spacing: -1px;
-    }
+.hero-video::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: linear-gradient(
+    rgba(255, 253, 248, 0.18),
+    rgba(255, 253, 248, 0.58)
+  );
+}
 
-    .hero p {
-      max-width: 660px;
-      margin: 0 auto;
-      color: var(--muted);
-      font-size: 19px;
-      line-height: 1.7;
-    }
+.hero-overlay {
+  position: relative;
+  z-index: 3;
+  height: 100%;
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 80px 24px 70px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.hero-overlay h1 {
+  font-family: "Baloo 2", cursive;
+  font-size: clamp(54px, 8vw, 92px);
+  line-height: 0.95;
+  margin: 0 0 14px;
+  letter-spacing: -1px;
+  color: var(--text);
+  text-shadow: 0 3px 24px rgba(255, 253, 248, 0.9);
+}
+
+.hero-overlay p {
+  max-width: 680px;
+  margin: 0 auto;
+  color: var(--text);
+  font-size: 20px;
+  line-height: 1.7;
+  font-weight: 700;
+  text-shadow: 0 3px 18px rgba(255, 253, 248, 0.9);
+}
 
     .section {
       max-width: 1120px;
