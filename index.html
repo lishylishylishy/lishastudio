@@ -161,8 +161,7 @@
     }
 
     .image img,
-    .modal-main-image img,
-    .thumb img {
+    .modal-main-image img {
       width: 100%;
       height: 100%;
       object-fit: cover;
@@ -223,7 +222,20 @@
       font-weight: 800;
     }
 
-    .price { font-size: 18px; }
+    .price {
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .compare-price {
+      color: var(--muted);
+      text-decoration: line-through;
+      font-size: 15px;
+      font-weight: 700;
+    }
 
     .stock {
       font-size: 13px;
@@ -238,34 +250,43 @@
       display: block;
       width: 100%;
       text-align: center;
-      border: 1px solid var(--text);
-      color: var(--text);
-      background: white;
+      border: 1px solid var(--accent);
+      color: white;
+      background: var(--accent);
       text-decoration: none;
       border-radius: 999px;
-      padding: 12px 14px;
-      font-weight: 800;
+      padding: 13px 14px;
+      font-weight: 900;
       transition: 0.2s ease;
       cursor: pointer;
       font-family: "Nunito", Arial, sans-serif;
-      font-size: 15px;
+      font-size: 16px;
     }
 
     .button:hover {
-      background: var(--text);
+      background: var(--accent-dark);
+      border-color: var(--accent-dark);
       color: white;
     }
 
     .button.disabled {
       opacity: 0.45;
       pointer-events: none;
+      background: white;
+      color: var(--text);
+      border-color: var(--text);
     }
 
     .contact {
       border-top: 1px solid var(--line);
-      padding: 62px 24px;
+      padding: 70px 24px;
       text-align: center;
       background: #ffffff;
+    }
+
+    .contact-inner {
+      max-width: 980px;
+      margin: 0 auto;
     }
 
     .contact p {
@@ -276,8 +297,37 @@
       font-size: 17px;
     }
 
+    .contact-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+      margin-top: 30px;
+      text-align: left;
+    }
+
+    .contact-card {
+      border: 1px solid var(--line);
+      background: var(--bg);
+      border-radius: 24px;
+      padding: 22px;
+    }
+
+    .contact-card h3 {
+      font-family: "Baloo 2", cursive;
+      font-size: 24px;
+      margin: 0 0 8px;
+      line-height: 1;
+    }
+
+    .contact-card p {
+      margin: 0;
+      font-size: 15px;
+      line-height: 1.7;
+      color: var(--muted);
+    }
+
     .contact-links {
-      margin-top: 24px;
+      margin-top: 28px;
       display: flex;
       justify-content: center;
       gap: 14px;
@@ -288,10 +338,16 @@
       color: var(--text);
       border: 1px solid var(--line);
       border-radius: 999px;
-      padding: 11px 16px;
+      padding: 11px 18px;
       text-decoration: none;
-      font-weight: 800;
+      font-weight: 900;
       background: var(--soft);
+    }
+
+    .contact-links a:hover {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
     }
 
     footer {
@@ -343,7 +399,7 @@
       height: 40px;
       font-size: 22px;
       cursor: pointer;
-      z-index: 3;
+      z-index: 4;
     }
 
     .modal-layout {
@@ -368,23 +424,32 @@
       color: var(--accent-dark);
     }
 
-    .thumbs {
+    .image-arrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 3;
+      width: 42px;
+      height: 42px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(255, 253, 248, 0.9);
+      color: var(--text);
+      font-size: 28px;
+      cursor: pointer;
       display: flex;
-      gap: 10px;
-      margin-top: 12px;
-      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
     }
 
-    .thumb {
-      width: 72px;
-      height: 72px;
-      border-radius: 16px;
-      border: 1px solid var(--line);
-      overflow: hidden;
-      background: var(--soft);
-      cursor: pointer;
-      padding: 0;
+    .image-arrow:hover {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
     }
+
+    .image-arrow.left { left: 14px; }
+    .image-arrow.right { right: 14px; }
 
     .modal-info h2 {
       font-family: "Baloo 2", cursive;
@@ -410,8 +475,8 @@
       border: 1px solid var(--line);
       background: white;
       border-radius: 999px;
-      padding: 9px 14px;
-      font-weight: 800;
+      padding: 9px 16px;
+      font-weight: 900;
       cursor: pointer;
       font-family: "Nunito", Arial, sans-serif;
     }
@@ -423,12 +488,12 @@
     }
 
     .details-list {
-      margin: 14px 0 18px;
+      margin: 14px 0 20px;
       padding: 0;
       list-style: none;
       color: var(--muted);
       font-size: 15px;
-      line-height: 1.7;
+      line-height: 1.8;
     }
 
     .details-list strong { color: var(--text); }
@@ -447,6 +512,8 @@
       .hero-video iframe { height: 300px; }
 
       .modal-layout { grid-template-columns: 1fr; }
+
+      .contact-grid { grid-template-columns: 1fr; }
     }
 
     @media (max-width: 560px) {
@@ -501,9 +568,27 @@
     </section>
 
     <section class="contact" id="contact">
-      <h2 class="section-title">Contact</h2>
-      <p id="contactNote">For custom orders, collaborations, or questions, feel free to contact me.</p>
-      <div class="contact-links" id="contactLinks"></div>
+      <div class="contact-inner">
+        <h2 class="section-title" id="contactTitle">Contact</h2>
+        <p id="contactNote">For custom orders, collaborations, or questions, feel free to contact me.</p>
+
+        <div class="contact-grid">
+          <div class="contact-card">
+            <h3>Custom Orders</h3>
+            <p id="contactCustom">Custom colors, small gifts, and playful handmade pieces are welcome.</p>
+          </div>
+          <div class="contact-card">
+            <h3>Shipping</h3>
+            <p id="contactShipping">Most pieces are packed carefully and shipped after order confirmation.</p>
+          </div>
+          <div class="contact-card">
+            <h3>Response Time</h3>
+            <p id="contactResponse">I usually reply within 1–2 business days.</p>
+          </div>
+        </div>
+
+        <div class="contact-links" id="contactLinks"></div>
+      </div>
     </section>
   </main>
 
@@ -525,6 +610,8 @@
 
     let productGroups = [];
     let settings = {};
+    let currentModalImages = [];
+    let currentModalImageIndex = 0;
 
     function parseCSV(text) {
       const rows = [];
@@ -595,6 +682,19 @@
       const n = Number(value);
       if (Number.isNaN(n)) return "";
       return "USD " + n.toFixed(2);
+    }
+
+    function priceHTML(row) {
+      const price = Number(val(row, "price"));
+      const compare = Number(val(row, "compareprice"));
+
+      if (Number.isNaN(price)) return "";
+
+      if (!Number.isNaN(compare) && compare > price) {
+        return `<span class="compare-price">${money(compare)}</span><span>${money(price)}</span>`;
+      }
+
+      return `<span>${money(price)}</span>`;
     }
 
     function getStatus(row) {
@@ -751,7 +851,11 @@
       const subtitle = settings["index.herosubtitle"] || settings.herosubtitle || "Handmade art objects, candles, gifts, and playful little things.";
       const featured = settings["index.featuredtitle"] || "Featured Pieces";
       const video = settings["index.herovideo"] || settings.herovideo || "";
+      const contactTitle = settings["contact.title"] || "Contact";
       const contactNote = settings["contact.note"] || settings.contactnote || "For custom orders, collaborations, or questions, feel free to contact me.";
+      const contactCustom = settings["contact.custom"] || "Custom colors, small gifts, and playful handmade pieces are welcome.";
+      const contactShipping = settings["contact.shipping"] || "Most pieces are packed carefully and shipped after order confirmation.";
+      const contactResponse = settings["contact.response"] || "I usually reply within 1–2 business days.";
       const email = settings["contact.email"] || settings.contactemail || "";
       const instagram = settings["contact.instagram"] || settings.contactinstagram || "";
       const youtube = settings["contact.youtube"] || settings.contactyoutube || settings.youtube || "";
@@ -760,7 +864,11 @@
       document.getElementById("heroTitle").textContent = title;
       document.getElementById("heroSubtitle").textContent = subtitle;
       document.getElementById("featuredTitle").textContent = featured;
+      document.getElementById("contactTitle").textContent = contactTitle;
       document.getElementById("contactNote").textContent = contactNote;
+      document.getElementById("contactCustom").textContent = contactCustom;
+      document.getElementById("contactShipping").textContent = contactShipping;
+      document.getElementById("contactResponse").textContent = contactResponse;
 
       const links = document.getElementById("contactLinks");
       links.innerHTML = "";
@@ -820,6 +928,20 @@
         : `<div class="error">No products found.</div>`;
     }
 
+    function modalImagesForGroup(group) {
+      const images = [coverImage(group.displayRow)];
+
+      group.rows.forEach(row => {
+        if (val(row, "sku")) images.push(skuImage(row));
+      });
+
+      [1, 2, 3, 4, 5].forEach(number => {
+        images.push(detailImage(group.displayRow, number));
+      });
+
+      return images;
+    }
+
     function openProductModal(id) {
       const group = productGroups.find(group => group.id === id);
       if (!group) return;
@@ -827,7 +949,10 @@
       const firstActive = group.rows.find(row => getStatus(row) === "active");
       const selectedRow = firstActive || group.displayRow;
 
-      renderModal(group, selectedRow, coverImage(group.displayRow));
+      currentModalImages = modalImagesForGroup(group);
+      currentModalImageIndex = 0;
+
+      renderModal(group, selectedRow);
 
       document.getElementById("productModal").style.display = "flex";
       document.body.style.overflow = "hidden";
@@ -838,15 +963,28 @@
       document.body.style.overflow = "";
     }
 
-    function thumb(src, row, badge) {
-      return `
-        <button class="thumb" onclick="setModalImage('${src}', '${fallbackLetter(row)}', '${badge}')">
-          <img src="${src}" alt="${val(row, "name")} image" loading="lazy" onerror="this.parentElement.style.display='none'">
-        </button>
-      `;
+    function changeModalImage(direction) {
+      if (!currentModalImages.length) return;
+
+      currentModalImageIndex += direction;
+
+      if (currentModalImageIndex < 0) {
+        currentModalImageIndex = currentModalImages.length - 1;
+      }
+
+      if (currentModalImageIndex >= currentModalImages.length) {
+        currentModalImageIndex = 0;
+      }
+
+      updateModalMainImage();
     }
 
-    function renderModal(group, selectedRow, mainImageSrc) {
+    function updateModalMainImage() {
+      const image = document.getElementById("modalSlideImage");
+      if (image) image.src = currentModalImages[currentModalImageIndex];
+    }
+
+    function renderModal(group, selectedRow) {
       const status = getStatus(selectedRow);
       const badge = statusLabel(status);
       const sku = val(selectedRow, "sku");
@@ -859,7 +997,7 @@
 
       const priceText =
         status === "active" || status === "soldout"
-          ? money(val(selectedRow, "price"))
+          ? priceHTML(selectedRow)
           : "";
 
       const skuButtons = group.rows.length > 1
@@ -874,17 +1012,6 @@
         `
         : "";
 
-      const coverThumb = thumb(coverImage(group.displayRow), group.displayRow, badge);
-
-      const skuThumbs = group.rows
-        .filter(row => val(row, "sku"))
-        .map(row => thumb(skuImage(row), row, badge))
-        .join("");
-
-      const detailThumbs = [1, 2, 3, 4, 5]
-        .map(number => thumb(detailImage(group.displayRow, number), group.displayRow, badge))
-        .join("");
-
       const actionButton = status === "active"
         ? `<button class="button" onclick="alert('Cart will be added later.')">Add to cart</button>`
         : `<button class="button disabled">${stockText}</button>`;
@@ -892,12 +1019,11 @@
       document.getElementById("modalContent").innerHTML = `
         <div>
           <div class="modal-main-image" id="modalMainImage">
-            ${imageBlock(mainImageSrc, selectedRow, badge)}
-          </div>
-          <div class="thumbs">
-            ${coverThumb}
-            ${skuThumbs}
-            ${detailThumbs}
+            ${badge ? `<div class="badge">${badge}</div>` : ""}
+            <span class="fallback-letter">${fallbackLetter(selectedRow)}</span>
+            <img id="modalSlideImage" src="${currentModalImages[currentModalImageIndex]}" alt="${val(selectedRow, "name")}" onerror="this.style.display='none'">
+            <button class="image-arrow left" onclick="changeModalImage(-1)">‹</button>
+            <button class="image-arrow right" onclick="changeModalImage(1)">›</button>
           </div>
         </div>
 
@@ -913,12 +1039,11 @@
           </div>
 
           <ul class="details-list">
-            ${sku ? `<li><strong>Option:</strong> ${sku}</li>` : ""}
             ${val(selectedRow, "category") ? `<li><strong>Category:</strong> ${val(selectedRow, "category")}</li>` : ""}
             ${val(selectedRow, "materials") ? `<li><strong>Materials:</strong> ${val(selectedRow, "materials")}</li>` : ""}
-            ${val(selectedRow, "weight") ? `<li><strong>Weight:</strong> ${val(selectedRow, "weight")}</li>` : ""}
+            ${val(selectedRow, "weight") ? `<li><strong>Weight:</strong> ${val(selectedRow, "weight")} kg</li>` : ""}
             ${(val(selectedRow, "length") || val(selectedRow, "width") || val(selectedRow, "height"))
-              ? `<li><strong>Size:</strong> ${val(selectedRow, "length")} × ${val(selectedRow, "width")} × ${val(selectedRow, "height")}</li>`
+              ? `<li><strong>Size:</strong> ${val(selectedRow, "length")} × ${val(selectedRow, "width")} × ${val(selectedRow, "height")} cm</li>`
               : ""}
           </ul>
 
@@ -934,16 +1059,15 @@
       const selected = group.rows.find(row => (val(row, "sku") || "Default") === skuLabel);
 
       if (selected) {
-        renderModal(group, selected, skuImage(selected));
-      }
-    }
+        const selectedSkuImage = skuImage(selected);
+        currentModalImageIndex = currentModalImages.indexOf(selectedSkuImage);
 
-    function setModalImage(src, fallback, badge) {
-      document.getElementById("modalMainImage").innerHTML = `
-        ${badge ? `<div class="badge">${badge}</div>` : ""}
-        <span class="fallback-letter">${fallback}</span>
-        <img src="${src}" alt="Product image" onerror="this.style.display='none'">
-      `;
+        if (currentModalImageIndex < 0) {
+          currentModalImageIndex = 0;
+        }
+
+        renderModal(group, selected);
+      }
     }
 
     async function init() {
