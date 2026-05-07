@@ -114,38 +114,38 @@
         0 8px 28px rgba(255, 253, 248, 0.95);
     }
 
-.hero-subtitle-link {
-  max-width: 680px;
-  margin: 0 auto;
-  color: var(--text);
-  background: var(--soft);
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  padding: 10px 22px;
-  font-size: 18px;
-  line-height: 1.45;
-  font-weight: 900;
-  text-shadow: none;
-  box-shadow: none;
-  text-decoration: none;
-  pointer-events: auto;
-  transition: 0.2s ease;
-}
+    .hero-subtitle-link {
+      max-width: 680px;
+      margin: 0 auto;
+      color: var(--text);
+      background: var(--soft);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 10px 22px;
+      font-size: 18px;
+      line-height: 1.45;
+      font-weight: 900;
+      text-shadow: none;
+      box-shadow: none;
+      text-decoration: none;
+      pointer-events: auto;
+      transition: 0.2s ease;
+    }
 
-.hero-subtitle-link::before {
-  content: " ";
-}
+    .hero-subtitle-link::before {
+      content: "";
+    }
 
-.hero-subtitle-link::after {
-  content: " :)";
-}
+    .hero-subtitle-link::after {
+      content: " :)";
+    }
 
-.hero-subtitle-link:hover {
-  background: var(--accent);
-  color: white;
-  border-color: var(--accent);
-  transform: translateY(-1px);
-}
+    .hero-subtitle-link:hover {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+      transform: translateY(-1px);
+    }
 
     .section {
       max-width: 1120px;
@@ -735,7 +735,7 @@
         font-size: clamp(44px, 14vw, 68px);
       }
 
-      .hero-overlay p {
+      .hero-subtitle-link {
         font-size: 17px;
       }
 
@@ -759,10 +759,10 @@
   <section class="hero-video" id="videoArea">
     <div class="hero-media" id="videoMedia"></div>
 
-<div class="hero-overlay">
-  <h1 id="heroTitle"></h1>
-  <a class="hero-subtitle-link" id="heroSubtitle" href="/about.html"></a>
-</div>
+    <div class="hero-overlay">
+      <h1 id="heroTitle"></h1>
+      <a class="hero-subtitle-link" id="heroSubtitle" href="/about.html"></a>
+    </div>
   </section>
 
   <main>
@@ -1106,17 +1106,20 @@
       });
 
       const title = textSetting("index.herotitle", "Lisha Studio");
-      const subtitle = textSetting("index.herosubtitle", "Handmade art objects, candles, gifts, and playful little things.");
+      const subtitle = textSetting("index.herosubtitle", "Handmade little joy");
       const featured = textSetting("index.featuredtitle", "Featured Pieces");
       const video = textSetting("index.herovideo", "");
+
       const contactTitle = textSetting("contact.title", "Contact");
       const contactNote = textSetting("contact.note", "For custom orders, collaborations, or questions, feel free to contact me.");
       const contactCustom = textSetting("contact.custom", "Custom colors, small gifts, and playful handmade pieces are welcome.");
       const contactShipping = textSetting("contact.shipping", "Each piece is packed carefully before shipping.");
       const contactResponse = textSetting("contact.response", "I usually reply within 1–2 business days.");
+
       const email = textSetting("contact.email", "");
       const whatsapp = textSetting("contact.whatsapp", "");
       const youtube = textSetting("contact.youtube", "");
+
       const shippingNote = textSetting("shipping.note", "Checkout is coming soon. Please contact me if you want to order now.");
 
       document.title = title + " | Handmade Art Objects";
@@ -1133,9 +1136,17 @@
       const links = document.getElementById("contactLinks");
       links.innerHTML = "";
 
-      if (email) links.innerHTML += `<a href="mailto:${email}">Email</a>`;
-      if (instagram) links.innerHTML += `<a href="${instagram}" target="_blank" rel="noopener">Instagram</a>`;
-      if (youtube) links.innerHTML += `<a href="${youtube}" target="_blank" rel="noopener">YouTube</a>`;
+      if (email) {
+        links.innerHTML += `<a href="mailto:${email}">Email</a>`;
+      }
+
+      if (whatsapp) {
+        links.innerHTML += `<a href="${whatsapp}" target="_blank" rel="noopener">WhatsApp</a>`;
+      }
+
+      if (youtube) {
+        links.innerHTML += `<a href="${youtube}" target="_blank" rel="noopener">YouTube</a>`;
+      }
 
       const videoArea = document.getElementById("videoArea");
       const videoMedia = document.getElementById("videoMedia");
