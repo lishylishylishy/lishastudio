@@ -1435,19 +1435,22 @@
       return subtotal >= freeOver ? 0 : baseFee;
     }
 
-    function renderCart() {
+function renderCart() {
+      // 1. 更新图标上的红色数字
       const count = cart.reduce((sum, item) => sum + item.qty, 0);
       document.getElementById("cartCount").textContent = count;
 
       const itemsEl = document.getElementById("cartItems");
       const summaryEl = document.getElementById("cartSummary");
-
+      const paypalContainer = document.getElementById("paypal-button-container");
+      // 2. 如果购物车是空的
       if (!cart.length) {
         itemsEl.innerHTML = `<p class="cart-note">Your cart is empty.</p>`;
         summaryEl.innerHTML = "";
+        if (paypalContainer) paypalContainer.innerHTML = ""; // 隐藏支付按钮
         return;
       }
-
+      // 3. 渲染商品列表（保持你原本的样式）
       itemsEl.innerHTML = cart.map(item => `
         <div class="cart-item">
           <div class="cart-thumb">
@@ -1467,19 +1470,37 @@
           </div>
         </div>
       `).join("");
-
-      const subtotal = cartSubtotal();
-      const shipping = cartShipping(subtotal);
-      const total = subtotal + shipping;
-      const deliveryTime = textSetting("shipping.deliverytime", "Estimated delivery time will be confirmed after checkout.");
-
+      // 4. 计算小计
+      const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);      
+      // 5. 渲染邮费下拉菜单和总价
+      // 注意：这里我们把旧的 shipping 换成了下拉菜单
       summaryEl.innerHTML = `
         <div class="summary-row"><span>Subtotal</span><span>${money(subtotal)}</span></div>
-        <div class="summary-row"><span>Shipping</span><span>${shipping === 0 ? "FREE" : money(shipping)}</span></div>
-        <div class="summary-row total"><span>Total</span><span>${money(total)}</span></div>
-        <p class="cart-note">${deliveryTime}</p>
+        
+        <div style="margin: 15px 0; padding: 12px; background: #fdf8f3; border: 1px solid #eee5dc; border-radius: 12px;">
+          <label style="font-weight: 800; font-size: 13px; color: #756d66; display:block; margin-bottom:8px;">Ship to:</label>
+          <select id="region-select" onchange="window.handleRegionChange(this.value, ${subtotal})" style="width:100%; padding:8px; border-radius:8px; border:1px solid #ddd; font-family: inherit;">
+            <option value="">-- Please Select Region --</option>
+            ${shippingRules.map(r => `<option value="${r.cost}" ${selectedShippingCost == r.cost ? 'selected' : ''}>${r.name} (${money(r.cost)})</option>`).join("")}
+          </select>
+        </div>
+
+        <div class="summary-row total"><span>Total</span><span>${money(subtotal + selectedShippingCost)}</span></div>
+        <p class="cart-note">Select a region to see shipping cost and delivery time.</p>
       `;
+      // 6. 如果选了地区，才显示 PayPal 按钮；没选就显示提示文字
+      if (selectedShippingCost > 0 || (shippingRules.length > 0 && selectedShippingCost === 0 && document.getElementById("region-select").value !== "")) {
+         // 选了之后，初始化 PayPal 按钮，把“商品价”和“邮费”传过去
+         initPayPal(subtotal, selectedShippingCost);
+      } else {
+         if (paypalContainer) paypalContainer.innerHTML = '<p style="text-align:center; font-size:12px; color:#999; margin-top:20px;">Please select shipping region to checkout</p>';
+      }
     }
+    // 配套函数：当用户点击下拉菜单时执行
+    window.handleRegionChange = function(cost, subtotal) {
+      selectedShippingCost = Number(cost);
+      renderCart(); // 重新渲染，让总价更新，让 PayPal 按钮出来
+    };
 
     function toggleCart(forceShow) {
       const drawer = document.getElementById("cartDrawer");
