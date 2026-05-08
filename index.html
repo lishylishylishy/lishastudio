@@ -847,6 +847,8 @@
     const CART_STORAGE_KEY = "lisha_studio_cart";
 
     let productGroups = [];
+    let shippingRules = [];       // 用来存从表格里拿到的邮费
+    let selectedShippingCost = 0; // 默认邮费是0，等用户选了再变
     let allProductRows = [];
     let settings = {};
     let cart = [];
