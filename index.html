@@ -9,22 +9,20 @@
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Nunito:wght@400;500;600;700;800&display=swap');
 
-    /* ═══════════════════════════════════════════════════════════════════════════
-       色彩变量定义 - 定义所有网站使用的颜色常量
-       ═══════════════════════════════════════════════════════════════════════════ */
     :root {
-      --bg: #fffdf8;              /* 背景色 */
-      --text: #1f1b18;            /* 文字色 */
-      --muted: #756d66;           /* 柔和文字色 */
-      --line: #eee5dc;            /* 分隔线色 */
-      --soft: #fff4e4;            /* 柔和背景色 */
-      --pink: #ffe8ec;            /* 粉色 */
-      --accent: #f08a5d;          /* 强调色（橙色） */
-      --accent-dark: #d9693f;     /* 强调色深色版 */
-      --card: #ffffff;            /* 卡片背景色 */
+      --bg: #fffdf8;
+      --text: #1f1b18;
+      --muted: #756d66;
+      --line: #eee5dc;
+      --soft: #fff4e4;
+      --pink: #ffe8ec;
+      --accent: #f08a5d;
+      --accent-dark: #d9693f;
+      --card: #ffffff;
     }
 
     * { box-sizing: border-box; }
+
     html { scroll-behavior: smooth; }
 
     body {
@@ -111,7 +109,9 @@
       margin: 0 0 14px;
       letter-spacing: -1px;
       color: #1f1b18;
-      text-shadow: 0 2px 0 rgba(255, 253, 248, 0.95), 0 8px 28px rgba(255, 253, 248, 0.95);
+      text-shadow:
+        0 2px 0 rgba(255, 253, 248, 0.95),
+        0 8px 28px rgba(255, 253, 248, 0.95);
     }
 
     .hero-subtitle-link {
@@ -132,8 +132,13 @@
       transition: 0.2s ease;
     }
 
-    .hero-subtitle-link::before { content: ""; }
-    .hero-subtitle-link::after { content: " :)"; }
+    .hero-subtitle-link::before {
+      content: "";
+    }
+
+    .hero-subtitle-link::after {
+      content: " :)";
+    }
 
     .hero-subtitle-link:hover {
       background: var(--accent);
@@ -493,517 +498,1087 @@
     .image-arrow:hover {
       background: var(--accent);
       color: white;
+      border-color: var(--accent);
     }
 
-    .image-arrow.left { left: 12px; }
-    .image-arrow.right { right: 12px; }
+    .image-arrow.left { left: 14px; }
+    .image-arrow.right { right: 14px; }
 
-    .modal-info { padding-right: 12px; }
-    .modal-title { font-family: "Baloo 2", cursive; font-size: 32px; line-height: 1.15; margin: 0 0 14px; }
-    .modal-badges { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
-    .modal-badge { background: var(--soft); border-radius: 999px; padding: 7px 12px; font-size: 12px; font-weight: 800; color: var(--accent-dark); }
-    .modal-description { font-size: 15px; line-height: 1.65; color: var(--muted); margin-bottom: 22px; }
-    .modal-price { font-size: 28px; font-weight: 900; color: var(--accent); margin-bottom: 22px; }
-    .modal-meta { display: flex; flex-direction: column; gap: 12px; padding: 18px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); margin-bottom: 22px; font-size: 14px; }
-    .modal-meta strong { font-weight: 800; }
+    .modal-info h2 {
+      font-family: "Baloo 2", cursive;
+      font-size: clamp(38px, 5vw, 58px);
+      line-height: 0.95;
+      margin: 0 0 12px;
+    }
 
-    .quantity-control { display: flex; align-items: center; gap: 12px; margin-bottom: 22px; }
-    .quantity-btn { width: 36px; height: 36px; border: 1px solid var(--line); background: white; color: var(--text); border-radius: 8px; cursor: pointer; font-weight: 800; transition: 0.15s ease; }
-    .quantity-btn:hover { background: var(--soft); border-color: var(--accent); }
-    .quantity-display { min-width: 40px; text-align: center; font-weight: 800; }
+    .modal-info p {
+      color: var(--muted);
+      line-height: 1.75;
+      font-size: 16px;
+    }
 
-    .modal-actions { display: flex; gap: 12px; margin-bottom: 16px; }
-    .modal-actions .button { flex: 1; }
-    .modal-actions .button.outlined { background: white; color: var(--accent); border: 2px solid var(--accent); }
-    .modal-actions .button.outlined:hover { background: var(--soft); }
+    .sku-options {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 16px 0;
+    }
 
-    .cart-sidebar { position: fixed; right: -100%; top: 0; width: 100%; max-width: 420px; height: 100vh; background: white; z-index: 100; transition: right 0.3s ease; overflow-y: auto; box-shadow: -4px 0 20px rgba(0, 0, 0, 0.1); display: flex; flex-direction: column; }
-    .cart-sidebar.open { right: 0; }
+    .sku-option {
+      border: 1px solid var(--line);
+      background: white;
+      border-radius: 999px;
+      padding: 9px 16px;
+      font-weight: 900;
+      cursor: pointer;
+      font-family: "Nunito", Arial, sans-serif;
+    }
 
-    .cart-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0); z-index: 99; transition: background 0.3s ease; pointer-events: none; }
-    .cart-overlay.open { background: rgba(0, 0, 0, 0.4); pointer-events: auto; }
+    .sku-option.active {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
 
-    .cart-header { padding: 22px 24px; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; }
-    .cart-close { background: none; border: none; font-size: 24px; cursor: pointer; color: var(--text); }
-    .cart-body { flex: 1; padding: 22px 24px; overflow-y: auto; }
-    .cart-empty { text-align: center; color: var(--muted); padding: 40px 20px; }
+    .details-list {
+      margin: 14px 0 20px;
+      padding: 0;
+      list-style: none;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.8;
+    }
 
-    .cart-item { display: flex; gap: 16px; padding: 16px 0; border-bottom: 1px solid var(--line); }
-    .cart-item:last-child { border-bottom: none; }
-    .cart-thumb { width: 80px; height: 80px; border-radius: 12px; overflow: hidden; flex-shrink: 0; background: var(--soft); display: flex; align-items: center; justify-content: center; }
-    .cart-item-info { flex: 1; }
-    .cart-item-name { font-weight: 800; margin-bottom: 4px; }
-    .cart-item-price { font-size: 14px; color: var(--muted); margin-bottom: 8px; }
-    .cart-item-qty { font-size: 13px; color: var(--accent); font-weight: 800; }
-    .cart-item-remove { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 18px; transition: color 0.2s ease; }
-    .cart-item-remove:hover { color: var(--accent); }
+    .details-list strong { color: var(--text); }
 
-    .cart-footer { padding: 24px; border-top: 1px solid var(--line); display: flex; flex-direction: column; gap: 14px; }
-    .cart-summary { display: flex; justify-content: space-between; font-weight: 800; padding: 12px 0; border-top: 1px solid var(--line); margin-top: 12px; padding-top: 12px; }
-    .cart-summary.total { font-size: 18px; color: var(--accent); }
+    .cart-float {
+      position: fixed;
+      right: 22px;
+      bottom: 22px;
+      z-index: 40;
+      border: 0;
+      background: var(--accent);
+      color: white;
+      border-radius: 999px;
+      padding: 14px 18px;
+      font-weight: 900;
+      font-family: "Nunito", Arial, sans-serif;
+      cursor: pointer;
+      box-shadow: 0 12px 28px rgba(80, 51, 32, 0.18);
+    }
 
-    @media (max-width: 768px) {
-      .grid { grid-template-columns: repeat(2, 1fr); gap: 18px; }
-      .modal-layout { grid-template-columns: 1fr; gap: 20px; padding: 20px; }
+    .cart-float:hover { background: var(--accent-dark); }
+
+    .cart-drawer {
+      position: fixed;
+      top: 0;
+      right: -420px;
+      width: min(400px, 100vw);
+      height: 100%;
+      z-index: 80;
+      background: white;
+      border-left: 1px solid var(--line);
+      box-shadow: -18px 0 40px rgba(31, 27, 24, 0.16);
+      transition: right 0.25s ease;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .cart-drawer.open { right: 0; }
+
+    .cart-header {
+      padding: 22px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .cart-header h2 {
+      margin: 0;
+      font-family: "Baloo 2", cursive;
+      font-size: 34px;
+      line-height: 1;
+    }
+
+    .cart-close {
+      border: 1px solid var(--line);
+      background: var(--bg);
+      border-radius: 999px;
+      width: 38px;
+      height: 38px;
+      font-size: 22px;
+      cursor: pointer;
+    }
+
+    .cart-items {
+      padding: 18px;
+      overflow: auto;
+      flex: 1;
+    }
+
+    .cart-item {
+      display: grid;
+      grid-template-columns: 72px 1fr;
+      gap: 12px;
+      border-bottom: 1px solid var(--line);
+      padding: 14px 0;
+    }
+
+    .cart-thumb {
+      width: 72px;
+      height: 72px;
+      border-radius: 16px;
+      overflow: hidden;
+      background: var(--soft);
+      border: 1px solid var(--line);
+      position: relative;
+    }
+
+    .cart-info h3 {
+      margin: 0 0 4px;
+      font-family: "Baloo 2", cursive;
+      font-size: 20px;
+      line-height: 1;
+    }
+
+    .cart-info p {
+      margin: 0 0 8px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .cart-line {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .qty-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .qty-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: var(--bg);
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    .remove-btn {
+      border: 0;
+      background: transparent;
+      color: var(--accent-dark);
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    .cart-footer {
+      padding: 18px 22px 22px;
+      border-top: 1px solid var(--line);
+      background: var(--bg);
+    }
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      margin: 8px 0;
+      color: var(--muted);
+      font-weight: 800;
+    }
+
+    .summary-row.total {
+      color: var(--text);
+      font-size: 20px;
+      border-top: 1px solid var(--line);
+      padding-top: 12px;
+      margin-top: 12px;
+    }
+
+    .cart-note {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+      margin: 12px 0 0;
+    }
+
+    .checkout-placeholder { margin-top: 14px; width: 100%; }
+
+    @media (max-width: 850px) {
+      header { justify-content: center; padding: 22px 18px; }
+      nav a { margin: 0 9px; }
+      .hero-video { min-height: 520px; }
+      .grid { grid-template-columns: repeat(2, 1fr); }
+      .modal-layout { grid-template-columns: 1fr; }
       .contact-grid { grid-template-columns: 1fr; }
     }
 
-    @media (max-width: 480px) {
-      header { padding: 16px 20px; }
-      nav a { margin-left: 16px; font-size: 14px; }
-      .section { padding: 32px 16px 54px; }
-      .grid { grid-template-columns: 1fr; gap: 16px; }
-      .card-body { padding: 14px; }
-      .modal { border-radius: 20px; }
-      .modal-title { font-size: 24px; }
-      .modal-close { width: 36px; height: 36px; }
+    @media (max-width: 560px) {
+      nav a { font-size: 15px; margin: 0 6px; }
+
+      .hero-video {
+        height: 78vh;
+        min-height: 520px;
+      }
+
+      .hero-overlay {
+        padding: 64px 20px;
+      }
+
+      .hero-overlay h1 {
+        font-size: clamp(44px, 14vw, 68px);
+      }
+
+      .hero-subtitle-link {
+        font-size: 17px;
+      }
+
+      .grid { grid-template-columns: 1fr; }
+      .filters input, .filters select { width: 100%; }
+      .modal-layout { padding: 24px; }
+      .cart-float { right: 14px; bottom: 14px; }
     }
   </style>
+<script src="https://www.paypal.com/sdk/js?client-id=AViE6g_MybW_s4M1JQOgpgDw0tTEbOnzPpj7lHmE5TWmG4Voe0I81wK3cRTXCoufRo887gv1KbCv_-cE&currency=USD"></script>
 </head>
 
 <body>
-  <!-- 导航栏 - 网站顶部 -->
   <header>
-    <nav id="nav">
-      <a href="#products">Products</a>
-      <a href="#contact">Contact</a>
+    <nav>
+      <a href="/">Home</a>
+      <a href="/#products">Products</a>
+      <a href="/#contact">Contact</a>
     </nav>
   </header>
 
-  <!-- 英雄区 - 展示视频/封面图片 -->
-  <div class="hero-video">
-    <div class="hero-media" id="heroMedia"></div>
+  <section class="hero-video" id="videoArea">
+    <div class="hero-media" id="videoMedia"></div>
+
     <div class="hero-overlay">
-      <h1>Lisha Studio</h1>
-      <a class="hero-subtitle-link" href="#products">Shop Now</a>
+      <h1 id="heroTitle"></h1>
+      <a class="hero-subtitle-link" id="heroSubtitle" href="/about.html"></a>
     </div>
-  </div>
+  </section>
 
-  <!-- 产品展示区域 -->
-  <div class="section" id="products">
-    <h2 class="section-title">Browse Our Collection</h2>
+  <main>
+    <section class="section" id="products">
+      <h2 class="section-title" id="featuredTitle">Featured Pieces</h2>
 
-    <div class="filters">
-      <input type="text" id="search" placeholder="搜索产品..." />
-      <select id="category">
-        <option value="">所有分类</option>
-      </select>
-    </div>
-
-    <div class="grid" id="productGrid">
-      <div class="loading">Loading products...</div>
-    </div>
-  </div>
-
-  <!-- 产品详情模态框 -->
-  <div class="modal-backdrop" id="productModal" onclick="if(event.target === this) closeProductModal()">
-    <div class="modal">
-      <button class="modal-close" onclick="closeProductModal()">×</button>
-      <div class="modal-layout">
-        <div>
-          <div class="modal-main-image" id="modalImage">📦</div>
-          <button class="image-arrow left" onclick="prevImage()">‹</button>
-          <button class="image-arrow right" onclick="nextImage()">›</button>
-        </div>
-
-        <div class="modal-info">
-          <h2 class="modal-title" id="modalTitle">Product Name</h2>
-          <div class="modal-badges" id="modalBadges"></div>
-          <p class="modal-description" id="modalDescription">Product description</p>
-          <div class="modal-price" id="modalPrice">$0.00</div>
-
-          <div class="modal-meta">
-            <div><strong>库存状态:</strong> <span id="modalStock">In Stock</span></div>
-            <div><strong>SKU:</strong> <span id="modalSku">SKU123</span></div>
-          </div>
-
-          <div class="quantity-control">
-            <button class="quantity-btn" onclick="decreaseQty()">−</button>
-            <div class="quantity-display" id="qtyDisplay">1</div>
-            <button class="quantity-btn" onclick="increaseQty()">+</button>
-          </div>
-
-          <div class="modal-actions">
-            <button class="button" onclick="addToCart()">Add to Cart</button>
-            <button class="button outlined" onclick="toggleWishlist()">♡ Wishlist</button>
-          </div>
-        </div>
+      <div class="filters">
+        <input id="searchInput" type="search" placeholder="Search pieces..." />
+        <select id="categoryFilter">
+          <option value="all">All categories</option>
+        </select>
       </div>
-    </div>
-  </div>
 
-  <!-- 购物车边栏 -->
-  <div class="cart-overlay" id="cartOverlay" onclick="closeCart()"></div>
-  <div class="cart-sidebar" id="cartSidebar">
+      <div class="grid" id="productGrid">
+        <div class="loading">Loading products...</div>
+      </div>
+    </section>
+
+    <section class="contact" id="contact">
+      <div class="contact-inner">
+        <h2 class="section-title" id="contactTitle">Contact</h2>
+        <p id="contactNote">For custom orders, collaborations, or questions, feel free to contact me.</p>
+
+        <div class="contact-grid">
+          <div class="contact-card">
+            <h3>Custom Orders</h3>
+            <p id="contactCustom">Custom colors, small gifts, and playful handmade pieces are welcome.</p>
+          </div>
+          <div class="contact-card">
+            <h3>Shipping</h3>
+            <p id="contactShipping">Each piece is packed carefully before shipping.</p>
+          </div>
+          <div class="contact-card">
+            <h3>Response Time</h3>
+            <p id="contactResponse">I usually reply within 1–2 business days.</p>
+          </div>
+        </div>
+
+        <div class="contact-links" id="contactLinks"></div>
+      </div>
+    </section>
+  </main>
+
+  <button class="cart-float" onclick="toggleCart(true)">
+    Cart (<span id="cartCount">0</span>)
+  </button>
+
+  <aside class="cart-drawer" id="cartDrawer">
     <div class="cart-header">
-      <h3>Shopping Cart</h3>
-      <button class="cart-close" onclick="closeCart()">×</button>
+      <h2>Your Cart</h2>
+      <button class="cart-close" onclick="toggleCart(false)">×</button>
     </div>
-    <div class="cart-body" id="cartBody">
-      <div class="cart-empty">Your cart is empty</div>
+
+    <div class="cart-items" id="cartItems">
+      <p class="cart-note">Your cart is empty.</p>
     </div>
-    <div class="cart-footer" id="cartFooter">
-      <div class="cart-summary">
-        <span>Subtotal</span>
-        <span id="subtotalPrice">$0.00</span>
-      </div>
-      <!-- 运费显示 - 从 Google Sheets shipping 数据获取 -->
-      <div class="cart-summary">
-        <span>Shipping (<span id="shippingRegion">Select Region</span>)</span>
-        <span id="shippingPrice">$0.00</span>
-      </div>
-      <div class="cart-summary total">
-        <span>Total</span>
-        <span id="totalPrice">$0.00</span>
-      </div>
-      <button class="button" onclick="checkout()">Proceed to Checkout</button>
+
+<div class="cart-footer">
+      <div id="cartSummary"></div>
+      <div id="paypal-button-container" style="margin-top: 14px;"></div>
+      <p class="cart-note" id="cartShippingNote">Checkout is coming soon. Please contact me if you want to order now.</p>
     </div>
-  </div>
+  </aside>
 
-  <!-- 联系方式区域 -->
-  <div class="contact" id="contact">
-    <div class="contact-inner">
-      <h2 class="section-title">Get in Touch</h2>
-      <p>Have questions about our handmade items? We'd love to hear from you!</p>
-
-      <div class="contact-grid">
-        <div class="contact-card">
-          <h3>📧 Email</h3>
-          <p>contact@lishastudio.com</p>
-        </div>
-        <div class="contact-card">
-          <h3>📱 Instagram</h3>
-          <p>@lishastudio</p>
-        </div>
-        <div class="contact-card">
-          <h3>🌐 Website</h3>
-          <p>www.lishastudio.com</p>
-        </div>
-      </div>
-
-      <div class="contact-links">
-        <a href="mailto:contact@lishastudio.com">Send Email</a>
-        <a href="https://instagram.com/lishastudio" target="_blank">Follow us</a>
-        <a href="#products">Shop</a>
-      </div>
+  <div class="modal-backdrop" id="productModal">
+    <div class="modal">
+      <button class="modal-close" id="modalClose">×</button>
+      <div class="modal-layout" id="modalContent"></div>
     </div>
   </div>
 
   <footer>
-    <p>&copy; 2024 Lisha Studio. All rights reserved. Made with ♥</p>
+    @ Lisha Studio · Handmade little joy:)
   </footer>
 
   <script>
-    /* ═══════════════════════════════════════════════════════════════════════════
-       配置 - 将 YOUR_SHEET_ID 替换为你的 Google Sheet ID
-       ═══════════════════════════════════════════════════════════════════════════ */
+    const SETTINGS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRQ5vcuUBnI85arPNNe2h-aqwqq_9RpCBN0oewhCexPjWd-nX7YW-j3ii_5JlwvZZ7VlyjZ_RSTVwD5/pub?gid=0&single=true&output=csv";
+    const PRODUCTS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRQ5vcuUBnI85arPNNe2h-aqwqq_9RpCBN0oewhCexPjWd-nX7YW-j3ii_5JlwvZZ7VlyjZ_RSTVwD5/pub?gid=22339288&single=true&output=csv";
+    const IMAGE_BASE_URL = "https://pub-32f3f529081e4033a9e6ecf3fd1297ae.r2.dev/images/";
+    const CART_STORAGE_KEY = "lisha_studio_cart";
 
-    const PRODUCTS_SHEET_ID = 'YOUR_SHEET_ID';      // 📌 改为你的 Google Sheet ID
-    const PRODUCTS_SHEET_NAME = 'products';          // 产品工作表名称
-    const SHIPPING_SHEET_NAME = 'shipping';          // 运费工作表名称
+    let productGroups = [];
+    let allProductRows = [];
+    let settings = {};
+    let cart = [];
+    let currentModalImages = [];
+    let currentModalImageIndex = 0;
 
-    /* ═══════════════════════════════════════════════════════════════════════════
-       全局变量 - 存储应用数据
-       ═══════════════════════════════════════════════════════════════════════════ */
+    function parseCSV(text) {
+      const rows = [];
+      let row = [];
+      let value = "";
+      let inQuotes = false;
 
-    let products = [];                               // 所有产品
-    let shippingData = {};                           // 运费数据映射 (region -> price)
-    let cart = [];                                   // 购物车商品
-    let selectedQty = 1;                             // 选中的数量
-    let selectedProductId = null;                    // 当前查看的产品 ID
-    let wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
+      for (let i = 0; i < text.length; i++) {
+        const char = text[i];
+        const nextChar = text[i + 1];
 
-    document.addEventListener('DOMContentLoaded', async () => {
-      await fetchProducts();
-      await fetchShipping();
-      renderProducts();
-      restoreCart();
-      document.getElementById('search').addEventListener('input', filterProducts);
-      document.getElementById('category').addEventListener('change', filterProducts);
-    });
-
-    /* ═══════════════════════════════════════════════════════════════════════════
-       从 Google Sheets 获取产品数据
-       ═══════════════════════════════════════════════════════════════════════════ */
-
-    async function fetchProducts() {
-      try {
-        const url = `https://docs.google.com/spreadsheets/d/${PRODUCTS_SHEET_ID}/gviz/tq?sheet=${PRODUCTS_SHEET_NAME}&tqx=out:json`;
-        const response = await fetch(url);
-        const text = await response.text();
-        const jsonText = text.substring(47).slice(0, -2);
-        const data = JSON.parse(jsonText);
-        
-        if (data.table && data.table.rows) {
-          const rows = data.table.rows;
-          const cols = data.table.cols;
-          
-          products = rows.map((row, idx) => {
-            const item = { id: idx + 1 };
-            row.c.forEach((cell, colIdx) => {
-              const label = cols[colIdx].label;
-              item[label] = cell ? cell.v : '';
-            });
-            return item;
-          });
-          
-          console.log('✅ 已加载', products.length, '个产品');
-        }
-      } catch (error) {
-        console.error('❌ 获取产品数据失败:', error);
-        document.getElementById('productGrid').innerHTML = '<div class="error">无法加载产品数据</div>';
-      }
-    }
-
-    /* ═══════════════════════════════════════════════════════════════════════════
-       🔴 关键函数 - 从 Google Sheets 的 "shipping" 表读取运费数据
-       根据 region 列识别地区，price 列读取价格
-       ═══════════════════════════════════════════════════════════════════════════ */
-
-    async function fetchShipping() {
-      try {
-        const url = `https://docs.google.com/spreadsheets/d/${PRODUCTS_SHEET_ID}/gviz/tq?sheet=${SHIPPING_SHEET_NAME}&tqx=out:json`;
-        const response = await fetch(url);
-        const text = await response.text();
-        const jsonText = text.substring(47).slice(0, -2);
-        const data = JSON.parse(jsonText);
-        
-        if (data.table && data.table.rows && data.table.cols) {
-          const rows = data.table.rows;
-          const cols = data.table.cols;
-          
-          // 🔍 查找 "region" 和 "price" 列的索引
-          const regionIdx = cols.findIndex(c => c.label && c.label.toLowerCase() === 'region');
-          const priceIdx = cols.findIndex(c => c.label && c.label.toLowerCase() === 'price');
-          
-          console.log(`🔍 找到的列 - region索引: ${regionIdx}, price索引: ${priceIdx}`);
-          
-          if (regionIdx >= 0 && priceIdx >= 0) {
-            // ✅ 构建 region -> price 映射表
-            rows.forEach(row => {
-              const region = row.c[regionIdx]?.v;
-              const price = parseFloat(row.c[priceIdx]?.v) || 0;
-              if (region) {
-                shippingData[region] = price;
-                console.log(`✅ 运费: ${region} = $${price}`);
-              }
-            });
+        if (char === '"' && inQuotes && nextChar === '"') {
+          value += '"';
+          i++;
+        } else if (char === '"') {
+          inQuotes = !inQuotes;
+        } else if (char === "," && !inQuotes) {
+          row.push(value);
+          value = "";
+        } else if ((char === "\n" || char === "\r") && !inQuotes) {
+          if (value || row.length) {
+            row.push(value);
+            rows.push(row);
+            row = [];
+            value = "";
           }
+          if (char === "\r" && nextChar === "\n") i++;
+        } else {
+          value += char;
         }
-      } catch (error) {
-        console.error('❌ 获取运费数据失败:', error);
-        shippingData = { 'Default': 0 };
       }
+
+      if (value || row.length) {
+        row.push(value);
+        rows.push(row);
+      }
+
+      return rows;
     }
 
-    /* ═══════════════════════════════════════════════════════════════════════════
-       渲染产品网格
-       ═══════════════════════════════════════════════════════════════════════════ */
+    function rowsToObjects(rows) {
+      if (!rows.length) return [];
+      const headers = rows[0].map(h => h.trim().toLowerCase());
 
-    function renderProducts(productsToShow = products) {
-      const grid = document.getElementById('productGrid');
-      
-      if (!productsToShow || productsToShow.length === 0) {
-        grid.innerHTML = '<div class="error">没有找到产品</div>';
-        return;
+      return rows.slice(1)
+        .filter(row => row.some(cell => String(cell).trim() !== ""))
+        .map(row => {
+          const obj = {};
+          headers.forEach((header, index) => {
+            obj[header] = row[index] ? row[index].trim() : "";
+          });
+          return obj;
+        });
+    }
+
+    async function loadCSV(url) {
+      const response = await fetch(url + "&cacheBust=" + Date.now());
+      if (!response.ok) throw new Error("Could not load CSV");
+      const text = await response.text();
+      return rowsToObjects(parseCSV(text));
+    }
+
+    function val(row, key) {
+      return row[key.toLowerCase()] || "";
+    }
+
+    function safeSlug(text) {
+      return String(text || "")
+        .toLowerCase()
+        .trim()
+        .replace(/\s+/g, "-");
+    }
+
+    function textSetting(key, fallback) {
+      return settings[key.toLowerCase()] || fallback;
+    }
+
+    function numericSetting(key, fallback) {
+      const value = Number(settings[key.toLowerCase()]);
+      return Number.isNaN(value) ? fallback : value;
+    }
+
+    function currencyCode() {
+      return textSetting("currency.code", "USD");
+    }
+
+    function money(value) {
+      const n = Number(value);
+      if (Number.isNaN(n)) return "";
+      return currencyCode() + " " + n.toFixed(2);
+    }
+
+    function priceHTML(row) {
+      const price = Number(val(row, "price"));
+      const compare = Number(val(row, "compareprice"));
+
+      if (Number.isNaN(price)) return "";
+
+      if (!Number.isNaN(compare) && compare > price) {
+        return `<span class="compare-price">${money(compare)}</span><span>${money(price)}</span>`;
       }
 
-      grid.innerHTML = productsToShow.map(product => `
-        <div class="card" onclick="openProductModal(${product.id})">
+      return `<span>${money(price)}</span>`;
+    }
+
+    function getStatus(row) {
+      const status = val(row, "status").trim().toLowerCase();
+
+      if (status === "hidden") return "hidden";
+
+      const hasRequired =
+        val(row, "id") &&
+        val(row, "name") &&
+        val(row, "price") &&
+        val(row, "category");
+
+      if (status !== "active" || !hasRequired) return "comingsoon";
+
+      const stock = Number(val(row, "stock") || 0);
+      if (stock <= 0) return "soldout";
+
+      return "active";
+    }
+
+    function statusLabel(status) {
+      if (status === "soldout") return "Sold out";
+      if (status === "comingsoon") return "Coming soon";
+      return "";
+    }
+
+    function imageUrl(name) {
+      return IMAGE_BASE_URL + name + ".jpg";
+    }
+
+    function coverImage(row) {
+      return imageUrl(`${val(row, "id")}-cover`);
+    }
+
+    function skuImage(row) {
+      const id = val(row, "id");
+      const sku = safeSlug(val(row, "sku"));
+      return sku ? imageUrl(`${id}-${sku}`) : coverImage(row);
+    }
+
+    function detailImage(row, number) {
+      return imageUrl(`${val(row, "id")}-${number}`);
+    }
+
+    function fallbackLetter(row) {
+      const name = val(row, "name");
+      return name ? name.charAt(0).toUpperCase() : "✦";
+    }
+
+    function imageBlock(src, row, badge = "") {
+      return `
+        ${badge ? `<div class="badge">${badge}</div>` : ""}
+        <span class="fallback-letter">${fallbackLetter(row)}</span>
+        <img src="${src}" alt="${val(row, "name")}" loading="lazy" onerror="this.style.display='none'">
+      `;
+    }
+
+    function groupProducts(rows) {
+      const visibleRows = rows.filter(row => getStatus(row) !== "hidden");
+      const map = new Map();
+
+      visibleRows.forEach(row => {
+        const id = val(row, "id");
+        if (!id) return;
+        if (!map.has(id)) map.set(id, []);
+        map.get(id).push(row);
+      });
+
+      return Array.from(map.entries()).map(([id, rows]) => {
+        const activeRows = rows.filter(row => getStatus(row) === "active");
+        const soldoutRows = rows.filter(row => getStatus(row) === "soldout");
+        const comingRows = rows.filter(row => getStatus(row) === "comingsoon");
+
+        let groupStatus = "comingsoon";
+        if (activeRows.length > 0) groupStatus = "active";
+        else if (soldoutRows.length > 0 && comingRows.length === 0) groupStatus = "soldout";
+
+        const displayRow = activeRows[0] || soldoutRows[0] || comingRows[0] || rows[0];
+
+        return {
+          id,
+          rows,
+          displayRow,
+          status: groupStatus,
+          name: val(displayRow, "name"),
+          category: val(displayRow, "category")
+        };
+      });
+    }
+
+    function productPrice(group) {
+      const validRows = group.rows.filter(row => {
+        const status = getStatus(row);
+        return status === "active" || status === "soldout";
+      });
+
+      const prices = validRows
+        .map(row => Number(val(row, "price")))
+        .filter(n => !Number.isNaN(n));
+
+      if (!prices.length) return "";
+
+      const min = Math.min(...prices);
+      const max = Math.max(...prices);
+
+      return min === max ? money(min) : "From " + money(min);
+    }
+
+    function productStock(group) {
+      if (group.status === "comingsoon") return "Coming soon";
+      if (group.status === "soldout") return "Sold out";
+
+      const total = group.rows
+        .filter(row => getStatus(row) === "active")
+        .reduce((sum, row) => sum + Number(val(row, "stock") || 0), 0);
+
+      return total + " in stock";
+    }
+
+    function productDescription(group) {
+      return val(group.displayRow, "shortdescription") || val(group.displayRow, "longdescription") || "";
+    }
+
+    function productCard(group) {
+      const badge = statusLabel(group.status);
+      const cover = coverImage(group.displayRow);
+
+      return `
+        <article class="card" onclick="openProductModal('${group.id}')">
           <div class="image">
-            ${product['图片URL'] ? `<img src="${product['图片URL']}" alt="${product['名称']}">` : '📦'}
-            ${product['标签'] ? `<div class="badge">${product['标签']}</div>` : ''}
+            ${imageBlock(cover, group.displayRow, badge)}
           </div>
           <div class="card-body">
-            <h3>${product['名称'] || 'Product'}</h3>
-            <p class="desc">${product['描述'] || ''}</p>
+            <h3>${group.name}</h3>
+            <p class="desc">${productDescription(group)}</p>
             <div class="meta">
-              <div class="price">
-                <span>$${parseFloat(product['价格']) || 0}</span>
-                ${product['原价'] ? `<span class="compare-price">$${product['原价']}</span>` : ''}
-              </div>
-              <div class="stock">${product['库存'] > 0 ? '有货' : '缺货'}</div>
+              <div class="price">${productPrice(group)}</div>
+              <div class="stock">${productStock(group)}</div>
             </div>
-            <button class="button" onclick="event.stopPropagation(); addToCart(${product.id})">加入购物车</button>
           </div>
-        </div>
-      `).join('');
-
-      updateCategoryFilter();
+        </article>
+      `;
     }
 
-    function openProductModal(productId) {
-      selectedProductId = productId;
-      selectedQty = 1;
-      const product = products.find(p => p.id === productId);
-      if (!product) return;
+    function applySettings(rows) {
+      rows.forEach(row => {
+        const key = val(row, "key").toLowerCase();
+        const value = val(row, "value");
+        if (key) settings[key] = value;
+      });
 
-      document.getElementById('modalTitle').textContent = product['名称'] || 'Product';
-      document.getElementById('modalDescription').textContent = product['描述'] || '';
-      document.getElementById('modalPrice').textContent = `$${parseFloat(product['价格']) || 0}`;
-      document.getElementById('modalStock').textContent = product['库存'] > 0 ? '有货' : '缺货';
-      document.getElementById('qtyDisplay').textContent = '1';
+      const title = textSetting("index.herotitle", "Lisha Studio");
+      const subtitle = textSetting("index.herosubtitle", "Handmade little joy");
+      const featured = textSetting("index.featuredtitle", "Featured Pieces");
+      const video = textSetting("index.herovideo", "");
 
-      const modalImg = document.getElementById('modalImage');
-      if (product['图片URL']) {
-        modalImg.innerHTML = `<img src="${product['图片URL']}" style="width:100%;height:100%;object-fit:cover;">`;
+      const contactTitle = textSetting("contact.title", "Contact");
+      const contactNote = textSetting("contact.note", "For custom orders, collaborations, or questions, feel free to contact me.");
+      const contactCustom = textSetting("contact.custom", "Custom colors, small gifts, and playful handmade pieces are welcome.");
+      const contactShipping = textSetting("contact.shipping", "Each piece is packed carefully before shipping.");
+      const contactResponse = textSetting("contact.response", "I usually reply within 1–2 business days.");
+
+      const email = textSetting("contact.email", "");
+      const whatsapp = textSetting("contact.whatsapp", "");
+      const youtube = textSetting("contact.youtube", "");
+
+      const shippingNote = textSetting("shipping.note", "Checkout is coming soon. Please contact me if you want to order now.");
+
+      document.title = title + " | Handmade Art Objects";
+      document.getElementById("heroTitle").textContent = title;
+      document.getElementById("heroSubtitle").textContent = subtitle;
+      document.getElementById("featuredTitle").textContent = featured;
+      document.getElementById("contactTitle").textContent = contactTitle;
+      document.getElementById("contactNote").textContent = contactNote;
+      document.getElementById("contactCustom").textContent = contactCustom;
+      document.getElementById("contactShipping").textContent = contactShipping;
+      document.getElementById("contactResponse").textContent = contactResponse;
+      document.getElementById("cartShippingNote").textContent = shippingNote;
+
+      const links = document.getElementById("contactLinks");
+      links.innerHTML = "";
+
+      if (email) {
+        links.innerHTML += `<a href="mailto:${email}">Email</a>`;
       }
 
-      document.getElementById('productModal').style.display = 'flex';
+      if (whatsapp) {
+        links.innerHTML += `<a href="${whatsapp}" target="_blank" rel="noopener">WhatsApp</a>`;
+      }
+
+      if (youtube) {
+        links.innerHTML += `<a href="${youtube}" target="_blank" rel="noopener">YouTube</a>`;
+      }
+
+      const videoArea = document.getElementById("videoArea");
+      const videoMedia = document.getElementById("videoMedia");
+
+      if (!video) {
+        videoArea.style.display = "none";
+        videoMedia.innerHTML = "";
+      } else {
+        videoArea.style.display = "block";
+
+        if (video.includes("youtube.com") || video.includes("youtu.be") || video.includes("vimeo.com")) {
+          videoMedia.innerHTML = `<iframe src="${video}" allowfullscreen></iframe>`;
+        } else {
+          videoMedia.innerHTML = `
+            <video autoplay muted loop playsinline>
+              <source src="${video}" type="video/mp4">
+            </video>
+          `;
+        }
+      }
+    }
+
+    function renderCategories() {
+      const select = document.getElementById("categoryFilter");
+      select.innerHTML = `<option value="all">All categories</option>`;
+
+      [...new Set(productGroups.map(group => group.category).filter(Boolean))]
+        .sort()
+        .forEach(category => {
+          select.innerHTML += `<option value="${category}">${category}</option>`;
+        });
+    }
+
+    function renderProducts() {
+      const grid = document.getElementById("productGrid");
+      const query = document.getElementById("searchInput").value.trim().toLowerCase();
+      const category = document.getElementById("categoryFilter").value;
+
+      const filtered = productGroups.filter(group => {
+        const text = group.rows.map(row => [
+          val(row, "id"),
+          val(row, "name"),
+          val(row, "sku"),
+          val(row, "category"),
+          val(row, "materials"),
+          val(row, "shortdescription"),
+          val(row, "longdescription")
+        ].join(" ")).join(" ").toLowerCase();
+
+        return text.includes(query) && (category === "all" || group.category === category);
+      });
+
+      grid.innerHTML = filtered.length
+        ? filtered.map(productCard).join("")
+        : `<div class="error">No products found.</div>`;
+    }
+
+    function modalImagesForGroup(group) {
+      const images = [coverImage(group.displayRow)];
+
+      group.rows.forEach(row => {
+        if (val(row, "sku")) images.push(skuImage(row));
+      });
+
+      [1, 2, 3, 4, 5].forEach(number => {
+        images.push(detailImage(group.displayRow, number));
+      });
+
+      return images;
+    }
+
+    function openProductModal(id) {
+      const group = productGroups.find(group => group.id === id);
+      if (!group) return;
+
+      const firstActive = group.rows.find(row => getStatus(row) === "active");
+      const selectedRow = firstActive || group.displayRow;
+
+      currentModalImages = modalImagesForGroup(group);
+      currentModalImageIndex = 0;
+
+      renderModal(group, selectedRow);
+
+      document.getElementById("productModal").style.display = "flex";
+      document.body.style.overflow = "hidden";
     }
 
     function closeProductModal() {
-      document.getElementById('productModal').style.display = 'none';
+      document.getElementById("productModal").style.display = "none";
+      document.body.style.overflow = "";
     }
 
-    function addToCart(productId) {
-      const product = products.find(p => p.id === productId);
-      if (!product) return;
+    function changeModalImage(direction) {
+      if (!currentModalImages.length) return;
 
-      const existingItem = cart.find(item => item.id === productId);
-      if (existingItem) {
-        existingItem.quantity = (selectedQty || 1);
+      currentModalImageIndex += direction;
+
+      if (currentModalImageIndex < 0) currentModalImageIndex = currentModalImages.length - 1;
+      if (currentModalImageIndex >= currentModalImages.length) currentModalImageIndex = 0;
+
+      const image = document.getElementById("modalSlideImage");
+      if (image) {
+        image.style.display = "block";
+        image.src = currentModalImages[currentModalImageIndex];
+      }
+    }
+
+    function renderModal(group, selectedRow) {
+      const status = getStatus(selectedRow);
+      const badge = statusLabel(status);
+      const stock = Number(val(selectedRow, "stock") || 0);
+
+      const stockText =
+        status === "active" ? stock + " in stock" :
+        status === "soldout" ? "Sold out" :
+        "Coming soon";
+
+      const priceText =
+        status === "active" || status === "soldout"
+          ? priceHTML(selectedRow)
+          : "";
+
+      const skuButtons = group.rows.length > 1
+        ? `
+          <div class="sku-options">
+            ${group.rows.map(row => {
+              const label = val(row, "sku") || "Default";
+              const active = row === selectedRow ? "active" : "";
+              return `<button class="sku-option ${active}" onclick="selectSku('${group.id}', '${label}')">${label}</button>`;
+            }).join("")}
+          </div>
+        `
+        : "";
+
+      const actionButton = status === "active"
+        ? `<button class="button" onclick="addToCartFromRow('${val(selectedRow, "id")}', '${val(selectedRow, "sku")}')">Add to cart</button>`
+        : `<button class="button disabled">${stockText}</button>`;
+
+      document.getElementById("modalContent").innerHTML = `
+        <div>
+          <div class="modal-main-image" id="modalMainImage">
+            ${badge ? `<div class="badge">${badge}</div>` : ""}
+            <span class="fallback-letter">${fallbackLetter(selectedRow)}</span>
+            <img id="modalSlideImage" src="${currentModalImages[currentModalImageIndex]}" alt="${val(selectedRow, "name")}" onerror="this.style.display='none'">
+            <button class="image-arrow left" onclick="changeModalImage(-1)">‹</button>
+            <button class="image-arrow right" onclick="changeModalImage(1)">›</button>
+          </div>
+        </div>
+
+        <div class="modal-info">
+          <h2>${val(selectedRow, "name")}</h2>
+          <p>${val(selectedRow, "longdescription") || val(selectedRow, "shortdescription") || ""}</p>
+
+          ${skuButtons}
+
+          <div class="meta">
+            <div class="price">${priceText}</div>
+            <div class="stock">${stockText}</div>
+          </div>
+
+          <ul class="details-list">
+            ${val(selectedRow, "category") ? `<li><strong>Category:</strong> ${val(selectedRow, "category")}</li>` : ""}
+            ${val(selectedRow, "materials") ? `<li><strong>Materials:</strong> ${val(selectedRow, "materials")}</li>` : ""}
+            ${val(selectedRow, "weight") ? `<li><strong>Weight:</strong> ${val(selectedRow, "weight")} kg</li>` : ""}
+            ${(val(selectedRow, "length") || val(selectedRow, "width") || val(selectedRow, "height"))
+              ? `<li><strong>Size:</strong> ${val(selectedRow, "length")} × ${val(selectedRow, "width")} × ${val(selectedRow, "height")} cm</li>`
+              : ""}
+          </ul>
+
+          ${actionButton}
+        </div>
+      `;
+    }
+
+    function selectSku(groupId, skuLabel) {
+      const group = productGroups.find(group => group.id === groupId);
+      if (!group) return;
+
+      const selected = group.rows.find(row => (val(row, "sku") || "Default") === skuLabel);
+      if (!selected) return;
+
+      const selectedSkuImage = skuImage(selected);
+      currentModalImageIndex = currentModalImages.indexOf(selectedSkuImage);
+      if (currentModalImageIndex < 0) currentModalImageIndex = 0;
+
+      renderModal(group, selected);
+    }
+
+    function cartItemKey(productId, sku) {
+      return productId + "::" + (sku || "");
+    }
+
+    function loadCart() {
+      try {
+        const saved = localStorage.getItem(CART_STORAGE_KEY);
+        cart = saved ? JSON.parse(saved) : [];
+      } catch {
+        cart = [];
+      }
+    }
+
+    function saveCart() {
+      localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
+    }
+
+    function findProductRow(productId, sku) {
+      return allProductRows.find(row => val(row, "id") === productId && val(row, "sku") === sku)
+        || allProductRows.find(row => val(row, "id") === productId && !val(row, "sku"));
+    }
+
+    function addToCartFromRow(productId, sku) {
+      const row = findProductRow(productId, sku);
+      if (!row) return alert("Product not found.");
+
+      if (getStatus(row) !== "active") {
+        return alert("This item is not available right now.");
+      }
+
+      const stock = Number(val(row, "stock") || 0);
+      const key = cartItemKey(productId, sku);
+      const existing = cart.find(item => item.key === key);
+      const currentQty = existing ? existing.qty : 0;
+
+      if (currentQty + 1 > stock) {
+        return alert("Not enough stock.");
+      }
+
+      if (existing) {
+        existing.qty += 1;
       } else {
         cart.push({
-          id: productId,
-          name: product['名称'],
-          price: parseFloat(product['价格']),
-          image: product['图片URL'],
-          quantity: selectedQty || 1
+          key,
+          productId,
+          sku,
+          name: val(row, "name"),
+          price: Number(val(row, "price")),
+          image: sku ? skuImage(row) : coverImage(row),
+          qty: 1,
+          stock
         });
       }
 
       saveCart();
-      updateCartUI();
-      closeProductModal();
-      alert('✅ 已添加到购物车!');
+      renderCart();
+      toggleCart(true);
     }
 
-    function updateCartUI() {
-      const cartBody = document.getElementById('cartBody');
-      
-      if (cart.length === 0) {
-        cartBody.innerHTML = '<div class="cart-empty">购物车为空</div>';
-        updateCartTotals();
+    function updateCartQty(key, change) {
+      const item = cart.find(item => item.key === key);
+      if (!item) return;
+
+      const nextQty = item.qty + change;
+
+      if (nextQty <= 0) {
+        cart = cart.filter(cartItem => cartItem.key !== key);
+      } else if (nextQty <= item.stock) {
+        item.qty = nextQty;
+      } else {
+        alert("Not enough stock.");
+      }
+
+      saveCart();
+      renderCart();
+    }
+
+    function removeFromCart(key) {
+      cart = cart.filter(item => item.key !== key);
+      saveCart();
+      renderCart();
+    }
+
+    function cartSubtotal() {
+      return cart.reduce((sum, item) => sum + item.price * item.qty, 0);
+    }
+
+    function cartShipping(subtotal) {
+      if (cart.length === 0) return 0;
+
+      const freeOver = numericSetting("shipping.freeover", 100);
+      const baseFee = numericSetting("shipping.basefee", 6.99);
+
+      return subtotal >= freeOver ? 0 : baseFee;
+    }
+
+    function renderCart() {
+      const count = cart.reduce((sum, item) => sum + item.qty, 0);
+      document.getElementById("cartCount").textContent = count;
+
+      const itemsEl = document.getElementById("cartItems");
+      const summaryEl = document.getElementById("cartSummary");
+
+      if (!cart.length) {
+        itemsEl.innerHTML = `<p class="cart-note">Your cart is empty.</p>`;
+        summaryEl.innerHTML = "";
         return;
       }
 
-      cartBody.innerHTML = cart.map(item => `
+      itemsEl.innerHTML = cart.map(item => `
         <div class="cart-item">
           <div class="cart-thumb">
-            ${item.image ? `<img src="${item.image}">` : '📦'}
+            <img src="${item.image}" alt="${item.name}" onerror="this.style.display='none'">
           </div>
-          <div class="cart-item-info">
-            <div class="cart-item-name">${item.name}</div>
-            <div class="cart-item-price">$${item.price}</div>
-            <div class="cart-item-qty">数量: ${item.quantity}</div>
+          <div class="cart-info">
+            <h3>${item.name}</h3>
+            <p>${item.sku ? item.sku + " · " : ""}${money(item.price)}</p>
+            <div class="cart-line">
+              <div class="qty-controls">
+                <button class="qty-btn" onclick="updateCartQty('${item.key}', -1)">−</button>
+                <strong>${item.qty}</strong>
+                <button class="qty-btn" onclick="updateCartQty('${item.key}', 1)">+</button>
+              </div>
+              <button class="remove-btn" onclick="removeFromCart('${item.key}')">Remove</button>
+            </div>
           </div>
-          <button class="cart-item-remove" onclick="removeFromCart(${item.id})">🗑️</button>
         </div>
-      `).join('');
+      `).join("");
 
-      updateCartTotals();
+      const subtotal = cartSubtotal();
+      const shipping = cartShipping(subtotal);
+      const total = subtotal + shipping;
+      const deliveryTime = textSetting("shipping.deliverytime", "Estimated delivery time will be confirmed after checkout.");
+
+      summaryEl.innerHTML = `
+        <div class="summary-row"><span>Subtotal</span><span>${money(subtotal)}</span></div>
+        <div class="summary-row"><span>Shipping</span><span>${shipping === 0 ? "FREE" : money(shipping)}</span></div>
+        <div class="summary-row total"><span>Total</span><span>${money(total)}</span></div>
+        <p class="cart-note">${deliveryTime}</p>
+      `;
     }
 
-    function removeFromCart(productId) {
-      cart = cart.filter(item => item.id !== productId);
-      saveCart();
-      updateCartUI();
-    }
-
-    function updateCartTotals() {
-      const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-      const shippingRegion = document.getElementById('shippingRegion').textContent;
-      const shippingPrice = shippingData[shippingRegion] || 0;
-      const total = subtotal + shippingPrice;
-
-      document.getElementById('subtotalPrice').textContent = `$${subtotal.toFixed(2)}`;
-      document.getElementById('shippingPrice').textContent = `$${shippingPrice.toFixed(2)}`;
-      document.getElementById('totalPrice').textContent = `$${total.toFixed(2)}`;
-    }
-
-    function saveCart() {
-      localStorage.setItem('cart', JSON.stringify(cart));
-    }
-
-    function restoreCart() {
-      const saved = localStorage.getItem('cart');
-      if (saved) {
-        cart = JSON.parse(saved);
-        updateCartUI();
+    function toggleCart(forceShow) {
+      const drawer = document.getElementById("cartDrawer");
+      if (typeof forceShow === "boolean") {
+        drawer.classList.toggle("open", forceShow);
+      } else {
+        drawer.classList.toggle("open");
       }
     }
 
-    function openCart() {
-      document.getElementById('cartSidebar').classList.add('open');
-      document.getElementById('cartOverlay').classList.add('open');
-    }
-
-    function closeCart() {
-      document.getElementById('cartSidebar').classList.remove('open');
-      document.getElementById('cartOverlay').classList.remove('open');
-    }
-
-    function checkout() {
-      if (cart.length === 0) {
-        alert('购物车为空');
+    function checkoutPlaceholder() {
+      if (!cart.length) {
+        alert("Your cart is empty.");
         return;
       }
-      alert('感谢购买!');
+
+      alert("Checkout will be connected in the next step.");
     }
 
-    function increaseQty() {
-      selectedQty = Math.min((selectedQty || 1) + 1, 999);
-      document.getElementById('qtyDisplay').textContent = selectedQty;
-    }
+    async function init() {
+      try {
+        loadCart();
 
-    function decreaseQty() {
-      selectedQty = Math.max((selectedQty || 1) - 1, 1);
-      document.getElementById('qtyDisplay').textContent = selectedQty;
-    }
+        const [settingsRows, productRows] = await Promise.all([
+          loadCSV(SETTINGS_CSV_URL),
+          loadCSV(PRODUCTS_CSV_URL)
+        ]);
 
-    function toggleWishlist() {
-      if (!selectedProductId) return;
-      const idx = wishlist.indexOf(selectedProductId);
-      if (idx >= 0) {
-        wishlist.splice(idx, 1);
-      } else {
-        wishlist.push(selectedProductId);
+        applySettings(settingsRows);
+
+        allProductRows = productRows;
+        productGroups = groupProducts(productRows);
+
+        renderCategories();
+        renderProducts();
+        renderCart();
+
+        document.getElementById("searchInput").addEventListener("input", renderProducts);
+        document.getElementById("categoryFilter").addEventListener("change", renderProducts);
+
+        document.getElementById("modalClose").addEventListener("click", closeProductModal);
+
+        document.getElementById("productModal").addEventListener("click", event => {
+          if (event.target.id === "productModal") closeProductModal();
+        });
+
+        document.addEventListener("keydown", event => {
+          if (event.key === "Escape") closeProductModal();
+        });
+      } catch (error) {
+        console.error(error);
+        document.getElementById("productGrid").innerHTML = `<div class="error">Could not load products. Please check the Google Sheets links.</div>`;
       }
-      localStorage.setItem('wishlist', JSON.stringify(wishlist));
     }
 
-    function filterProducts() {
-      const search = document.getElementById('search').value.toLowerCase();
-      const category = document.getElementById('category').value;
+init();
 
-      const filtered = products.filter(product => {
-        const matchesSearch = !search || 
-          product['名称']?.toLowerCase().includes(search) ||
-          product['描述']?.toLowerCase().includes(search);
-        const matchesCategory = !category || product['分类'] === category;
-        return matchesSearch && matchesCategory;
-      });
+        // --- PayPal 支付按钮渲染逻辑开始 ---
+        if (window.paypal) {
+          paypal.Buttons({
+            // 1. 点击按钮时：创建订单
+            createOrder: async () => {
+                const shipping = 6.99; // 固定运费
+                
+                const response = await fetch("https://lishastudio-payment.ldeng123.workers.dev/create-paypal-order", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        currency: "USD",
+                        items: cart.map(item => ({ name: item.name, price: item.price.toString(), qty: item.qty })),
+                        shipping: shipping.toString()
+                    })
+                });
+                const data = await response.json();
+                if (!data.paypalOrderId) {
+                    alert("创建订单失败，请检查网络或稍后再试！");
+                }
+                return data.paypalOrderId;
+            },
+            
+            // 2. 付款完成后：捕获订单（正式扣款）
+            onApprove: async (data) => {
+                const response = await fetch("https://lishastudio-payment.ldeng123.workers.dev/capture-paypal-order", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        paypalOrderId: data.orderID
+                    })
+                });
+                const result = await response.json();
+                if (result.ok) {
+                    alert("支付成功！感谢您的购买！");
+                    localStorage.removeItem(CART_STORAGE_KEY); // 清空购物车
+                    location.reload(); // 刷新页面
+                } else {
+                    alert("扣款出现问题，请联系 Lisha Studio。");
+                }
+            }
+          }).render('#paypal-button-container'); 
+        }
+        // --- PayPal 支付按钮渲染逻辑结束 ---
 
-      renderProducts(filtered);
-    }
-
-    function updateCategoryFilter() {
-      const categories = [...new Set(products.map(p => p['分类']).filter(Boolean))];
-      const select = document.getElementById('category');
-      const existing = select.querySelectorAll('option:not(:first-child)');
-      existing.forEach(opt => opt.remove());
-      
-      categories.forEach(cat => {
-        const opt = document.createElement('option');
-        opt.value = cat;
-        opt.textContent = cat;
-        select.appendChild(opt);
-      });
-    }
-
-    function nextImage() { alert('更多图片即将推出'); }
-    function prevImage() { alert('更多图片即将推出'); }
-  </script>
+    </script>
 </body>
 </html>
