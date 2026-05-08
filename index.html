@@ -1516,57 +1516,145 @@ function renderCart() {
       }
     }
 
-    // 网页启动逻辑
+// --- 1. 网页初始化核心逻辑 ---
     async function init() {
       try {
-        loadCart();
+        // 加载本地缓存的购物车
+        if (typeof loadCart === 'function') loadCart();
+
+        // 提取 Products 和 Settings (CSV 方式)
+        // 你问的 Products 提取就在这里，它和 Shipping 的 API 方式是分开的
         const [settingsRows, productRows] = await Promise.all([
           loadCSV(SETTINGS_CSV_URL),
           loadCSV(PRODUCTS_CSV_URL)
         ]);
-        applySettings(settingsRows);
+
+        if (typeof applySettings === 'function') applySettings(settingsRows);
+        
         allProductRows = productRows;
         productGroups = groupProducts(productRows);
+
         renderCategories();
         renderProducts();
-
-        // 【关键】先抓邮费再画购物车
-        await fetchShipping();
+        
+        // 【关键】先通过 API 提取邮费地区数据
+        await fetchShipping(); 
+        
+        // 【关键】数据拿到了，再画购物车，这样下拉菜单才有内容
         renderCart();
 
-        document.getElementById("searchInput").addEventListener("input", renderProducts);
-        document.getElementById("categoryFilter").addEventListener("change", renderProducts);
-        document.getElementById("modalClose").addEventListener("click", closeProductModal);
-        document.getElementById("productModal").addEventListener("click", e => {
-          if (e.target.id === "productModal") closeProductModal();
-        });
-        document.addEventListener("keydown", e => {
-          if (e.key === "Escape") closeProductModal();
-        });
+        // 绑定搜索、过滤和弹窗事件
+        const sInput = document.getElementById("searchInput");
+        if(sInput) sInput.addEventListener("input", renderProducts);
+        const cFilter = document.getElementById("categoryFilter");
+        if(cFilter) cFilter.addEventListener("change", renderProducts);
+        const mClose = document.getElementById("modalClose");
+        if(mClose) mClose.addEventListener("click", closeProductModal);
+        const pModal = document.getElementById("productModal");
+        if(pModal) pModal.addEventListener("click", e => { if (e.target.id === "productModal") closeProductModal(); });
+        document.addEventListener("keydown", e => { if (e.key === "Escape") closeProductModal(); });
+
       } catch (error) {
-        console.error(error);
+        console.error("Initialization failed:", error);
+        const grid = document.getElementById("productGrid");
+        if(grid) grid.innerHTML = `<div class="error">Error loading data. Please check your links.</div>`;
       }
     }
 
-    // 获取邮费规则
+    // --- 2. 提取 Shipping 地区和费用的代码 ---
     async function fetchShipping() {
       try {
+        // 使用你在 844 行定义的 SHIPPING_API_URL 提取数据
         const res = await fetch(SHIPPING_API_URL);
         const data = await res.json();
-        shippingRules = Array.isArray(data) ? data : [];
-        console.log("Shipping loaded", shippingRules);
-        // 拿到数据立即刷新购物车，让下拉菜单出现
+        
+        // 这里的 data 就是从你的 Apps Script doGet 返回的 rules 数组
+        shippingRules = Array.isArray(data) ? data : []; 
+        console.log("Shipping Rules Loaded:", shippingRules);
+        
+        // 提取成功后刷新购物车显示
         renderCart(); 
       } catch (e) {
-        console.error("Failed to load shipping", e);
+        console.error("Failed to fetch shipping rules:", e);
       }
     }
 
-    // PayPal 逻辑
+    // --- 3. 购物车渲染逻辑 (修正了 region 匹配) ---
+    function renderCart() {
+      const count = cart.reduce((sum, item) => sum + item.qty, 0);
+      const cartCountEl = document.getElementById("cartCount");
+      if (cartCountEl) cartCountEl.textContent = count;
+
+      const itemsEl = document.getElementById("cartItems");
+      const summaryEl = document.getElementById("cartSummary");
+      const paypalContainer = document.getElementById("paypal-button-container");
+
+      if (!cart.length) {
+        itemsEl.innerHTML = `<p class="cart-note">Your cart is empty.</p>`;
+        summaryEl.innerHTML = "";
+        if (paypalContainer) paypalContainer.innerHTML = "";
+        return;
+      }
+
+      // 渲染购物车内的商品
+      itemsEl.innerHTML = cart.map(item => `
+        <div class="cart-item">
+          <div class="cart-thumb"><img src="${item.image}" alt="${item.name}"></div>
+          <div class="cart-info">
+            <h3>${item.name}</h3>
+            <p>${item.sku ? item.sku + " · " : ""}${money(item.price)}</p>
+            <div class="cart-line">
+              <div class="qty-controls">
+                <button class="qty-btn" onclick="updateCartQty('${item.key}', -1)">−</button>
+                <strong>${item.qty}</strong>
+                <button class="qty-btn" onclick="updateCartQty('${item.key}', 1)">+</button>
+              </div>
+              <button class="remove-btn" onclick="removeFromCart('${item.key}')">Remove</button>
+            </div>
+          </div>
+        </div>
+      `).join("");
+
+      const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+      
+      // 下拉菜单渲染：注意 r.region 必须匹配你 Apps Script 里的定义
+      summaryEl.innerHTML = `
+        <div class="summary-row"><span>Subtotal</span><span>${money(subtotal)}</span></div>
+        <div style="margin: 15px 0; padding: 12px; background: #fdf8f3; border: 1px solid #eee5dc; border-radius: 12px;">
+          <label style="font-weight: 800; font-size: 13px; display:block; margin-bottom:8px;">Ship to:</label>
+          <select id="region-select" onchange="window.handleRegionChange(this.value, ${subtotal})" style="width:100%; padding:8px; border-radius:8px; border:1px solid #ddd;">
+            <option value="">-- Please Select Region --</option>
+            ${shippingRules.map(r => `<option value="${r.cost}" ${selectedShippingCost == r.cost ? 'selected' : ''}>${r.region} (${money(r.cost)})</option>`).join("")}
+          </select>
+        </div>
+        <div class="summary-row total"><span>Total</span><span>${money(subtotal + selectedShippingCost)}</span></div>
+      `;
+
+      // 如果选了地区，显示 PayPal 按钮
+      const selectBox = document.getElementById("region-select");
+      if (selectBox && selectBox.value !== "") {
+        initPayPal(subtotal, selectedShippingCost);
+      } else {
+        if (paypalContainer) paypalContainer.innerHTML = '<p style="text-align:center; font-size:12px; color:#999; margin-top:20px;">Please select shipping region to checkout</p>';
+      }
+    }
+
+    // 响应下拉框选择
+    window.handleRegionChange = function(cost, subtotal) {
+      selectedShippingCost = Number(cost);
+      renderCart(); 
+    };
+
+    function toggleCart(forceShow) {
+      const drawer = document.getElementById("cartDrawer");
+      if(drawer) drawer.classList.toggle("open", !!forceShow);
+    }
+
+    // --- 4. PayPal 支付渲染 ---
     function initPayPal(subtotal, shippingCost) {
       const container = document.getElementById("paypal-button-container");
       if (!container) return;
-      container.innerHTML = ''; 
+      container.innerHTML = ''; // 清空旧按钮
 
       paypal.Buttons({
         createOrder: (data, actions) => {
@@ -1594,7 +1682,7 @@ function renderCart() {
       }).render('#paypal-button-container');
     }
 
-    // 执行
+    // 启动执行
     init();
 
   </script>
