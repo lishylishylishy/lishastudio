@@ -1436,180 +1436,341 @@
     }
 
 function renderCart() {
+
       // 1. 更新图标上的红色数字
+
       const count = cart.reduce((sum, item) => sum + item.qty, 0);
-      const cartCountEl = document.getElementById("cartCount");
-      if (cartCountEl) cartCountEl.textContent = count;
+
+      document.getElementById("cartCount").textContent = count;
+
+
 
       const itemsEl = document.getElementById("cartItems");
+
       const summaryEl = document.getElementById("cartSummary");
+
       const paypalContainer = document.getElementById("paypal-button-container");
 
       // 2. 如果购物车是空的
+
       if (!cart.length) {
+
         itemsEl.innerHTML = `<p class="cart-note">Your cart is empty.</p>`;
+
         summaryEl.innerHTML = "";
-        if (paypalContainer) paypalContainer.innerHTML = ""; 
+
+        if (paypalContainer) paypalContainer.innerHTML = ""; // 隐藏支付按钮
+
         return;
+
       }
 
-      // 3. 渲染商品列表
+      // 3. 渲染商品列表（保持你原本的样式）
+
       itemsEl.innerHTML = cart.map(item => `
+
         <div class="cart-item">
+
           <div class="cart-thumb">
+
             <img src="${item.image}" alt="${item.name}" onerror="this.style.display='none'">
+
           </div>
+
           <div class="cart-info">
+
             <h3>${item.name}</h3>
+
             <p>${item.sku ? item.sku + " · " : ""}${money(item.price)}</p>
+
             <div class="cart-line">
+
               <div class="qty-controls">
+
                 <button class="qty-btn" onclick="updateCartQty('${item.key}', -1)">−</button>
+
                 <strong>${item.qty}</strong>
+
                 <button class="qty-btn" onclick="updateCartQty('${item.key}', 1)">+</button>
+
               </div>
+
               <button class="remove-btn" onclick="removeFromCart('${item.key}')">Remove</button>
+
             </div>
+
           </div>
+
         </div>
+
       `).join("");
 
       // 4. 计算小计
+
       const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);      
-      
+
       // 5. 渲染邮费下拉菜单和总价
-      // 重要修正：这里将 r.name 改为了 r.region 以匹配你的数据
+
+      // 注意：这里我们把旧的 shipping 换成了下拉菜单
+
       summaryEl.innerHTML = `
+
         <div class="summary-row"><span>Subtotal</span><span>${money(subtotal)}</span></div>
+
         
+
         <div style="margin: 15px 0; padding: 12px; background: #fdf8f3; border: 1px solid #eee5dc; border-radius: 12px;">
+
           <label style="font-weight: 800; font-size: 13px; color: #756d66; display:block; margin-bottom:8px;">Ship to:</label>
+
           <select id="region-select" onchange="window.handleRegionChange(this.value, ${subtotal})" style="width:100%; padding:8px; border-radius:8px; border:1px solid #ddd; font-family: inherit;">
-            <option value="0">-- Please Select Region --</option>
-            ${shippingRules.map(r => `<option value="${r.cost}" ${selectedShippingCost == r.cost ? 'selected' : ''}>${r.region} (${money(r.cost)})</option>`).join("")}
+
+            <option value="">-- Please Select Region --</option>
+
+            ${shippingRules.map(r => `<option value="${r.cost}" ${selectedShippingCost == r.cost ? 'selected' : ''}>${r.name} (${money(r.cost)})</option>`).join("")}
+
           </select>
+
         </div>
 
+
+
         <div class="summary-row total"><span>Total</span><span>${money(subtotal + selectedShippingCost)}</span></div>
+
         <p class="cart-note">Select a region to see shipping cost and delivery time.</p>
+
       `;
 
-      // 6. 如果选了地区且邮费大于0，显示支付按钮
-      if (selectedShippingCost > 0 || (document.getElementById("region-select") && document.getElementById("region-select").value !== "0")) {
+      // 6. 如果选了地区，才显示 PayPal 按钮；没选就显示提示文字
+
+      if (selectedShippingCost > 0 || (shippingRules.length > 0 && selectedShippingCost === 0 && document.getElementById("region-select").value !== "")) {
+
+         // 选了之后，初始化 PayPal 按钮，把“商品价”和“邮费”传过去
+
          initPayPal(subtotal, selectedShippingCost);
+
       } else {
+
          if (paypalContainer) paypalContainer.innerHTML = '<p style="text-align:center; font-size:12px; color:#999; margin-top:20px;">Please select shipping region to checkout</p>';
+
       }
+
     }
 
     // 配套函数：当用户点击下拉菜单时执行
+
     window.handleRegionChange = function(cost, subtotal) {
+
       selectedShippingCost = Number(cost);
-      renderCart(); 
+
+      renderCart(); // 重新渲染，让总价更新，让 PayPal 按钮出来
+
     };
 
+
+
     function toggleCart(forceShow) {
+
       const drawer = document.getElementById("cartDrawer");
-      if (drawer) {
-        if (typeof forceShow === "boolean") {
-          drawer.classList.toggle("open", forceShow);
-        } else {
-          drawer.classList.toggle("open");
-        }
+
+      if (typeof forceShow === "boolean") {
+
+        drawer.classList.toggle("open", forceShow);
+
+      } else {
+
+        drawer.classList.toggle("open");
+
       }
+
     }
 
+
+
+    function checkoutPlaceholder() {
+
+      if (!cart.length) {
+
+        alert("Your cart is empty.");
+
+        return;
+
+      }
+
+
+
+      alert("Checkout will be connected in the next step.");
+
+    }
+
+
+
     async function init() {
+
       try {
+
         loadCart();
 
+
+
         const [settingsRows, productRows] = await Promise.all([
+
           loadCSV(SETTINGS_CSV_URL),
+
           loadCSV(PRODUCTS_CSV_URL)
+
         ]);
+
+
 
         applySettings(settingsRows);
 
+
+
         allProductRows = productRows;
+
         productGroups = groupProducts(productRows);
 
+
+
         renderCategories();
+
         renderProducts();
-        
-        // 关键修正：先加载邮费，再画购物车，确保下拉菜单有数据
-        await fetchShipping(); 
+
         renderCart();
 
+
+
         document.getElementById("searchInput").addEventListener("input", renderProducts);
+
         document.getElementById("categoryFilter").addEventListener("change", renderProducts);
+
+
+
         document.getElementById("modalClose").addEventListener("click", closeProductModal);
 
+
+
         document.getElementById("productModal").addEventListener("click", event => {
+
           if (event.target.id === "productModal") closeProductModal();
+
         });
+
+
 
         document.addEventListener("keydown", event => {
+
           if (event.key === "Escape") closeProductModal();
+
         });
+
       } catch (error) {
+
         console.error(error);
-        const grid = document.getElementById("productGrid");
-        if (grid) grid.innerHTML = `<div class="error">Could not load products.</div>`;
+
+        document.getElementById("productGrid").innerHTML = `<div class="error">Could not load products. Please check the Google Sheets links.</div>`;
+
       }
+
     }
 
-    // 获取邮费规则
-    async function fetchShipping() {
-      try {
-        const res = await fetch(SHIPPING_API_URL);
-        const data = await res.json();
-        // 兼容你的 Apps Script 返回格式
-        shippingRules = Array.isArray(data) ? data : [];
-        console.log("Shipping rules loaded:", shippingRules);
-        // 拿到数据后立即刷新一次购物车
-        renderCart(); 
-      } catch (e) {
-        console.error("Failed to load shipping", e);
-      }
+// 获取邮费规则 在 init 之前调用它
+
+async function fetchShipping() {
+
+  try {
+
+    const res = await fetch(SHIPPING_API_URL);
+
+    shippingRules = await res.json();
+
+    console.log("Shipping rules loaded", shippingRules);
+
+  } catch (e) {
+
+    console.error("Failed to load shipping", e);
+
+  }
+
+}
+
+fetchShipping();
+
+init();
+
+
+
+        // --- PayPal 支付按钮渲染逻辑开始 ---
+
+function initPayPal(subtotal, shippingCost) {
+
+  const container = document.getElementById("paypal-button-container");
+
+  if (!container) return; // 如果找不到放按钮的地方，就退出
+
+  
+
+  container.innerHTML = ''; // 重要：先把旧按钮清空，否则会出来一堆按钮
+
+
+
+  paypal.Buttons({
+
+    createOrder: (data, actions) => {
+
+      return actions.order.create({
+
+        purchase_units: [{
+
+          amount: {
+
+            currency_code: "USD", // 或者是 currencyCode()
+
+            value: (subtotal + shippingCost).toFixed(2), // 总金额
+
+            breakdown: {
+
+              item_total: { currency_code: "USD", value: subtotal.toFixed(2) },
+
+              shipping: { currency_code: "USD", value: shippingCost.toFixed(2) }
+
+            }
+
+          }
+
+        }]
+
+      });
+
+    },
+
+    onApprove: async (data, actions) => {
+
+      const details = await actions.order.capture();
+
+      alert('Success! Thank you ' + details.payer.name.given_name);
+
+      cart = [];
+
+      if (typeof saveCart === 'function') saveCart();
+
+      if (typeof toggleCart === 'function') toggleCart(false);
+
+      renderCart();
+
     }
 
-    // 启动程序
-    fetchShipping();
-    init();
+  }).render('#paypal-button-container');
 
-    // --- PayPal 支付按钮渲染逻辑 ---
-    function initPayPal(subtotal, shippingCost) {
-      const container = document.getElementById("paypal-button-container");
-      if (!container) return;
-      
-      container.innerHTML = ''; // 清空旧按钮
+}
 
-      paypal.Buttons({
-        createOrder: (data, actions) => {
-          return actions.order.create({
-            purchase_units: [{
-              amount: {
-                currency_code: "USD",
-                value: (subtotal + shippingCost).toFixed(2),
-                breakdown: {
-                  item_total: { currency_code: "USD", value: subtotal.toFixed(2) },
-                  shipping: { currency_code: "USD", value: shippingCost.toFixed(2) }
-                }
-              }
-            }]
-          });
-        },
-        onApprove: async (data, actions) => {
-          const details = await actions.order.capture();
-          alert('Success! Thank you ' + details.payer.name.given_name);
-          cart = [];
-          if (typeof saveCart === 'function') saveCart();
-          toggleCart(false);
-          renderCart();
-        }
-      }).render('#paypal-button-container');
-    }
+        // --- PayPal 支付按钮渲染逻辑结束 ---
+
+
 
     </script>
+
 </body>
+
 </html>
