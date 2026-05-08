@@ -1532,7 +1532,53 @@
       }
     }
 
-    init();
-  </script>
+init();
+
+        // --- PayPal 支付按钮渲染逻辑开始 ---
+        if (window.paypal) {
+          paypal.Buttons({
+            // 1. 点击按钮时：创建订单
+            createOrder: async () => {
+                const shipping = 6.99; // 固定运费
+                
+                const response = await fetch("https://lishastudio-payment.ldeng123.workers.dev/create-paypal-order", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        currency: "USD",
+                        items: cart.map(item => ({ name: item.name, price: item.price.toString(), qty: item.qty })),
+                        shipping: shipping.toString()
+                    })
+                });
+                const data = await response.json();
+                if (!data.paypalOrderId) {
+                    alert("创建订单失败，请检查网络或稍后再试！");
+                }
+                return data.paypalOrderId;
+            },
+            
+            // 2. 付款完成后：捕获订单（正式扣款）
+            onApprove: async (data) => {
+                const response = await fetch("https://lishastudio-payment.ldeng123.workers.dev/capture-paypal-order", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        paypalOrderId: data.orderID
+                    })
+                });
+                const result = await response.json();
+                if (result.ok) {
+                    alert("支付成功！感谢您的购买！");
+                    localStorage.removeItem(CART_STORAGE_KEY); // 清空购物车
+                    location.reload(); // 刷新页面
+                } else {
+                    alert("扣款出现问题，请联系 Lisha Studio。");
+                }
+            }
+          }).render('#paypal-button-container'); 
+        }
+        // --- PayPal 支付按钮渲染逻辑结束 ---
+
+    </script>
 </body>
 </html>
