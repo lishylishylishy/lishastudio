@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
   <title>Lisha Studio | Handmade Art Objects</title>
   <meta name="description" content="Lisha Studio handmade art objects, candles, gifts, and playful little things." />
 
@@ -32,6 +33,10 @@
       font-family: "Nunito", Arial, sans-serif;
     }
 
+    /* =========================
+       Header / Navigation
+       ========================= */
+
     header {
       padding: 26px 34px;
       display: flex;
@@ -53,6 +58,12 @@
     }
 
     nav a:hover { color: var(--accent-dark); }
+
+    /* =========================
+       Hero video area
+       Text comes from Settings sheet.
+       Video URL comes from index.heroVideo.
+       ========================= */
 
     .hero-video {
       position: relative;
@@ -132,13 +143,7 @@
       transition: 0.2s ease;
     }
 
-    .hero-subtitle-link::before {
-      content: "";
-    }
-
-    .hero-subtitle-link::after {
-      content: " :)";
-    }
+    .hero-subtitle-link::after { content: " :)"; }
 
     .hero-subtitle-link:hover {
       background: var(--accent);
@@ -146,6 +151,10 @@
       border-color: var(--accent);
       transform: translateY(-1px);
     }
+
+    /* =========================
+       Product section
+       ========================= */
 
     .section {
       max-width: 1120px;
@@ -330,6 +339,11 @@
       border-color: var(--text);
     }
 
+    /* =========================
+       Contact area
+       Text and links come from Settings sheet.
+       ========================= */
+
     .contact {
       border-top: 1px solid var(--line);
       padding: 70px 24px;
@@ -418,6 +432,10 @@
       padding: 36px;
       grid-column: 1 / -1;
     }
+
+    /* =========================
+       Product modal
+       ========================= */
 
     .modal-backdrop {
       position: fixed;
@@ -550,6 +568,10 @@
     }
 
     .details-list strong { color: var(--text); }
+
+    /* =========================
+       Cart drawer
+       ========================= */
 
     .cart-float {
       position: fixed;
@@ -685,9 +707,12 @@
       background: var(--bg);
     }
 
-    .summary-row {
+    .summary-row,
+    .summary-control {
       display: flex;
       justify-content: space-between;
+      align-items: center;
+      gap: 12px;
       margin: 8px 0;
       color: var(--muted);
       font-weight: 800;
@@ -701,6 +726,17 @@
       margin-top: 12px;
     }
 
+    .summary-control select {
+      border: 1px solid var(--line);
+      background: white;
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-family: "Nunito", Arial, sans-serif;
+      font-weight: 800;
+      outline: none;
+      max-width: 160px;
+    }
+
     .cart-note {
       color: var(--muted);
       font-size: 13px;
@@ -708,7 +744,13 @@
       margin: 12px 0 0;
     }
 
-    .checkout-placeholder { margin-top: 14px; width: 100%; }
+    #paypal-button-container {
+      margin-top: 14px;
+    }
+
+    /* =========================
+       Responsive
+       ========================= */
 
     @media (max-width: 850px) {
       header { justify-content: center; padding: 22px 18px; }
@@ -745,7 +787,11 @@
       .cart-float { right: 14px; bottom: 14px; }
     }
   </style>
-<script src="https://www.paypal.com/sdk/js?client-id=AViE6g_MybW_s4M1JQOgpgDw0tTEbOnzPpj7lHmE5TWmG4Voe0I81wK3cRTXCoufRo887gv1KbCv_-cE&currency=USD"></script>
+
+  <!-- PayPal SDK.
+       Sandbox client-id is okay for testing.
+       When going live, replace with Live client-id and change Worker PayPal API to live. -->
+  <script src="https://www.paypal.com/sdk/js?client-id=AViE6g_MybW_s4M1JQOgpgDw0tTEbOnzPpj7lHmE5TWmG4Voe0I81wK3cRTXCoufRo887gv1KbCv_-cE&currency=USD"></script>
 </head>
 
 <body>
@@ -821,9 +867,9 @@
       <p class="cart-note">Your cart is empty.</p>
     </div>
 
-<div class="cart-footer">
+    <div class="cart-footer">
       <div id="cartSummary"></div>
-      <div id="paypal-button-container" style="margin-top: 14px;"></div>
+      <div id="paypal-button-container"></div>
       <p class="cart-note" id="cartShippingNote">Checkout is coming soon. Please contact me if you want to order now.</p>
     </div>
   </aside>
@@ -840,17 +886,47 @@
   </footer>
 
   <script>
+    /* ==========================================================
+       1. Data sources and global settings
+       ========================================================== */
+
     const SETTINGS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRQ5vcuUBnI85arPNNe2h-aqwqq_9RpCBN0oewhCexPjWd-nX7YW-j3ii_5JlwvZZ7VlyjZ_RSTVwD5/pub?gid=0&single=true&output=csv";
     const PRODUCTS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRQ5vcuUBnI85arPNNe2h-aqwqq_9RpCBN0oewhCexPjWd-nX7YW-j3ii_5JlwvZZ7VlyjZ_RSTVwD5/pub?gid=22339288&single=true&output=csv";
+
+    /*
+      Shipping rules come from your Apps Script doGet().
+      Replace this placeholder with your deployed Web App URL.
+      Example:
+      const SHIPPING_RULES_URL = "https://script.google.com/macros/s/xxxxx/exec";
+    */
+    const SHIPPING_RULES_URL = "PASTE_YOUR_APPS_SCRIPT_WEB_APP_URL_HERE";
+
     const IMAGE_BASE_URL = "https://pub-32f3f529081e4033a9e6ecf3fd1297ae.r2.dev/images/";
+    const WORKER_PAYMENT_URL = "https://lishastudio-payment.ldeng123.workers.dev";
+
     const CART_STORAGE_KEY = "lisha_studio_cart";
+    const SHIPPING_REGION_STORAGE_KEY = "lisha_studio_shipping_region";
+
+    /* ==========================================================
+       2. Runtime state
+       ========================================================== */
 
     let productGroups = [];
     let allProductRows = [];
     let settings = {};
     let cart = [];
+
+    let shippingRules = [];
+    let selectedShippingRegion = localStorage.getItem(SHIPPING_REGION_STORAGE_KEY) || "";
+
     let currentModalImages = [];
     let currentModalImageIndex = 0;
+    let paypalButtonsRendered = false;
+
+    /* ==========================================================
+       3. CSV helpers
+       Used for Settings and Products public CSV.
+       ========================================================== */
 
     function parseCSV(text) {
       const rows = [];
@@ -893,6 +969,7 @@
 
     function rowsToObjects(rows) {
       if (!rows.length) return [];
+
       const headers = rows[0].map(h => h.trim().toLowerCase());
 
       return rows.slice(1)
@@ -909,6 +986,7 @@
     async function loadCSV(url) {
       const response = await fetch(url + "&cacheBust=" + Date.now());
       if (!response.ok) throw new Error("Could not load CSV");
+
       const text = await response.text();
       return rowsToObjects(parseCSV(text));
     }
@@ -923,6 +1001,11 @@
         .trim()
         .replace(/\s+/g, "-");
     }
+
+    /* ==========================================================
+       4. Settings helpers
+       Settings sheet controls hero text, contact text, currency, etc.
+       ========================================================== */
 
     function textSetting(key, fallback) {
       return settings[key.toLowerCase()] || fallback;
@@ -955,6 +1038,85 @@
 
       return `<span>${money(price)}</span>`;
     }
+
+    /* ==========================================================
+       5. Shipping rules
+       Shipping sheet format:
+       Region | Cost | MinFree
+       USA    | 8    | 90
+       Europe | 12   | 90
+       ========================================================== */
+
+    async function loadShippingRules() {
+      if (!SHIPPING_RULES_URL || SHIPPING_RULES_URL.includes("PASTE_YOUR_APPS_SCRIPT")) {
+        shippingRules = [];
+        return;
+      }
+
+      const response = await fetch(SHIPPING_RULES_URL + "?cacheBust=" + Date.now());
+      if (!response.ok) throw new Error("Could not load shipping rules");
+
+      const data = await response.json();
+
+      shippingRules = Array.isArray(data)
+        ? data
+            .filter(rule => rule.region)
+            .map(rule => ({
+              region: String(rule.region),
+              cost: Number(rule.cost || 0),
+              minFree: Number(rule.minFree || 999999)
+            }))
+        : [];
+
+      if (!selectedShippingRegion && shippingRules.length) {
+        selectedShippingRegion = shippingRules[0].region;
+        localStorage.setItem(SHIPPING_REGION_STORAGE_KEY, selectedShippingRegion);
+      }
+    }
+
+    function selectedShippingRule() {
+      return shippingRules.find(rule => rule.region === selectedShippingRegion) || shippingRules[0] || null;
+    }
+
+    function changeShippingRegion(region) {
+      selectedShippingRegion = region;
+      localStorage.setItem(SHIPPING_REGION_STORAGE_KEY, selectedShippingRegion);
+      renderCart();
+    }
+
+    function renderShippingSelector() {
+      if (!shippingRules.length) return "";
+
+      return `
+        <div class="summary-control">
+          <span>Shipping region</span>
+          <select id="shippingRegionSelect" onchange="changeShippingRegion(this.value)">
+            ${shippingRules.map(rule => `
+              <option value="${rule.region}" ${rule.region === selectedShippingRegion ? "selected" : ""}>
+                ${rule.region}
+              </option>
+            `).join("")}
+          </select>
+        </div>
+      `;
+    }
+
+    async function refreshShippingRulesInBackground() {
+      try {
+        await loadShippingRules();
+        renderCart();
+      } catch (error) {
+        console.warn("Could not refresh shipping rules", error);
+      }
+    }
+
+    /* ==========================================================
+       6. Product status and image rules
+       Image rules:
+       Cover: {id}-cover.jpg
+       SKU:   {id}-{sku}.jpg
+       Detail:{id}-1.jpg, {id}-2.jpg...
+       ========================================================== */
 
     function getStatus(row) {
       const status = val(row, "status").trim().toLowerCase();
@@ -1012,6 +1174,11 @@
       `;
     }
 
+    /* ==========================================================
+       7. Product grouping and rendering
+       Products with same id are grouped as one product with variants/SKUs.
+       ========================================================== */
+
     function groupProducts(rows) {
       const visibleRows = rows.filter(row => getStatus(row) !== "hidden");
       const map = new Map();
@@ -1019,6 +1186,7 @@
       visibleRows.forEach(row => {
         const id = val(row, "id");
         if (!id) return;
+
         if (!map.has(id)) map.set(id, []);
         map.get(id).push(row);
       });
@@ -1099,6 +1267,46 @@
       `;
     }
 
+    function renderCategories() {
+      const select = document.getElementById("categoryFilter");
+      select.innerHTML = `<option value="all">All categories</option>`;
+
+      [...new Set(productGroups.map(group => group.category).filter(Boolean))]
+        .sort()
+        .forEach(category => {
+          select.innerHTML += `<option value="${category}">${category}</option>`;
+        });
+    }
+
+    function renderProducts() {
+      const grid = document.getElementById("productGrid");
+      const query = document.getElementById("searchInput").value.trim().toLowerCase();
+      const category = document.getElementById("categoryFilter").value;
+
+      const filtered = productGroups.filter(group => {
+        const text = group.rows.map(row => [
+          val(row, "id"),
+          val(row, "name"),
+          val(row, "sku"),
+          val(row, "category"),
+          val(row, "materials"),
+          val(row, "shortdescription"),
+          val(row, "longdescription")
+        ].join(" ")).join(" ").toLowerCase();
+
+        return text.includes(query) && (category === "all" || group.category === category);
+      });
+
+      grid.innerHTML = filtered.length
+        ? filtered.map(productCard).join("")
+        : `<div class="error">No products found.</div>`;
+    }
+
+    /* ==========================================================
+       8. Settings rendering
+       Applies text, links, hero video from Settings sheet.
+       ========================================================== */
+
     function applySettings(rows) {
       rows.forEach(row => {
         const key = val(row, "key").toLowerCase();
@@ -1137,17 +1345,9 @@
       const links = document.getElementById("contactLinks");
       links.innerHTML = "";
 
-      if (email) {
-        links.innerHTML += `<a href="mailto:${email}">Email</a>`;
-      }
-
-      if (whatsapp) {
-        links.innerHTML += `<a href="${whatsapp}" target="_blank" rel="noopener">WhatsApp</a>`;
-      }
-
-      if (youtube) {
-        links.innerHTML += `<a href="${youtube}" target="_blank" rel="noopener">YouTube</a>`;
-      }
+      if (email) links.innerHTML += `<a href="mailto:${email}">Email</a>`;
+      if (whatsapp) links.innerHTML += `<a href="${whatsapp}" target="_blank" rel="noopener">WhatsApp</a>`;
+      if (youtube) links.innerHTML += `<a href="${youtube}" target="_blank" rel="noopener">YouTube</a>`;
 
       const videoArea = document.getElementById("videoArea");
       const videoMedia = document.getElementById("videoMedia");
@@ -1170,40 +1370,9 @@
       }
     }
 
-    function renderCategories() {
-      const select = document.getElementById("categoryFilter");
-      select.innerHTML = `<option value="all">All categories</option>`;
-
-      [...new Set(productGroups.map(group => group.category).filter(Boolean))]
-        .sort()
-        .forEach(category => {
-          select.innerHTML += `<option value="${category}">${category}</option>`;
-        });
-    }
-
-    function renderProducts() {
-      const grid = document.getElementById("productGrid");
-      const query = document.getElementById("searchInput").value.trim().toLowerCase();
-      const category = document.getElementById("categoryFilter").value;
-
-      const filtered = productGroups.filter(group => {
-        const text = group.rows.map(row => [
-          val(row, "id"),
-          val(row, "name"),
-          val(row, "sku"),
-          val(row, "category"),
-          val(row, "materials"),
-          val(row, "shortdescription"),
-          val(row, "longdescription")
-        ].join(" ")).join(" ").toLowerCase();
-
-        return text.includes(query) && (category === "all" || group.category === category);
-      });
-
-      grid.innerHTML = filtered.length
-        ? filtered.map(productCard).join("")
-        : `<div class="error">No products found.</div>`;
-    }
+    /* ==========================================================
+       9. Product modal
+       ========================================================== */
 
     function modalImagesForGroup(group) {
       const images = [coverImage(group.displayRow)];
@@ -1249,6 +1418,7 @@
       if (currentModalImageIndex >= currentModalImages.length) currentModalImageIndex = 0;
 
       const image = document.getElementById("modalSlideImage");
+
       if (image) {
         image.style.display = "block";
         image.src = currentModalImages[currentModalImageIndex];
@@ -1335,6 +1505,11 @@
 
       renderModal(group, selected);
     }
+
+    /* ==========================================================
+       10. Cart
+       Cart is saved in browser localStorage.
+       ========================================================== */
 
     function cartItemKey(productId, sku) {
       return productId + "::" + (sku || "");
@@ -1426,6 +1601,12 @@
     function cartShipping(subtotal) {
       if (cart.length === 0) return 0;
 
+      const rule = selectedShippingRule();
+
+      if (rule) {
+        return subtotal >= rule.minFree ? 0 : rule.cost;
+      }
+
       const freeOver = numericSetting("shipping.freeover", 100);
       const baseFee = numericSetting("shipping.basefee", 6.99);
 
@@ -1471,6 +1652,7 @@
       const deliveryTime = textSetting("shipping.deliverytime", "Estimated delivery time will be confirmed after checkout.");
 
       summaryEl.innerHTML = `
+        ${renderShippingSelector()}
         <div class="summary-row"><span>Subtotal</span><span>${money(subtotal)}</span></div>
         <div class="summary-row"><span>Shipping</span><span>${shipping === 0 ? "FREE" : money(shipping)}</span></div>
         <div class="summary-row total"><span>Total</span><span>${money(total)}</span></div>
@@ -1480,21 +1662,119 @@
 
     function toggleCart(forceShow) {
       const drawer = document.getElementById("cartDrawer");
+
       if (typeof forceShow === "boolean") {
         drawer.classList.toggle("open", forceShow);
       } else {
         drawer.classList.toggle("open");
       }
-    }
 
-    function checkoutPlaceholder() {
-      if (!cart.length) {
-        alert("Your cart is empty.");
-        return;
+      if (drawer.classList.contains("open")) {
+        refreshShippingRulesInBackground();
       }
-
-      alert("Checkout will be connected in the next step.");
     }
+
+    /* ==========================================================
+       11. PayPal checkout
+       PayPal SDK calls your Cloudflare Worker.
+       Worker talks to PayPal securely and records the order.
+       ========================================================== */
+
+    function setupPayPalButtons() {
+      if (!window.paypal || paypalButtonsRendered) return;
+
+      paypalButtonsRendered = true;
+
+      paypal.Buttons({
+        createOrder: async () => {
+          if (!cart.length) {
+            alert("Your cart is empty.");
+            throw new Error("Cart is empty");
+          }
+
+          const subtotal = cartSubtotal();
+          const shipping = cartShipping(subtotal);
+
+          const response = await fetch(`${WORKER_PAYMENT_URL}/create-paypal-order`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              currency: currencyCode(),
+              shipping,
+              shippingRegion: selectedShippingRegion,
+              items: cart.map(item => ({
+                productId: item.productId,
+                sku: item.sku,
+                name: item.name,
+                price: item.price,
+                qty: item.qty
+              }))
+            })
+          });
+
+          const data = await response.json();
+
+          if (!data.ok || !data.paypalOrderId) {
+            console.error(data);
+            alert("Could not create PayPal order. Please try again.");
+            throw new Error("Could not create PayPal order");
+          }
+
+          return data.paypalOrderId;
+        },
+
+        onApprove: async (data) => {
+          const subtotal = cartSubtotal();
+          const shipping = cartShipping(subtotal);
+
+          const response = await fetch(`${WORKER_PAYMENT_URL}/capture-paypal-order`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              paypalOrderId: data.orderID,
+              currency: currencyCode(),
+              shipping,
+              shippingRegion: selectedShippingRegion,
+              items: cart.map(item => ({
+                productId: item.productId,
+                sku: item.sku,
+                name: item.name,
+                price: item.price,
+                qty: item.qty
+              })),
+              orderNote: "Website PayPal checkout"
+            })
+          });
+
+          const result = await response.json();
+
+          if (result.ok) {
+            alert("Payment successful. Thank you for your order!");
+            cart = [];
+            saveCart();
+            renderCart();
+            toggleCart(false);
+          } else {
+            console.error(result);
+            alert("Payment was approved, but capture failed. Please contact Lisha Studio.");
+          }
+        },
+
+        onCancel: () => {
+          alert("Payment cancelled.");
+        },
+
+        onError: (error) => {
+          console.error(error);
+          alert("PayPal checkout error. Please try again.");
+        }
+      }).render("#paypal-button-container");
+    }
+
+    /* ==========================================================
+       12. App startup
+       Loads settings, products, shipping rules, then renders page.
+       ========================================================== */
 
     async function init() {
       try {
@@ -1502,7 +1782,8 @@
 
         const [settingsRows, productRows] = await Promise.all([
           loadCSV(SETTINGS_CSV_URL),
-          loadCSV(PRODUCTS_CSV_URL)
+          loadCSV(PRODUCTS_CSV_URL),
+          loadShippingRules()
         ]);
 
         applySettings(settingsRows);
@@ -1513,6 +1794,7 @@
         renderCategories();
         renderProducts();
         renderCart();
+        setupPayPalButtons();
 
         document.getElementById("searchInput").addEventListener("input", renderProducts);
         document.getElementById("categoryFilter").addEventListener("change", renderProducts);
@@ -1532,53 +1814,7 @@
       }
     }
 
-init();
-
-        // --- PayPal 支付按钮渲染逻辑开始 ---
-        if (window.paypal) {
-          paypal.Buttons({
-            // 1. 点击按钮时：创建订单
-            createOrder: async () => {
-                const shipping = 6.99; // 固定运费
-                
-                const response = await fetch("https://lishastudio-payment.ldeng123.workers.dev/create-paypal-order", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        currency: "USD",
-                        items: cart.map(item => ({ name: item.name, price: item.price.toString(), qty: item.qty })),
-                        shipping: shipping.toString()
-                    })
-                });
-                const data = await response.json();
-                if (!data.paypalOrderId) {
-                    alert("创建订单失败，请检查网络或稍后再试！");
-                }
-                return data.paypalOrderId;
-            },
-            
-            // 2. 付款完成后：捕获订单（正式扣款）
-            onApprove: async (data) => {
-                const response = await fetch("https://lishastudio-payment.ldeng123.workers.dev/capture-paypal-order", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        paypalOrderId: data.orderID
-                    })
-                });
-                const result = await response.json();
-                if (result.ok) {
-                    alert("支付成功！感谢您的购买！");
-                    localStorage.removeItem(CART_STORAGE_KEY); // 清空购物车
-                    location.reload(); // 刷新页面
-                } else {
-                    alert("扣款出现问题，请联系 Lisha Studio。");
-                }
-            }
-          }).render('#paypal-button-container'); 
-        }
-        // --- PayPal 支付按钮渲染逻辑结束 ---
-
-    </script>
+    init();
+  </script>
 </body>
 </html>
