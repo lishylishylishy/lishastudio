@@ -1038,38 +1038,47 @@
 
     /* ==========================================================
        5. Shipping rules
-       Shipping sheet format:
-       Region | Cost | MinFree
-       USA    | 8    | 90
-       Europe | 12   | 90
        ========================================================== */
-
-    async function loadShippingRules() {
-      if (!SHIPPING_RULES_URL || SHIPPING_RULES_URL.includes("PASTE_YOUR_APPS_SCRIPT")) {
-        shippingRules = [];
-        return;
-      }
-
-      const response = await fetch(SHIPPING_RULES_URL + "?cacheBust=" + Date.now());
-      if (!response.ok) throw new Error("Could not load shipping rules");
-
-      const data = await response.json();
-
-      shippingRules = Array.isArray(data)
-        ? data
-            .filter(rule => rule.region)
-            .map(rule => ({
-              region: String(rule.region),
-              cost: Number(rule.cost || 0),
-              minFree: Number(rule.minFree || 999999)
-            }))
-        : [];
-
-      if (!selectedShippingRegion && shippingRules.length) {
-        selectedShippingRegion = shippingRules[0].region;
-        localStorage.setItem(SHIPPING_REGION_STORAGE_KEY, selectedShippingRegion);
-      }
+async function loadShippingRules() {
+  try {
+    if (!SHIPPING_RULES_URL || SHIPPING_RULES_URL.includes("PASTE_YOUR_APPS_SCRIPT")) {
+      shippingRules = [];
+      return;
     }
+
+    const response = await fetch(SHIPPING_RULES_URL + "?cacheBust=" + Date.now());
+
+    if (!response.ok) {
+      console.warn("Could not load shipping rules. Status:", response.status);
+      shippingRules = [];
+      return;
+    }
+
+    const data = await response.json();
+
+    if (!Array.isArray(data)) {
+      console.warn("Shipping rules response is not an array:", data);
+      shippingRules = [];
+      return;
+    }
+
+    shippingRules = data
+      .filter(rule => rule.region)
+      .map(rule => ({
+        region: String(rule.region),
+        cost: Number(rule.cost || 0),
+        minFree: Number(rule.minFree || 999999)
+      }));
+
+    if (!selectedShippingRegion && shippingRules.length) {
+      selectedShippingRegion = shippingRules[0].region;
+      localStorage.setItem(SHIPPING_REGION_STORAGE_KEY, selectedShippingRegion);
+    }
+  } catch (error) {
+    console.warn("Could not load shipping rules:", error);
+    shippingRules = [];
+  }
+}
 
     function selectedShippingRule() {
       return shippingRules.find(rule => rule.region === selectedShippingRegion) || shippingRules[0] || null;
