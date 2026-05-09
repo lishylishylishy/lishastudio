@@ -33,10 +33,6 @@
       font-family: "Nunito", Arial, sans-serif;
     }
 
-    /* =========================
-       Header / Navigation
-       ========================= */
-
     header {
       padding: 26px 34px;
       display: flex;
@@ -58,12 +54,6 @@
     }
 
     nav a:hover { color: var(--accent-dark); }
-
-    /* =========================
-       Hero video area
-       Text comes from Settings sheet.
-       Video URL comes from index.heroVideo.
-       ========================= */
 
     .hero-video {
       position: relative;
@@ -151,10 +141,6 @@
       border-color: var(--accent);
       transform: translateY(-1px);
     }
-
-    /* =========================
-       Product section
-       ========================= */
 
     .section {
       max-width: 1120px;
@@ -339,11 +325,6 @@
       border-color: var(--text);
     }
 
-    /* =========================
-       Contact area
-       Text and links come from Settings sheet.
-       ========================= */
-
     .contact {
       border-top: 1px solid var(--line);
       padding: 70px 24px;
@@ -432,10 +413,6 @@
       padding: 36px;
       grid-column: 1 / -1;
     }
-
-    /* =========================
-       Product modal
-       ========================= */
 
     .modal-backdrop {
       position: fixed;
@@ -568,10 +545,6 @@
     }
 
     .details-list strong { color: var(--text); }
-
-    /* =========================
-       Cart drawer
-       ========================= */
 
     .cart-float {
       position: fixed;
@@ -748,10 +721,6 @@
       margin-top: 14px;
     }
 
-    /* =========================
-       Responsive
-       ========================= */
-
     @media (max-width: 850px) {
       header { justify-content: center; padding: 22px 18px; }
       nav a { margin: 0 9px; }
@@ -788,10 +757,11 @@
     }
   </style>
 
-  <!-- PayPal SDK.
-       Sandbox client-id is okay for testing.
-       When going live, replace with Live client-id and change Worker PayPal API to live. -->
-  <script src="https://www.paypal.com/sdk/js?client-id=AViE6g_MybW_s4M1JQOgpgDw0tTEbOnzPpj7lHmE5TWmG4Voe0I81wK3cRTXCoufRo887gv1KbCv_-cE&currency=USD"></script>
+  <!--
+    PayPal SDK.
+    disable-funding=paylater 用来隐藏 Pay Later，避免出现你不想要的 Pay Later 按钮。
+  -->
+  <script src="https://www.paypal.com/sdk/js?client-id=AViE6g_MybW_s4M1JQOgpgDw0tTEbOnzPpj7lHmE5TWmG4Voe0I81wK3cRTXCoufRo887gv1KbCv_-cE&currency=USD&disable-funding=paylater"></script>
 </head>
 
 <body>
@@ -870,7 +840,7 @@
     <div class="cart-footer">
       <div id="cartSummary"></div>
       <div id="paypal-button-container"></div>
-      <p class="cart-note" id="cartShippingNote">Checkout is coming soon. Please contact me if you want to order now.</p>
+      <p class="cart-note" id="cartShippingNote">Choose your shipping region before checkout.</p>
     </div>
   </aside>
 
@@ -886,27 +856,48 @@
   </footer>
 
   <script>
-    /* ==========================================================
-       1. Data sources and global settings
-       ========================================================== */
+    /*
+      =========================
+      重要逻辑说明
+      =========================
+
+      1. 网页读取 Settings CSV：
+         用于更新标题、视频、联系方式等展示内容。
+
+      2. 网页读取 Products CSV：
+         用于展示商品、价格、库存、SKU、图片等信息。
+
+      3. 网页读取 Shipping CSV：
+         只用于购物车里显示运费地区和预估运费。
+
+      4. 结算安全原则：
+         前端展示的价格、运费、总价都不作为最终结算依据。
+         PayPal createOrder 时，前端只传 productId、sku、qty、shippingRegion。
+         Worker 必须重新读取 Products CSV + Shipping CSV，重新计算最终价格和运费。
+         这样别人即使用浏览器开发者工具篡改前端价格，也不能影响最终 PayPal 订单金额。
+    */
 
     const SETTINGS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRQ5vcuUBnI85arPNNe2h-aqwqq_9RpCBN0oewhCexPjWd-nX7YW-j3ii_5JlwvZZ7VlyjZ_RSTVwD5/pub?gid=0&single=true&output=csv";
     const PRODUCTS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRQ5vcuUBnI85arPNNe2h-aqwqq_9RpCBN0oewhCexPjWd-nX7YW-j3ii_5JlwvZZ7VlyjZ_RSTVwD5/pub?gid=22339288&single=true&output=csv";
 
     /*
-      Shipping rules come from your Apps Script doGet().
+      这里换成 Shipping sheet 的公开 CSV 链接。
+      注意：gid 必须是 Shipping 这个 tab 的 gid。
+      格式类似：
+      https://docs.google.com/spreadsheets/d/e/发布ID/pub?gid=Shipping的gid&single=true&output=csv
     */
-    const SHIPPING_RULES_URL = "https://script.google.com/macros/s/AKfycbwBtJ8a-MCDwKepzLKuJqW6owupmAfk_mE9pvtpjszK9qCrVq7V2qoNhenoUBNiIU83/exec";
+    const SHIPPING_CSV_URL = "PASTE_YOUR_SHIPPING_CSV_URL_HERE";
 
     const IMAGE_BASE_URL = "https://pub-32f3f529081e4033a9e6ecf3fd1297ae.r2.dev/images/";
+
+    /*
+      Worker 是真正负责安全结算的后端。
+      它应该重新读取 Products CSV 和 Shipping CSV，重新计算价格，再创建 PayPal 订单。
+    */
     const WORKER_PAYMENT_URL = "https://lishastudio-payment.ldeng123.workers.dev";
 
     const CART_STORAGE_KEY = "lisha_studio_cart";
     const SHIPPING_REGION_STORAGE_KEY = "lisha_studio_shipping_region";
-
-    /* ==========================================================
-       2. Runtime state
-       ========================================================== */
 
     let productGroups = [];
     let allProductRows = [];
@@ -920,11 +911,10 @@
     let currentModalImageIndex = 0;
     let paypalButtonsRendered = false;
 
-    /* ==========================================================
-       3. CSV helpers
-       Used for Settings and Products public CSV.
-       ========================================================== */
-
+    /*
+      解析 CSV。
+      Google Sheet 发布出来的是 CSV，所以 Settings / Products / Shipping 都通过这个函数解析。
+    */
     function parseCSV(text) {
       const rows = [];
       let row = [];
@@ -964,9 +954,14 @@
       return rows;
     }
 
+    /*
+      把 CSV 行转换成对象。
+      表头会被转成小写：
+      MinFree -> minfree
+      ComparePrice -> compareprice
+    */
     function rowsToObjects(rows) {
       if (!rows.length) return [];
-
       const headers = rows[0].map(h => h.trim().toLowerCase());
 
       return rows.slice(1)
@@ -982,7 +977,7 @@
 
     async function loadCSV(url) {
       const response = await fetch(url + "&cacheBust=" + Date.now());
-      if (!response.ok) throw new Error("Could not load CSV");
+      if (!response.ok) throw new Error("Could not load CSV: " + url);
 
       const text = await response.text();
       return rowsToObjects(parseCSV(text));
@@ -998,11 +993,6 @@
         .trim()
         .replace(/\s+/g, "-");
     }
-
-    /* ==========================================================
-       4. Settings helpers
-       Settings sheet controls hero text, contact text, currency, etc.
-       ========================================================== */
 
     function textSetting(key, fallback) {
       return settings[key.toLowerCase()] || fallback;
@@ -1036,49 +1026,42 @@
       return `<span>${money(price)}</span>`;
     }
 
-    /* ==========================================================
-       5. Shipping rules
-       ========================================================== */
-async function loadShippingRules() {
-  try {
-    if (!SHIPPING_RULES_URL || SHIPPING_RULES_URL.includes("PASTE_YOUR_APPS_SCRIPT")) {
-      shippingRules = [];
-      return;
+    /*
+      读取 Shipping CSV。
+
+      Shipping 表头应该是：
+      Region | Cost | MinFree
+
+      注意：
+      因为 rowsToObjects 会把表头转小写，
+      所以 MinFree 在代码里要写 row.minfree。
+    */
+    async function loadShippingRules() {
+      try {
+        if (!SHIPPING_CSV_URL || SHIPPING_CSV_URL.includes("PASTE_YOUR_SHIPPING")) {
+          shippingRules = [];
+          return;
+        }
+
+        const rows = await loadCSV(SHIPPING_CSV_URL);
+
+        shippingRules = rows
+          .filter(row => row.region)
+          .map(row => ({
+            region: row.region,
+            cost: Number(row.cost || 0),
+            minFree: Number(row.minfree || 999999)
+          }));
+
+        if (!selectedShippingRegion && shippingRules.length) {
+          selectedShippingRegion = shippingRules[0].region;
+          localStorage.setItem(SHIPPING_REGION_STORAGE_KEY, selectedShippingRegion);
+        }
+      } catch (error) {
+        console.warn("Could not load shipping rules:", error);
+        shippingRules = [];
+      }
     }
-
-    const response = await fetch(SHIPPING_RULES_URL + "?cacheBust=" + Date.now());
-
-    if (!response.ok) {
-      console.warn("Could not load shipping rules. Status:", response.status);
-      shippingRules = [];
-      return;
-    }
-
-    const data = await response.json();
-
-    if (!Array.isArray(data)) {
-      console.warn("Shipping rules response is not an array:", data);
-      shippingRules = [];
-      return;
-    }
-
-    shippingRules = data
-      .filter(rule => rule.region)
-      .map(rule => ({
-        region: String(rule.region),
-        cost: Number(rule.cost || 0),
-        minFree: Number(rule.minFree || 999999)
-      }));
-
-    if (!selectedShippingRegion && shippingRules.length) {
-      selectedShippingRegion = shippingRules[0].region;
-      localStorage.setItem(SHIPPING_REGION_STORAGE_KEY, selectedShippingRegion);
-    }
-  } catch (error) {
-    console.warn("Could not load shipping rules:", error);
-    shippingRules = [];
-  }
-}
 
     function selectedShippingRule() {
       return shippingRules.find(rule => rule.region === selectedShippingRegion) || shippingRules[0] || null;
@@ -1107,22 +1090,14 @@ async function loadShippingRules() {
       `;
     }
 
+    /*
+      打开购物车时刷新 Shipping CSV。
+      这样你改了 Shipping 表，用户刷新页面或重新打开购物车后可以拿到最新运费规则。
+    */
     async function refreshShippingRulesInBackground() {
-      try {
-        await loadShippingRules();
-        renderCart();
-      } catch (error) {
-        console.warn("Could not refresh shipping rules", error);
-      }
+      await loadShippingRules();
+      renderCart();
     }
-
-    /* ==========================================================
-       6. Product status and image rules
-       Image rules:
-       Cover: {id}-cover.jpg
-       SKU:   {id}-{sku}.jpg
-       Detail:{id}-1.jpg, {id}-2.jpg...
-       ========================================================== */
 
     function getStatus(row) {
       const status = val(row, "status").trim().toLowerCase();
@@ -1180,11 +1155,11 @@ async function loadShippingRules() {
       `;
     }
 
-    /* ==========================================================
-       7. Product grouping and rendering
-       Products with same id are grouped as one product with variants/SKUs.
-       ========================================================== */
-
+    /*
+      商品分组：
+      Products 表里相同 id 的多行，会被视为同一个产品的不同 SKU。
+      例如同一个 monster-candle，sku 可以是 blue / red / green。
+    */
     function groupProducts(rows) {
       const visibleRows = rows.filter(row => getStatus(row) !== "hidden");
       const map = new Map();
@@ -1308,11 +1283,10 @@ async function loadShippingRules() {
         : `<div class="error">No products found.</div>`;
     }
 
-    /* ==========================================================
-       8. Settings rendering
-       Applies text, links, hero video from Settings sheet.
-       ========================================================== */
-
+    /*
+      应用 Settings 表：
+      控制首页 title、subtitle、视频、联系方式、购物车提示等。
+    */
     function applySettings(rows) {
       rows.forEach(row => {
         const key = val(row, "key").toLowerCase();
@@ -1335,7 +1309,7 @@ async function loadShippingRules() {
       const whatsapp = textSetting("contact.whatsapp", "");
       const youtube = textSetting("contact.youtube", "");
 
-      const shippingNote = textSetting("shipping.note", "Checkout is coming soon. Please contact me if you want to order now.");
+      const shippingNote = textSetting("shipping.note", "Choose your shipping region before checkout.");
 
       document.title = title + " | Handmade Art Objects";
       document.getElementById("heroTitle").textContent = title;
@@ -1375,10 +1349,6 @@ async function loadShippingRules() {
         }
       }
     }
-
-    /* ==========================================================
-       9. Product modal
-       ========================================================== */
 
     function modalImagesForGroup(group) {
       const images = [coverImage(group.displayRow)];
@@ -1512,11 +1482,6 @@ async function loadShippingRules() {
       renderModal(group, selected);
     }
 
-    /* ==========================================================
-       10. Cart
-       Cart is saved in browser localStorage.
-       ========================================================== */
-
     function cartItemKey(productId, sku) {
       return productId + "::" + (sku || "");
     }
@@ -1539,6 +1504,12 @@ async function loadShippingRules() {
         || allProductRows.find(row => val(row, "id") === productId && !val(row, "sku"));
     }
 
+    /*
+      加入购物车：
+      这里会使用前端 Products CSV 里的价格来做“页面展示”。
+      但这个价格不是最终结算依据。
+      最终 PayPal 金额必须由 Worker 重新计算。
+    */
     function addToCartFromRow(productId, sku) {
       const row = findProductRow(productId, sku);
       if (!row) return alert("Product not found.");
@@ -1680,11 +1651,14 @@ async function loadShippingRules() {
       }
     }
 
-    /* ==========================================================
-       11. PayPal checkout
-       PayPal SDK calls your Cloudflare Worker. Worker talks to PayPal securely and records the order.
-       ========================================================== */
+    /*
+      PayPal 结算。
 
+      关键安全点：
+      createOrder 和 onApprove 都不再传 price / shipping / total 作为可信金额。
+      只传 productId、sku、qty、shippingRegion。
+      Worker 必须重新读取 Products CSV + Shipping CSV，再重新计算金额。
+    */
     function setupPayPalButtons() {
       if (!window.paypal || paypalButtonsRendered) return;
 
@@ -1697,21 +1671,15 @@ async function loadShippingRules() {
             throw new Error("Cart is empty");
           }
 
-          const subtotal = cartSubtotal();
-          const shipping = cartShipping(subtotal);
-
           const response = await fetch(`${WORKER_PAYMENT_URL}/create-paypal-order`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               currency: currencyCode(),
-              shipping,
               shippingRegion: selectedShippingRegion,
               items: cart.map(item => ({
                 productId: item.productId,
                 sku: item.sku,
-                name: item.name,
-                price: item.price,
                 qty: item.qty
               }))
             })
@@ -1729,22 +1697,16 @@ async function loadShippingRules() {
         },
 
         onApprove: async (data) => {
-          const subtotal = cartSubtotal();
-          const shipping = cartShipping(subtotal);
-
           const response = await fetch(`${WORKER_PAYMENT_URL}/capture-paypal-order`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               paypalOrderId: data.orderID,
               currency: currencyCode(),
-              shipping,
               shippingRegion: selectedShippingRegion,
               items: cart.map(item => ({
                 productId: item.productId,
                 sku: item.sku,
-                name: item.name,
-                price: item.price,
                 qty: item.qty
               })),
               orderNote: "Website PayPal checkout"
@@ -1776,46 +1738,49 @@ async function loadShippingRules() {
       }).render("#paypal-button-container");
     }
 
-    /* ==========================================================
-       12. App startup
-       Loads settings, products, shipping rules, then renders page.
-       ========================================================== */
-async function init() {
-  try {
-    loadCart();
-    const [settingsRows, productRows] = await Promise.all([     // Settings 和 Products 是页面核心数据，必须成功。
-      loadCSV(SETTINGS_CSV_URL),
-      loadCSV(PRODUCTS_CSV_URL)
-    ]);
-    await loadShippingRules();    // Shipping 是附加数据。失败也不能影响商品页面。
+    /*
+      初始化页面：
+      Settings 和 Products 是页面核心数据，必须读取成功。
+      Shipping 是附加展示数据，即使失败也不应该拖垮 Products 页面。
+    */
+    async function init() {
+      try {
+        loadCart();
 
-    applySettings(settingsRows);
+        const [settingsRows, productRows] = await Promise.all([
+          loadCSV(SETTINGS_CSV_URL),
+          loadCSV(PRODUCTS_CSV_URL)
+        ]);
 
-    allProductRows = productRows;
-    productGroups = groupProducts(productRows);
+        await loadShippingRules();
 
-    renderCategories();
-    renderProducts();
-    renderCart();
-    setupPayPalButtons();
+        applySettings(settingsRows);
 
-    document.getElementById("searchInput").addEventListener("input", renderProducts);
-    document.getElementById("categoryFilter").addEventListener("change", renderProducts);
+        allProductRows = productRows;
+        productGroups = groupProducts(productRows);
 
-    document.getElementById("modalClose").addEventListener("click", closeProductModal);
+        renderCategories();
+        renderProducts();
+        renderCart();
+        setupPayPalButtons();
 
-    document.getElementById("productModal").addEventListener("click", event => {
-      if (event.target.id === "productModal") closeProductModal();
-    });
+        document.getElementById("searchInput").addEventListener("input", renderProducts);
+        document.getElementById("categoryFilter").addEventListener("change", renderProducts);
 
-    document.addEventListener("keydown", event => {
-      if (event.key === "Escape") closeProductModal();
-    });
-  } catch (error) {
-    console.error(error);
-    document.getElementById("productGrid").innerHTML = `<div class="error">Could not load products. Please check the Google Sheets links.</div>`;
-  }
-}
+        document.getElementById("modalClose").addEventListener("click", closeProductModal);
+
+        document.getElementById("productModal").addEventListener("click", event => {
+          if (event.target.id === "productModal") closeProductModal();
+        });
+
+        document.addEventListener("keydown", event => {
+          if (event.key === "Escape") closeProductModal();
+        });
+      } catch (error) {
+        console.error(error);
+        document.getElementById("productGrid").innerHTML = `<div class="error">Could not load products. Please check the Google Sheets links.</div>`;
+      }
+    }
 
     init();
   </script>
