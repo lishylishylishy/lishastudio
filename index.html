@@ -1682,8 +1682,7 @@ async function loadShippingRules() {
 
     /* ==========================================================
        11. PayPal checkout
-       PayPal SDK calls your Cloudflare Worker.
-       Worker talks to PayPal securely and records the order.
+       PayPal SDK calls your Cloudflare Worker. Worker talks to PayPal securely and records the order.
        ========================================================== */
 
     function setupPayPalButtons() {
@@ -1781,44 +1780,42 @@ async function loadShippingRules() {
        12. App startup
        Loads settings, products, shipping rules, then renders page.
        ========================================================== */
+async function init() {
+  try {
+    loadCart();
+    const [settingsRows, productRows] = await Promise.all([     // Settings 和 Products 是页面核心数据，必须成功。
+      loadCSV(SETTINGS_CSV_URL),
+      loadCSV(PRODUCTS_CSV_URL)
+    ]);
+    await loadShippingRules();    // Shipping 是附加数据。失败也不能影响商品页面。
 
-    async function init() {
-      try {
-        loadCart();
+    applySettings(settingsRows);
 
-        const [settingsRows, productRows] = await Promise.all([
-          loadCSV(SETTINGS_CSV_URL),
-          loadCSV(PRODUCTS_CSV_URL),
-          loadShippingRules()
-        ]);
+    allProductRows = productRows;
+    productGroups = groupProducts(productRows);
 
-        applySettings(settingsRows);
+    renderCategories();
+    renderProducts();
+    renderCart();
+    setupPayPalButtons();
 
-        allProductRows = productRows;
-        productGroups = groupProducts(productRows);
+    document.getElementById("searchInput").addEventListener("input", renderProducts);
+    document.getElementById("categoryFilter").addEventListener("change", renderProducts);
 
-        renderCategories();
-        renderProducts();
-        renderCart();
-        setupPayPalButtons();
+    document.getElementById("modalClose").addEventListener("click", closeProductModal);
 
-        document.getElementById("searchInput").addEventListener("input", renderProducts);
-        document.getElementById("categoryFilter").addEventListener("change", renderProducts);
+    document.getElementById("productModal").addEventListener("click", event => {
+      if (event.target.id === "productModal") closeProductModal();
+    });
 
-        document.getElementById("modalClose").addEventListener("click", closeProductModal);
-
-        document.getElementById("productModal").addEventListener("click", event => {
-          if (event.target.id === "productModal") closeProductModal();
-        });
-
-        document.addEventListener("keydown", event => {
-          if (event.key === "Escape") closeProductModal();
-        });
-      } catch (error) {
-        console.error(error);
-        document.getElementById("productGrid").innerHTML = `<div class="error">Could not load products. Please check the Google Sheets links.</div>`;
-      }
-    }
+    document.addEventListener("keydown", event => {
+      if (event.key === "Escape") closeProductModal();
+    });
+  } catch (error) {
+    console.error(error);
+    document.getElementById("productGrid").innerHTML = `<div class="error">Could not load products. Please check the Google Sheets links.</div>`;
+  }
+}
 
     init();
   </script>
