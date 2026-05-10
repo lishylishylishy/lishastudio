@@ -3,20 +3,23 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
   <title>About | Lisha Studio</title>
+  <meta name="description" content="About Lisha Studio handmade art objects." />
 
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Nunito:wght@400;500;600;700;800&display=swap');
 
     :root {
-      --bg: #fffdf8;
-      --text: #1f1b18;
-      --muted: #756d66;
-      --line: #eee5dc;
-      --soft: #fff4e4;
-      --pink: #ffe8ec;
-      --accent: #f08a5d;
-      --accent-dark: #d9693f;
+      --bg: #fffdf8; /* 页面背景色 */
+      --text: #1f1b18; /* 主文字色 */
+      --muted: #756d66; /* 次级文字色 */
+      --line: #eee5dc; /* 分割线颜色 */
+      --soft: #fff4e4; /* 浅暖色背景 */
+      --pink: #ffe8ec; /* 浅粉色 */
+      --accent: #f08a5d; /* 强调色 */
+      --accent-dark: #d9693f; /* hover 颜色 */
+      --card: #ffffff; /* 卡片背景 */
     }
 
     * { box-sizing: border-box; }
@@ -50,7 +53,10 @@
       font-weight: 800;
     }
 
-    nav a:hover { color: var(--accent-dark); }
+    nav a:hover,
+    nav a.active {
+      color: var(--accent-dark);
+    }
 
     .hero-video {
       width: 100%;
@@ -71,14 +77,14 @@
     }
 
     main {
-      max-width: 980px;
+      max-width: 1040px;
       margin: 0 auto;
       padding: 76px 24px 90px;
     }
 
     .intro {
       text-align: center;
-      margin-bottom: 48px;
+      margin-bottom: 44px;
     }
 
     .intro h1 {
@@ -96,11 +102,28 @@
       margin: 0 auto;
     }
 
+    .about-gallery {
+      display: none;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+      margin: 0 0 30px;
+    }
+
+    .about-gallery img {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      object-fit: cover;
+      border-radius: 28px;
+      border: 1px solid var(--line);
+      background: var(--soft);
+      box-shadow: 0 14px 34px rgba(80, 51, 32, 0.08);
+    }
+
     .story-card {
-      background: white;
+      background: var(--card);
       border: 1px solid var(--line);
       border-radius: 32px;
-      padding: 34px;
+      padding: 34px 36px;
       box-shadow: 0 14px 34px rgba(80, 51, 32, 0.08);
       margin-bottom: 26px;
     }
@@ -108,6 +131,7 @@
     .story-card h2 {
       font-family: "Baloo 2", cursive;
       font-size: 34px;
+      line-height: 1.05;
       margin: 0 0 12px;
     }
 
@@ -124,9 +148,10 @@
       border-radius: 26px;
       padding: 26px;
       color: var(--accent-dark);
-      font-weight: 800;
+      font-weight: 900;
       text-align: center;
       font-size: 19px;
+      margin-top: 30px;
     }
 
     footer {
@@ -137,14 +162,18 @@
       border-top: 1px solid var(--line);
     }
 
-    @media (max-width: 700px) {
+    @media (max-width: 850px) {
       header {
         justify-content: center;
         padding: 22px 18px;
       }
 
       nav a {
-        margin: 0 8px;
+        margin: 0 9px;
+      }
+
+      .about-gallery {
+        grid-template-columns: 1fr;
       }
 
       .story-card {
@@ -156,6 +185,25 @@
         height: 300px;
       }
     }
+
+    @media (max-width: 560px) {
+      nav a {
+        font-size: 15px;
+        margin: 0 6px;
+      }
+
+      main {
+        padding: 56px 20px 72px;
+      }
+
+      .intro h1 {
+        font-size: clamp(44px, 14vw, 68px);
+      }
+
+      .intro p {
+        font-size: 17px;
+      }
+    }
   </style>
 </head>
 
@@ -164,7 +212,7 @@
     <nav>
       <a href="/">Home</a>
       <a href="/#products">Products</a>
-      <a href="/about.html">About</a>
+      <a href="/about.html" class="active">About</a>
       <a href="/#contact">Contact</a>
     </nav>
   </header>
@@ -176,6 +224,8 @@
       <h1 id="aboutTitle">About Lisha Studio</h1>
       <p id="aboutSubtitle">Handmade art objects for playful everyday spaces.</p>
     </section>
+
+    <section class="about-gallery" id="aboutGallery"></section>
 
     <section class="story-card">
       <h2 id="aboutStoryTitle">Hello, I’m Lisha.</h2>
@@ -193,13 +243,20 @@
   </main>
 
   <footer>
-    © 2026 Lisha Studio · Handmade art objects
+    @ Lisha Studio · Handmade little joy:)
   </footer>
 
   <script>
-    const SETTINGS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRQ5vcuUBnI85arPNNe2h-aqwqq_9RpCBN0oewhCexPjWd-nX7YW-j3ii_5JlwvZZ7VlyjZ_RSTVwD5/pub?gid=0&single=true&output=csv";
+    const SETTINGS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRQ5vcuUBnI85arPNNe2h-aqwqq_9RpCBN0oewhCexPjWd-nX7YW-j3ii_5JlwvZZ7VlyjZ_RSTVwD5/pub?gid=0&single=true&output=csv"; // Settings 表 CSV
+    const IMAGE_BASE_URL = "https://pub-32f3f529081e4033a9e6ecf3fd1297ae.r2.dev/images/"; // Cloudflare R2 图片基础地址
 
-    function parseCSV(text) {
+    const ABOUT_IMAGES = [
+      "about-1.jpg", // About 第 1 张图，放在 R2 的 images 文件夹
+      "about-2.jpg", // About 第 2 张图
+      "about-3.jpg"  // About 第 3 张图
+    ];
+
+    function parseCSV(text) { // 解析 CSV
       const rows = [];
       let row = [];
       let value = "";
@@ -238,27 +295,40 @@
       return rows;
     }
 
-    function rowsToSettings(rows) {
+    function rowsToSettings(rows) { // Settings 表转对象，key 自动小写
       const settings = {};
+
       rows.slice(1).forEach(row => {
         const key = row[0] ? row[0].trim().toLowerCase() : "";
         const value = row[1] ? row[1].trim() : "";
         if (key) settings[key] = value;
       });
+
       return settings;
     }
 
-    async function loadSettings() {
-      const response = await fetch(SETTINGS_CSV_URL + "&cacheBust=" + Date.now());
+    async function loadSettings() { // 读取 Settings 表
+      const joiner = SETTINGS_CSV_URL.includes("?") ? "&" : "?";
+      const response = await fetch(SETTINGS_CSV_URL + joiner + "cacheBust=" + Date.now());
+
+      if (!response.ok) {
+        throw new Error("Could not load Settings CSV");
+      }
+
       const text = await response.text();
       return rowsToSettings(parseCSV(text));
     }
 
-    function createVideo(videoUrl) {
+    function setting(settings, key, fallback) { // 读取 Settings；支持 about.title 这种 key
+      return settings[key.toLowerCase()] || fallback;
+    }
+
+    function createVideo(videoUrl) { // 顶部视频，可用 about.video 或 index.heroVideo 控制
       const videoArea = document.getElementById("videoArea");
 
       if (!videoUrl) {
         videoArea.style.display = "none";
+        videoArea.innerHTML = "";
         return;
       }
 
@@ -269,22 +339,47 @@
       } else {
         videoArea.innerHTML = `
           <video autoplay muted loop playsinline>
-            <source src="${videoUrl}" />
+            <source src="${videoUrl}" type="video/mp4">
           </video>
         `;
       }
     }
 
-    loadSettings().then(settings => {
-      document.getElementById("aboutTitle").textContent = settings.abouttitle || "About Lisha Studio";
-      document.getElementById("aboutSubtitle").textContent = settings.aboutsubtitle || "Handmade art objects for playful everyday spaces.";
-      document.getElementById("aboutStoryTitle").textContent = settings.aboutstorytitle || "Hello, I’m Lisha.";
-      document.getElementById("aboutStoryText").textContent = settings.aboutstorytext || "Lisha Studio is where I create handmade objects inspired by small joys, cozy spaces, cute shapes, and everyday visual details.";
-      document.getElementById("aboutSecondTitle").textContent = settings.aboutsecondtitle || "What I make";
-      document.getElementById("aboutSecondText").textContent = settings.aboutsecondtext || "I make candles, decorative objects, gifts, and playful handmade art pieces.";
-      document.getElementById("aboutHighlight").textContent = settings.abouthighlight || "✦ handmade pieces for cozy, playful, artful everyday spaces ✦";
-      createVideo(settings.herovideo || "");
-    });
+    function renderGallery() { // About 图片区；固定从 R2 读取 ABOUT_IMAGES
+      const gallery = document.getElementById("aboutGallery");
+      const images = ABOUT_IMAGES.filter(Boolean);
+
+      if (!images.length) {
+        gallery.style.display = "none";
+        gallery.innerHTML = "";
+        return;
+      }
+
+      gallery.style.display = "grid";
+      gallery.innerHTML = images.map((fileName, index) => `
+        <img src="${IMAGE_BASE_URL + fileName}" alt="Lisha Studio about image ${index + 1}" loading="lazy" onerror="this.style.display='none'">
+      `).join("");
+    }
+
+    loadSettings()
+      .then(settings => {
+        document.getElementById("aboutTitle").textContent = setting(settings, "about.title", "About Lisha Studio");
+        document.getElementById("aboutSubtitle").textContent = setting(settings, "about.subtitle", "Handmade art objects for playful everyday spaces.");
+        document.getElementById("aboutStoryTitle").textContent = setting(settings, "about.storyTitle", "Hello, I’m Lisha.");
+        document.getElementById("aboutStoryText").textContent = setting(settings, "about.storyText", "Lisha Studio is where I create handmade objects inspired by small joys, cozy spaces, cute shapes, and everyday visual details.");
+        document.getElementById("aboutSecondTitle").textContent = setting(settings, "about.secondTitle", "What I make");
+        document.getElementById("aboutSecondText").textContent = setting(settings, "about.secondText", "I make candles, decorative objects, gifts, and playful handmade art pieces.");
+        document.getElementById("aboutHighlight").textContent = setting(settings, "about.highlight", "✦ handmade pieces for cozy, playful, artful everyday spaces ✦");
+
+        document.title = setting(settings, "about.title", "About Lisha Studio") + " | Lisha Studio";
+
+        renderGallery();
+        createVideo(setting(settings, "about.video", setting(settings, "index.heroVideo", "")));
+      })
+      .catch(error => {
+        console.error(error);
+        renderGallery(); // 即使 Settings 读取失败，也尝试显示 R2 图片
+      });
   </script>
 </body>
 </html>
