@@ -740,7 +740,9 @@ footer {
 .shipping-region-row {
   display: flex;
   justify-content: flex-start; /* 控制下拉框居中；想左对齐就改成 flex-start */
-  margin: 12px 0 14px; /* 控制上下间距：上 12px，下 14px */
+  margin: 14px 0; /* 控制上下间距：上 12px，下 14px */
+  padding: 14px 0;
+  border-top: 1px solid var(--line);
 }
 
 .shipping-region-select {
