@@ -6,8 +6,13 @@
    - header and hero area
    - product grid and product cards
    - product detail modal
-   - cart drawer and checkout form
+   - cart drawer and PayPal checkout area
    - mobile responsive layout
+
+   Important:
+   Cart region dropdown style is controlled by:
+   - .shipping-region-select-row
+   - .shipping-region-select
    ========================================================= */
 
 @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Nunito:wght@400;500;600;700;800&display=swap');
@@ -569,7 +574,7 @@ footer {
 .details-list strong { color: var(--text); }
 
 /* =========================
-   Cart drawer and checkout form
+   Cart drawer and PayPal checkout
    ========================= */
 
 .cart-float {
@@ -717,10 +722,6 @@ footer {
   font-weight: 800;
 }
 
-.summary-control {
-  padding-top: 8px;
-}
-
 .summary-row.total {
   color: var(--text);
   font-size: 20px;
@@ -729,15 +730,30 @@ footer {
   margin-top: 12px;
 }
 
-.summary-row select {
+/* Cart shipping region dropdown.
+   This is intentionally styled like the product category dropdown.
+   Adjustable parameters:
+   - width / max-width: dropdown size
+   - border-radius: roundedness
+   - padding: inner spacing
+   - margin: vertical spacing around dropdown
+*/
+.shipping-region-select-row {
+  display: flex;
+  justify-content: flex-start;
+  margin: 13px 0;
+}
+
+.shipping-region-select {
+  width: min(100%, 260px);
   border: 1px solid var(--line);
   background: white;
   border-radius: 999px;
-  padding: 9px 14px;
+  padding: 13px 17px;
   font-family: "Nunito", Arial, sans-serif;
+  font-size: 15px;
   font-weight: 800;
   outline: none;
-  max-width: 250px;
   color: var(--text);
 }
 
@@ -754,6 +770,7 @@ footer {
   line-height: 1.45;
   font-weight: 800;
   margin: 10px 0 0;
+  text-align: left;
 }
 
 #paypal-button-container {
@@ -783,4 +800,5 @@ footer {
   .filters input, .filters select { width: 100%; }
   .modal-layout { padding: 24px; }
   .cart-float { right: 14px; bottom: 14px; }
+  .shipping-region-select { width: 100%; }
 }
