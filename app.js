@@ -205,7 +205,7 @@ function renderShippingSelector() {
     <div class="summary-row">
       <span></span>
       <select id="shippingRegionSelect" onchange="changeShippingRegion(this.value)">
-        <option value="" ${!selectedShippingRegion ? "selected" : ""}>请选择 region，以查看邮寄费用</option>
+        <option value="" ${!selectedShippingRegion ? "selected" : ""}>region</option>
         ${shippingRules.map(rule => `
           <option value="${rule.region}" ${rule.region === selectedShippingRegion ? "selected" : ""}>
             ${rule.region}
