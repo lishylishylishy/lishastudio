@@ -169,7 +169,7 @@ function renderShippingSelector() { // 购物车里的 region 下拉菜单；默
 
   return `
     <select class="shipping-region-select" id="shippingRegionSelect" onchange="changeShippingRegion(this.value)">
-      <option value="" ${!selectedShippingRegion ? "selected" : ""}>Select your region to see the shipping cost</option>
+      <option value="" ${!selectedShippingRegion ? "selected" : ""}>Select shipping region</option>
       ${shippingRules.map(rule => `
         <option value="${rule.region}" ${rule.region === selectedShippingRegion ? "selected" : ""}>
           ${rule.region}
