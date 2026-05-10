@@ -6,7 +6,6 @@
    - renders product cards and categories
    - opens product detail modal
    - manages cart in localStorage
-   - validates checkout form
    - calls Cloudflare Worker for PayPal payment
 
    Security rule:
@@ -753,8 +752,8 @@ function renderCart() {
   const deliveryTime = textSetting("shipping.deliverytime", "Estimated delivery time will be confirmed after checkout.");
 
   summaryEl.innerHTML = `
-    ${renderShippingSelector()}
     <div class="summary-row"><span>Subtotal</span><span>${money(subtotal)}</span></div>
+    ${renderShippingSelector()}
     <div class="summary-row"><span>Shipping</span><span>${shipping === 0 ? "FREE" : money(shipping)}</span></div>
     <div class="summary-row total"><span>Total</span><span>${money(total)}</span></div>
     <p class="cart-note">${deliveryTime}</p>
@@ -776,56 +775,16 @@ function toggleCart(forceShow) {
 }
 
 /* =========================
-   11. Checkout form
-   Customer info can come from browser because it is not price/security data.
-   Phone is required for delivery.
+   11. Order payload
+   Browser sends only product references, quantity, and shipping region.
+   PayPal collects customer contact/address in its own checkout window.
+   Worker must recalculate final price from Products + Shipping CSV.
    ========================= */
 
-function getCheckoutInfo() {
-  return {
-    customerName: document.getElementById("customerName")?.value.trim() || "",
-    customerEmail: document.getElementById("customerEmail")?.value.trim() || "",
-    customerPhone: document.getElementById("customerPhone")?.value.trim() || "",
-
-    addressLine1: document.getElementById("addressLine1")?.value.trim() || "",
-    addressLine2: document.getElementById("addressLine2")?.value.trim() || "",
-    city: document.getElementById("city")?.value.trim() || "",
-    state: document.getElementById("state")?.value.trim() || "",
-    postalCode: document.getElementById("postalCode")?.value.trim() || "",
-    country: document.getElementById("country")?.value.trim() || ""
-  };
-}
-
-function validateCheckoutInfo(info) {
-  const missing = [];
-
-  if (!info.customerName) missing.push("Full name");
-  if (!info.customerEmail) missing.push("Email");
-  if (!info.customerPhone) missing.push("Phone number");
-  if (!info.addressLine1) missing.push("Address line 1");
-  if (!info.city) missing.push("City");
-  if (!info.state) missing.push("State / Province");
-  if (!info.postalCode) missing.push("Postal code");
-  if (!info.country) missing.push("Country / Region");
-
-  if (info.customerEmail && !/^\S+@\S+\.\S+$/.test(info.customerEmail)) {
-    missing.push("Valid email");
-  }
-
-  if (info.customerPhone && info.customerPhone.replace(/\D/g, "").length < 6) {
-    missing.push("Valid phone number");
-  }
-
-  return missing;
-}
-
 function orderPayload() {
-  const checkoutInfo = getCheckoutInfo();
-
   return {
     currency: currencyCode(),
     shippingRegion: selectedShippingRegion,
-    ...checkoutInfo,
     items: cart.map(item => ({
       productId: item.productId,
       sku: item.sku,
@@ -836,8 +795,8 @@ function orderPayload() {
 
 /* =========================
    12. PayPal checkout
-   app.js sends customer info and product references to Worker.
-   Worker must recalculate final price and pass customer address to PayPal.
+   PayPal opens its own checkout window.
+   Customer contact/address fields are filled there, not inside the cart.
    ========================= */
 
 function setupPayPalButtons() {
@@ -850,14 +809,6 @@ function setupPayPalButtons() {
       if (!cart.length) {
         alert("Your cart is empty.");
         throw new Error("Cart is empty");
-      }
-
-      const checkoutInfo = getCheckoutInfo();
-      const missing = validateCheckoutInfo(checkoutInfo);
-
-      if (missing.length) {
-        alert("Please complete these fields before payment:\n\n" + missing.join("\n"));
-        throw new Error("Missing checkout info");
       }
 
       const response = await fetch(`${WORKER_PAYMENT_URL}/create-paypal-order`, {
