@@ -770,3 +770,21 @@ footer {
     max-width: 210px;
   }
 }
+/* 首页中间 About 按钮：鼠标移上去变粉橘渐变 */
+.hero-subtitle-link:hover {
+  background: linear-gradient(135deg, var(--soft), var(--pink));
+  color: var(--accent-dark);
+  border-color: var(--line);
+  transform: translateY(-1px);
+}
+
+/* 底部文字链接：可点击，但看起来还是灰色小字、没有下划线 */
+.footer-link {
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.footer-link:hover {
+  color: var(--accent-dark);
+  text-decoration: none;
+}
