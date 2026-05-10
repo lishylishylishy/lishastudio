@@ -6,7 +6,7 @@
    - header and hero area
    - product grid and product cards
    - product detail modal
-   - cart drawer and checkout form
+   - cart drawer and PayPal buttons
    - mobile responsive layout
    ========================================================= */
 
@@ -569,7 +569,7 @@ footer {
 .details-list strong { color: var(--text); }
 
 /* =========================
-   Cart drawer and checkout form
+   Cart drawer and PayPal buttons
    ========================= */
 
 .cart-float {
@@ -712,9 +712,13 @@ footer {
   justify-content: space-between;
   align-items: center;
   gap: 12px;
-  margin: 8px 0;
+  margin: 9px 0;
   color: var(--muted);
   font-weight: 800;
+}
+
+.summary-control {
+  padding-top: 8px;
 }
 
 .summary-row.total {
@@ -741,38 +745,6 @@ footer {
   font-size: 13px;
   line-height: 1.5;
   margin: 12px 0 0;
-}
-
-.checkout-form {
-  margin-top: 16px;
-  padding-top: 14px;
-  border-top: 1px solid var(--line);
-}
-
-.checkout-form h3 {
-  margin: 0 0 10px;
-  font-family: "Baloo 2", cursive;
-  font-size: 22px;
-  line-height: 1;
-}
-
-.checkout-form input,
-.checkout-form select {
-  width: 100%;
-  border: 1px solid var(--line);
-  background: white;
-  border-radius: 16px;
-  padding: 11px 13px;
-  margin: 6px 0;
-  font-family: "Nunito", Arial, sans-serif;
-  font-size: 14px;
-  outline: none;
-}
-
-.checkout-form-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
 }
 
 #paypal-button-container {
@@ -802,5 +774,4 @@ footer {
   .filters input, .filters select { width: 100%; }
   .modal-layout { padding: 24px; }
   .cart-float { right: 14px; bottom: 14px; }
-  .checkout-form-row { grid-template-columns: 1fr; gap: 0; }
 }
