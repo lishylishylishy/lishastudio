@@ -124,7 +124,7 @@ nav a:hover { color: var(--accent-dark); }
   transition: 0.2s ease;
 }
 
-.hero-subtitle-link::after { content: " :)"; }
+.hero-subtitle-link::after { content: ""; }
 
 .hero-subtitle-link:hover {
   background: var(--accent);
