@@ -33,6 +33,7 @@
       font-family: "Nunito", Arial, sans-serif;
     }
 
+    /* 顶部导航：和首页保持一致 */
     header {
       padding: 26px 34px;
       display: flex;
@@ -57,12 +58,14 @@
       color: var(--accent-dark);
     }
 
+    /* 页面主体宽度 */
     main {
       max-width: 1040px;
       margin: 0 auto;
       padding: 76px 24px 90px;
     }
 
+    /* About 标题区 */
     .intro {
       text-align: center;
       margin-bottom: 42px;
@@ -83,6 +86,7 @@
       margin: 0 auto;
     }
 
+    /* 三个小视频区域 */
     .about-video-grid {
       display: none;
       grid-template-columns: repeat(3, 1fr);
@@ -106,6 +110,7 @@
       display: block;
     }
 
+    /* 介绍卡片 */
     .story-card {
       background: var(--card);
       border: 1px solid var(--line);
@@ -130,6 +135,7 @@
       white-space: pre-line;
     }
 
+    /* 粉色高亮条 */
     .highlight {
       background: linear-gradient(135deg, var(--soft), var(--pink));
       border-radius: 26px;
@@ -141,6 +147,31 @@
       margin-top: 30px;
     }
 
+    /* About 页面底部联系按钮 */
+    .about-contact-links {
+      margin-top: 34px;
+      display: flex;
+      justify-content: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .about-contact-links a {
+      color: var(--text);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 13px 24px;
+      text-decoration: none;
+      font-weight: 900;
+      background: var(--soft);
+    }
+
+    .about-contact-links a:hover {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+
     footer {
       text-align: center;
       padding: 32px 20px;
@@ -149,6 +180,7 @@
       border-top: 1px solid var(--line);
     }
 
+    /* 平板 / 小屏幕 */
     @media (max-width: 850px) {
       header {
         justify-content: center;
@@ -168,6 +200,7 @@
       }
     }
 
+    /* 手机 */
     @media (max-width: 560px) {
       nav a {
         font-size: 15px;
@@ -201,19 +234,23 @@
   <main>
     <section class="intro">
       <h1 id="aboutTitle">About Lisha Studio</h1>
-      <p id="aboutSubtitle">Playful handmade pieces made with soft colors, tiny details, and everyday joy.</p>
+      <p id="aboutSubtitle">Handmade pieces for cozy, playful, everyday spaces.</p>
     </section>
 
+    <!-- 三个小视频会由 JS 自动填入 -->
     <section class="about-video-grid" id="aboutVideoGrid"></section>
 
     <section class="story-card">
       <h2 id="aboutStoryTitle">Hello, I’m Lisha.</h2>
-      <p id="aboutStoryText">Welcome to my little world of handmade objects. I make playful candles, decorative pieces, and small gifts inspired by cute shapes, cozy spaces, and tiny everyday details.</p>
+      <p id="aboutStoryText">Lisha Studio is where I turn small ideas into playful handmade pieces.</p>
     </section>
 
     <div class="highlight" id="aboutHighlight">
       ✦ handmade pieces for cozy, playful, artful everyday spaces ✦
     </div>
+
+    <!-- Email / WhatsApp / YouTube 按钮会由 JS 自动填入 -->
+    <div class="about-contact-links" id="aboutContactLinks"></div>
   </main>
 
   <footer>
@@ -222,15 +259,15 @@
 
   <script>
     const SETTINGS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRQ5vcuUBnI85arPNNe2h-aqwqq_9RpCBN0oewhCexPjWd-nX7YW-j3ii_5JlwvZZ7VlyjZ_RSTVwD5/pub?gid=0&single=true&output=csv"; // Settings 表 CSV
-    const VIDEO_BASE_URL = "https://pub-32f3f529081e4033a9e6ecf3fd1297ae.r2.dev/images/"; // Cloudflare R2 视频基础地址
+    const VIDEO_BASE_URL = "https://pub-32f3f529081e4033a9e6ecf3fd1297ae.r2.dev/images/"; // Cloudflare R2 文件夹
 
     const ABOUT_VIDEOS = [
-      "about-1.mp4", // 第 1 个 About 小视频
-      "about-2.mp4", // 第 2 个 About 小视频
-      "about-3.mp4"  // 第 3 个 About 小视频
+      "about-1.mp4", // 第 1 个小视频
+      "about-2.mp4", // 第 2 个小视频
+      "about-3.mp4"  // 第 3 个小视频
     ];
 
-    function parseCSV(text) {
+    function parseCSV(text) { // 解析 Google Sheet 发布出来的 CSV
       const rows = [];
       let row = [];
       let value = "";
@@ -269,7 +306,7 @@
       return rows;
     }
 
-    function rowsToSettings(rows) {
+    function rowsToSettings(rows) { // 把 Settings 表转成 key-value 对象
       const settings = {};
 
       rows.slice(1).forEach(row => {
@@ -281,7 +318,7 @@
       return settings;
     }
 
-    async function loadSettings() {
+    async function loadSettings() { // 读取 Settings 表
       const joiner = SETTINGS_CSV_URL.includes("?") ? "&" : "?";
       const response = await fetch(SETTINGS_CSV_URL + joiner + "cacheBust=" + Date.now());
 
@@ -293,11 +330,11 @@
       return rowsToSettings(parseCSV(text));
     }
 
-    function setting(settings, key, fallback) {
+    function setting(settings, key, fallback) { // 读取表格内容；没有就用默认文字
       return settings[key.toLowerCase()] || fallback;
     }
 
-    function renderVideos() {
+    function renderVideos() { // 渲染 3 个 About 小视频
       const videoGrid = document.getElementById("aboutVideoGrid");
       const videos = ABOUT_VIDEOS.filter(Boolean);
 
@@ -317,17 +354,40 @@
       `).join("");
     }
 
+    function renderContactLinks(settings) { // 读取 contact.email / contact.whatsapp / contact.youtube
+      const links = document.getElementById("aboutContactLinks");
+
+      const email = setting(settings, "contact.email", "");
+      const whatsapp = setting(settings, "contact.whatsapp", "");
+      const youtube = setting(settings, "contact.youtube", "");
+
+      links.innerHTML = "";
+
+      if (email) {
+        links.innerHTML += `<a href="mailto:${email}">Email</a>`;
+      }
+
+      if (whatsapp) {
+        links.innerHTML += `<a href="${whatsapp}" target="_blank" rel="noopener">WhatsApp</a>`;
+      }
+
+      if (youtube) {
+        links.innerHTML += `<a href="${youtube}" target="_blank" rel="noopener">YouTube</a>`;
+      }
+    }
+
     loadSettings()
       .then(settings => {
         document.getElementById("aboutTitle").textContent = setting(settings, "about.title", "About Lisha Studio");
-        document.getElementById("aboutSubtitle").textContent = setting(settings, "about.subtitle", "Playful handmade pieces made with soft colors, tiny details, and everyday joy.");
+        document.getElementById("aboutSubtitle").textContent = setting(settings, "about.subtitle", "Handmade pieces for cozy, playful, everyday spaces.");
         document.getElementById("aboutStoryTitle").textContent = setting(settings, "about.storyTitle", "Hello, I’m Lisha.");
-        document.getElementById("aboutStoryText").textContent = setting(settings, "about.storyText", "Welcome to my little world of handmade objects. I make playful candles, decorative pieces, and small gifts inspired by cute shapes, cozy spaces, and tiny everyday details.");
+        document.getElementById("aboutStoryText").textContent = setting(settings, "about.storyText", "Lisha Studio is where I turn small ideas into playful handmade pieces. From candles to decorative objects, each piece is made with soft colors, curious shapes, and a little sense of humor.");
         document.getElementById("aboutHighlight").textContent = setting(settings, "about.highlight", "✦ handmade pieces for cozy, playful, artful everyday spaces ✦");
 
         document.title = setting(settings, "about.title", "About Lisha Studio") + " | Lisha Studio";
 
         renderVideos();
+        renderContactLinks(settings);
       })
       .catch(error => {
         console.error(error);
