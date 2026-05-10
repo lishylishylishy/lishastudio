@@ -739,33 +739,33 @@ function setupPayPalButtons() { // PayPal 按钮
   paypalButtonsRendered = true;
 
   paypal.Buttons({
-    createOrder: async () => { // 创建 PayPal 订单
-      if (!cart.length) {
-        alert("Your cart is empty.");
-        throw new Error("Cart is empty");
-      }
+createOrder: async () => { // 创建 PayPal 订单
+  if (!cart.length) {
+    alert("Your cart is empty.");
+    throw new Error("Cart is empty");
+  }
 
-      if (!selectedShippingRegion) {
-        alert("Please select a shipping region before payment.");
-        throw new Error("Missing shipping region");
-      }
+  if (!selectedShippingRegion) {
+    alert("Please select your shipping region before payment.");
+    throw new Error("Missing shipping region");
+  }
 
-      const response = await fetch(`${WORKER_PAYMENT_URL}/create-paypal-order`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(buildOrderPayload())
-      });
+  const response = await fetch(`${WORKER_PAYMENT_URL}/create-paypal-order`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(buildOrderPayload())
+  });
 
-      const data = await response.json();
+  const data = await response.json();
 
-      if (!response.ok || !data.ok || !data.paypalOrderId) {
-        console.error(data);
-        alert("Could not create PayPal order:\n" + JSON.stringify(data));
-        throw new Error("Could not create PayPal order");
-      }
+  if (!response.ok || !data.ok || !data.paypalOrderId) {
+    console.error(data);
+    alert("Could not create PayPal order:\n" + JSON.stringify(data));
+    throw new Error("Could not create PayPal order");
+  }
 
-      return data.paypalOrderId;
-    },
+  return data.paypalOrderId;
+},
 
     onApprove: async (data) => { // 买家批准后扣款并写入 Orders
       const response = await fetch(`${WORKER_PAYMENT_URL}/capture-paypal-order`, {
