@@ -6,13 +6,12 @@
    - header and hero area
    - product grid and product cards
    - product detail modal
-   - cart drawer and PayPal checkout area
+   - cart drawer and payment summary
    - mobile responsive layout
 
-   Important:
-   Cart region dropdown style is controlled by:
-   - .shipping-region-select-row
-   - .shipping-region-select
+   Tip:
+   If you want to change layout or spacing, edit this file.
+   If you want to change text or behavior, edit app.js or Settings sheet.
    ========================================================= */
 
 @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Nunito:wght@400;500;600;700;800&display=swap');
@@ -574,7 +573,7 @@ footer {
 .details-list strong { color: var(--text); }
 
 /* =========================
-   Cart drawer and PayPal checkout
+   Cart drawer
    ========================= */
 
 .cart-float {
@@ -730,29 +729,30 @@ footer {
   margin-top: 12px;
 }
 
-/* Cart shipping region dropdown.
-   This is intentionally styled like the product category dropdown.
-   Adjustable parameters:
-   - width / max-width: dropdown size
-   - border-radius: roundedness
-   - padding: inner spacing
-   - margin: vertical spacing around dropdown
+/*
+  Shipping region dropdown in cart.
+  This is intentionally matched to the homepage "All categories" select style.
+  Common edits:
+  - min-width controls dropdown width.
+  - padding controls inner spacing.
+  - border-radius: 999px makes it pill-shaped.
 */
-.shipping-region-select-row {
+.shipping-region-row {
   display: flex;
-  justify-content: flex-start;
-  margin: 13px 0;
+  justify-content: center;
+  margin: 12px 0 10px;
 }
 
 .shipping-region-select {
-  width: min(100%, 260px);
   border: 1px solid var(--line);
   background: white;
   border-radius: 999px;
   padding: 13px 17px;
-  font-family: "Nunito", Arial, sans-serif;
+  font-family: "Nunito", sans-serif;
   font-size: 15px;
   font-weight: 800;
+  min-width: 210px;
+  width: min(100%, 270px);
   outline: none;
   color: var(--text);
 }
@@ -800,5 +800,4 @@ footer {
   .filters input, .filters select { width: 100%; }
   .modal-layout { padding: 24px; }
   .cart-float { right: 14px; bottom: 14px; }
-  .shipping-region-select { width: 100%; }
 }
