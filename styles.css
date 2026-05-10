@@ -728,13 +728,14 @@ footer {
   margin: 12px 0 0;
 }
 
-/* 红色派送提醒 */
+/* 红色小字提醒 */
 .cart-warning {
   color: #c0392b;
   font-size: 12px;
   line-height: 1.45;
   font-weight: 800;
   margin: 10px 0 0;
+  padding-left: 22px; /* 数字越大，越往右 */
   text-align: left;
 }
 
