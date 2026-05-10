@@ -1,31 +1,15 @@
-/* =========================================================
-   Lisha Studio styles.css
-
-   This file controls visual design only:
-   - fonts and colors
-   - header and hero area
-   - product grid and product cards
-   - product detail modal
-   - cart drawer and payment summary
-   - mobile responsive layout
-
-   Tip:
-   If you want to change layout or spacing, edit this file.
-   If you want to change text or behavior, edit app.js or Settings sheet.
-   ========================================================= */
-
 @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Nunito:wght@400;500;600;700;800&display=swap');
 
 :root {
-  --bg: #fffdf8;
-  --text: #1f1b18;
-  --muted: #756d66;
-  --line: #eee5dc;
-  --soft: #fff4e4;
-  --pink: #ffe8ec;
-  --accent: #f08a5d;
-  --accent-dark: #d9693f;
-  --card: #ffffff;
+  --bg: #fffdf8; /* 页面背景色 */
+  --text: #1f1b18; /* 主文字色 */
+  --muted: #756d66; /* 次级文字色 */
+  --line: #eee5dc; /* 分割线颜色 */
+  --soft: #fff4e4; /* 浅暖色背景 */
+  --pink: #ffe8ec; /* 浅粉色 */
+  --accent: #f08a5d; /* 主按钮色 */
+  --accent-dark: #d9693f; /* 主按钮 hover 色 */
+  --card: #ffffff; /* 卡片背景 */
 }
 
 * { box-sizing: border-box; }
@@ -38,10 +22,7 @@ body {
   font-family: "Nunito", Arial, sans-serif;
 }
 
-/* =========================
-   Header / Navigation
-   ========================= */
-
+/* Header 导航 */
 header {
   padding: 26px 34px;
   display: flex;
@@ -64,11 +45,7 @@ nav a {
 
 nav a:hover { color: var(--accent-dark); }
 
-/* =========================
-   Hero video area
-   Content is controlled by Settings CSV.
-   ========================= */
-
+/* 首页视频区 */
 .hero-video {
   position: relative;
   width: 100%;
@@ -156,10 +133,7 @@ nav a:hover { color: var(--accent-dark); }
   transform: translateY(-1px);
 }
 
-/* =========================
-   Product section
-   ========================= */
-
+/* 商品区域 */
 .section {
   max-width: 1120px;
   margin: 0 auto;
@@ -343,10 +317,7 @@ nav a:hover { color: var(--accent-dark); }
   border-color: var(--text);
 }
 
-/* =========================
-   Contact area
-   ========================= */
-
+/* Contact 区域 */
 .contact {
   border-top: 1px solid var(--line);
   padding: 70px 24px;
@@ -436,10 +407,7 @@ footer {
   grid-column: 1 / -1;
 }
 
-/* =========================
-   Product modal
-   ========================= */
-
+/* 商品弹窗 */
 .modal-backdrop {
   position: fixed;
   inset: 0;
@@ -572,10 +540,7 @@ footer {
 
 .details-list strong { color: var(--text); }
 
-/* =========================
-   Cart drawer
-   ========================= */
-
+/* 购物车抽屉 */
 .cart-float {
   position: fixed;
   right: 22px;
@@ -710,8 +675,8 @@ footer {
   background: var(--bg);
 }
 
-.summary-row,
-.summary-control {
+/* 购物车金额行 */
+.summary-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -721,6 +686,28 @@ footer {
   font-weight: 800;
 }
 
+/* region 下拉 + 运费金额同一行 */
+.shipping-fee-row {
+  align-items: center;
+  gap: 12px;
+}
+
+/* region 下拉框，样式接近首页 All categories */
+.shipping-region-select {
+  border: 1px solid var(--line);
+  background: white;
+  border-radius: 999px;
+  padding: 13px 17px;
+  font-family: "Nunito", sans-serif;
+  font-size: 15px;
+  font-weight: 400;
+  min-width: 210px;
+  max-width: 230px;
+  outline: none;
+  color: var(--text);
+}
+
+/* Total 行 */
 .summary-row.total {
   color: var(--text);
   font-size: 20px;
@@ -729,38 +716,7 @@ footer {
   margin-top: 12px;
 }
 
-/*
-  Shipping region dropdown in cart.
-  This is intentionally matched to the homepage "All categories" select style.
-  Common edits:
-  - min-width controls dropdown width.
-  - padding controls inner spacing.
-  - border-radius: 999px makes it pill-shaped.
-*/
-.shipping-region-row {
-  display: flex;
-  justify-content: flex-start; /* 控制下拉框居中；想左对齐就改成 flex-start */
-  margin: 14px 0; /* 控制上下间距：上 12px，下 14px */
-  padding: 12px 0;
-  border-top: 1px solid var(--line);
-}
-
-.shipping-region-select {
-  border: 1px solid var(--line);
-  background: white;
-  border-radius: 999px;
-  padding: 13px 17px;
-  font-family: "Nunito", sans-serif;
-  font-size: 15px;
-  font-weight: 400; /* 这里改成 400，就和首页 All categories 的文字粗细更接近 */
-  min-width: 210px; /* 最小宽度，和首页筛选框一致 */
-  width: 100%; /* 在购物车里尽量占满一行 */
-  max-width: 260px; /* 控制最大宽度；想更宽改成 300px */
-  outline: none;
-  color: var(--text);
-  appearance: auto;
-}
-
+/* 购物车普通说明 */
 .cart-note {
   color: var(--muted);
   font-size: 13px;
@@ -768,6 +724,7 @@ footer {
   margin: 12px 0 0;
 }
 
+/* 红色派送提醒 */
 .cart-warning {
   color: #c0392b;
   font-size: 12px;
@@ -781,10 +738,7 @@ footer {
   margin-top: 14px;
 }
 
-/* =========================
-   Responsive styles
-   ========================= */
-
+/* 平板适配 */
 @media (max-width: 850px) {
   header { justify-content: center; padding: 22px 18px; }
   nav a { margin: 0 9px; }
@@ -794,6 +748,7 @@ footer {
   .contact-grid { grid-template-columns: 1fr; }
 }
 
+/* 手机适配 */
 @media (max-width: 560px) {
   nav a { font-size: 15px; margin: 0 6px; }
   .hero-video { height: 78vh; min-height: 520px; }
@@ -804,4 +759,9 @@ footer {
   .filters input, .filters select { width: 100%; }
   .modal-layout { padding: 24px; }
   .cart-float { right: 14px; bottom: 14px; }
+
+  .shipping-region-select {
+    min-width: 180px; /* 手机端下拉框宽度 */
+    max-width: 210px;
+  }
 }
