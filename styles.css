@@ -739,8 +739,8 @@ footer {
 */
 .shipping-region-row {
   display: flex;
-  justify-content: center;
-  margin: 12px 0 10px;
+  justify-content: flex-start; /* 控制下拉框居中；想左对齐就改成 flex-start */
+  margin: 12px 0 14px; /* 控制上下间距：上 12px，下 14px */
 }
 
 .shipping-region-select {
@@ -750,11 +750,13 @@ footer {
   padding: 13px 17px;
   font-family: "Nunito", sans-serif;
   font-size: 15px;
-  font-weight: 800;
-  min-width: 210px;
-  width: min(100%, 270px);
+  font-weight: 400; /* 这里改成 400，就和首页 All categories 的文字粗细更接近 */
+  min-width: 210px; /* 最小宽度，和首页筛选框一致 */
+  width: 100%; /* 在购物车里尽量占满一行 */
+  max-width: 260px; /* 控制最大宽度；想更宽改成 300px */
   outline: none;
   color: var(--text);
+  appearance: auto;
 }
 
 .cart-note {
