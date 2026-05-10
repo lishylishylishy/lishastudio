@@ -7,23 +7,20 @@
   <title>Lisha Studio | Handmade Art Objects</title>
   <meta name="description" content="Lisha Studio handmade art objects, candles, gifts, and playful little things." />
 
-  <!--
-    styles.css controls all visual styles:
-    layout, product cards, modal, cart drawer, checkout form, mobile responsive styles.
-  -->
+  <!-- styles.css controls all visual styles: layout, cards, modal, cart drawer, mobile layout. -->
   <link rel="stylesheet" href="styles.css" />
 
   <!--
     PayPal SDK.
-    Sandbox client-id is used for testing.
-    When going live, replace this client-id with your Live Client ID.
-    disable-funding=paylater hides the Pay Later button.
+    Current client-id is Sandbox for testing.
+    When going live, replace it with your Live Client ID.
+    disable-funding=paylater hides Pay Later.
   -->
   <script src="https://www.paypal.com/sdk/js?client-id=AViE6g_MybW_s4M1JQOgpgDw0tTEbOnzPpj7lHmE5TWmG4Voe0I81wK3cRTXCoufRo887gv1KbCv_-cE&currency=USD&disable-funding=paylater"></script>
 </head>
 
 <body>
-  <!-- Header navigation stays on the same page. No product/cart page jump. -->
+  <!-- Header navigation stays on this same page. -->
   <header>
     <nav>
       <a href="/">Home</a>
@@ -32,7 +29,7 @@
     </nav>
   </header>
 
-  <!-- Hero area: text and video are filled from Settings CSV by app.js. -->
+  <!-- Hero area: app.js fills text/video from Settings CSV. -->
   <section class="hero-video" id="videoArea">
     <div class="hero-media" id="videoMedia"></div>
     <div class="hero-overlay">
@@ -42,7 +39,7 @@
   </section>
 
   <main>
-    <!-- Products section: app.js reads Products CSV and renders cards here. -->
+    <!-- Products section: app.js reads Products CSV and renders cards inside productGrid. -->
     <section class="section" id="products">
       <h2 class="section-title" id="featuredTitle">Featured Pieces</h2>
 
@@ -58,7 +55,7 @@
       </div>
     </section>
 
-    <!-- Contact section: text and links are filled from Settings CSV by app.js. -->
+    <!-- Contact section: app.js fills text and links from Settings CSV. -->
     <section class="contact" id="contact">
       <div class="contact-inner">
         <h2 class="section-title" id="contactTitle">Contact</h2>
@@ -84,12 +81,12 @@
     </section>
   </main>
 
-  <!-- Floating cart button: opens the right drawer, not a new page. -->
+  <!-- Floating cart button: opens the right drawer. No page jump. -->
   <button class="cart-float" onclick="toggleCart(true)">
     Cart (<span id="cartCount">0</span>)
   </button>
 
-  <!-- Cart drawer: stays on same page. app.js renders cart items and payment button here. -->
+  <!-- Cart drawer: app.js renders cart items, shipping region selector, summary, PayPal button. -->
   <aside class="cart-drawer" id="cartDrawer">
     <div class="cart-header">
       <h2>Your Cart</h2>
@@ -102,12 +99,11 @@
 
     <div class="cart-footer">
       <div id="cartSummary"></div>
-
       <div id="paypal-button-container"></div>
     </div>
   </aside>
 
-  <!-- Product modal: app.js fills this when a product card is clicked. No page jump. -->
+  <!-- Product modal: app.js fills this when a product card is clicked. No product page jump. -->
   <div class="modal-backdrop" id="productModal">
     <div class="modal">
       <button class="modal-close" id="modalClose">×</button>
@@ -119,7 +115,7 @@
     @ Lisha Studio · Handmade little joy:)
   </footer>
 
-  <!-- app.js contains all data loading, cart, modal, shipping, and PayPal logic. -->
+  <!-- app.js controls data loading, product rendering, cart, shipping, and PayPal. -->
   <script src="app.js"></script>
 </body>
 </html>
