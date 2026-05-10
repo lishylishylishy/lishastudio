@@ -798,7 +798,7 @@ createOrder: async () => { // 创建 PayPal 订单
 
     onError: (error) => { // PayPal 错误
       console.error(error);
-      alert("PayPal checkout error. Please try again.");
+      alert("Please select your region to see the shipping cost, then try again.");
     }
   }).render("#paypal-button-container");
 }
