@@ -3,23 +3,21 @@
 
    This file controls behavior only:
    - reads Settings / Products / Shipping CSV
-   - renders product cards and categories
-   - opens product detail modal
+   - renders product cards and category filter
+   - opens product detail modal without page jump
    - manages cart in localStorage
+   - shows shipping region selector in cart
    - calls Cloudflare Worker for PayPal payment
 
-   Current checkout logic:
-   - Cart only asks customer to choose a shipping region.
-   - Customer name / email / phone / delivery address are filled inside PayPal.
-   - Worker captures PayPal payment and reads PayPal returned customer/shipping info.
-
    Security rule:
-   The browser only shows estimated product price and shipping.
-   Final PayPal amount must be recalculated by Worker from Products CSV + Shipping CSV.
+   The browser only shows estimated price/shipping.
+   During PayPal checkout, app.js sends productId / sku / qty / shippingRegion only.
+   Your Worker must reread Products CSV + Shipping CSV and recalculate the final amount.
    ========================================================= */
 
 /* =========================
    1. Data source settings
+   Change CSV URLs here if you republish Google Sheets.
    ========================= */
 
 const SETTINGS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRQ5vcuUBnI85arPNNe2h-aqwqq_9RpCBN0oewhCexPjWd-nX7YW-j3ii_5JlwvZZ7VlyjZ_RSTVwD5/pub?gid=0&single=true&output=csv";
@@ -34,6 +32,7 @@ const SHIPPING_REGION_STORAGE_KEY = "lisha_studio_shipping_region";
 
 /* =========================
    2. Runtime state
+   These variables hold data after the page loads.
    ========================= */
 
 let productGroups = [];
@@ -106,7 +105,8 @@ function rowsToObjects(rows) {
 }
 
 async function loadCSV(url) {
-  const response = await fetch(url + "&cacheBust=" + Date.now());
+  const joiner = url.includes("?") ? "&" : "?";
+  const response = await fetch(url + joiner + "cacheBust=" + Date.now());
   if (!response.ok) throw new Error("Could not load CSV: " + url);
 
   const text = await response.text();
@@ -126,6 +126,7 @@ function safeSlug(text) {
 
 /* =========================
    4. Settings and money helpers
+   Settings CSV controls text, currency, contact info, warning text.
    ========================= */
 
 function textSetting(key, fallback) {
@@ -162,9 +163,14 @@ function priceHTML(row) {
 
 /* =========================
    5. Shipping rules
+
    Shipping CSV headers should be:
    Region | Cost | MinFree
-   The code reads MinFree as row.minfree because headers are lowercased.
+
+   Important:
+   - Region values come from your Shipping sheet, for example USA / Europe / SE Asia.
+   - The cart dropdown uses this CSV only.
+   - Worker must also reread Shipping CSV for final PayPal amount.
    ========================= */
 
 async function loadShippingRules() {
@@ -180,7 +186,6 @@ async function loadShippingRules() {
       }));
 
     // Do not auto-select a region. Customer must choose one before payment.
-    // If the saved region no longer exists in the Shipping sheet, reset it.
     if (selectedShippingRegion && !shippingRules.some(rule => rule.region === selectedShippingRegion)) {
       selectedShippingRegion = "";
       localStorage.removeItem(SHIPPING_REGION_STORAGE_KEY);
@@ -212,7 +217,7 @@ function renderShippingSelector() {
   if (!shippingRules.length) return "";
 
   return `
-    <div class="shipping-region-select-row">
+    <div class="shipping-region-row">
       <select class="shipping-region-select" id="shippingRegionSelect" onchange="changeShippingRegion(this.value)">
         <option value="" ${!selectedShippingRegion ? "selected" : ""}>Shipping region</option>
         ${shippingRules.map(rule => `
@@ -223,17 +228,17 @@ function renderShippingSelector() {
       </select>
     </div>
   `;
+
+  /*
+    This controls the cart shipping dropdown.
+    Text you may change:
+    - "Shipping region" = default text before customer chooses a region.
+
+    Related style:
+    - styles.css -> .shipping-region-select
+    It is intentionally styled like the homepage "All categories" select.
+  */
 }
-/*
-  renderShippingSelector() controls the region dropdown in the cart.
-  Change default text here:
-    Shipping region
-  You can change it to:
-    Select region
-    Choose shipping area
-    请选择收货区域
-  The visible options come from the Shipping sheet Region column.
-*/
 
 async function refreshShippingRulesInBackground() {
   await loadShippingRules();
@@ -434,7 +439,7 @@ function renderProducts() {
 
 /* =========================
    8. Settings rendering
-   Settings CSV controls text, links, and hero video.
+   Settings CSV controls text, links, warning, and hero video.
    ========================= */
 
 function applySettings(rows) {
@@ -459,7 +464,6 @@ function applySettings(rows) {
   document.getElementById("contactCustom").textContent = textSetting("contact.custom", "Custom colors, small gifts, and playful handmade pieces are welcome.");
   document.getElementById("contactShipping").textContent = textSetting("contact.shipping", "Each piece is packed carefully before shipping.");
   document.getElementById("contactResponse").textContent = textSetting("contact.response", "I usually reply within 1–2 business days.");
-  document.getElementById("cartShippingNote").textContent = textSetting("shipping.note", "Choose your shipping region before checkout.");
 
   const links = document.getElementById("contactLinks");
   links.innerHTML = "";
@@ -773,36 +777,30 @@ function renderCart() {
   );
 
   summaryEl.innerHTML = `
-    <div class="summary-row">
-      <span>Subtotal</span>
-      <span>${money(subtotal)}</span>
-    </div>
-
+    <div class="summary-row"><span>Subtotal</span><span>${money(subtotal)}</span></div>
     ${renderShippingSelector()}
-
-    <div class="summary-row">
-      <span>Shipping fee</span>
-      <span>${!selectedShippingRegion ? "Select region to see shipping" : shipping === 0 ? "FREE" : money(shipping)}</span>
-    </div>
-
-    <div class="summary-row total">
-      <span>Total</span>
-      <span>${money(total)}</span>
-    </div>
-
+    <div class="summary-row"><span>Shipping fee</span><span>${!selectedShippingRegion ? "Select region to see shipping" : shipping === 0 ? "FREE" : money(shipping)}</span></div>
+    <div class="summary-row total"><span>Total</span><span>${money(total)}</span></div>
     <p class="cart-warning">${shippingWarning}</p>
   `;
-}
-/*
-  renderCart() controls the order summary display.
-  Change labels here:
-    Subtotal
-    Shipping fee
-    Total
-    Select region to see shipping
-  Change warning text from Settings sheet:
+
+  /*
+    This controls the cart price summary order.
+    Current order:
+    1. Subtotal
+    2. Shipping region dropdown
+    3. Shipping fee
+    4. Total
+    5. Red warning text
+
+    Text you may change:
+    - "Shipping fee"
+    - "Select region to see shipping"
+
+    Red warning text can be changed in Settings sheet:
     key: shipping.warning
-*/
+  */
+}
 
 function toggleCart(forceShow) {
   const drawer = document.getElementById("cartDrawer");
@@ -909,45 +907,51 @@ function setupPayPalButtons() {
 
 /* =========================
    12. App startup
+   More robust loading:
+   Product CSV failure should not prevent cart/PayPal rendering.
    ========================= */
 
 async function init() {
+  loadCart();
+
   try {
-    loadCart();
-
-    const [settingsRows, productRows] = await Promise.all([
-      loadCSV(SETTINGS_CSV_URL),
-      loadCSV(PRODUCTS_CSV_URL)
-    ]);
-
-    await loadShippingRules();
-
+    const settingsRows = await loadCSV(SETTINGS_CSV_URL);
     applySettings(settingsRows);
+  } catch (error) {
+    console.error("Settings load failed:", error);
+  }
 
+  try {
+    await loadShippingRules();
+  } catch (error) {
+    console.error("Shipping load failed:", error);
+  }
+
+  try {
+    const productRows = await loadCSV(PRODUCTS_CSV_URL);
     allProductRows = productRows;
     productGroups = groupProducts(productRows);
-
     renderCategories();
     renderProducts();
-    renderCart();
-    setupPayPalButtons();
-
-    document.getElementById("searchInput").addEventListener("input", renderProducts);
-    document.getElementById("categoryFilter").addEventListener("change", renderProducts);
-
-    document.getElementById("modalClose").addEventListener("click", closeProductModal);
-
-    document.getElementById("productModal").addEventListener("click", event => {
-      if (event.target.id === "productModal") closeProductModal();
-    });
-
-    document.addEventListener("keydown", event => {
-      if (event.key === "Escape") closeProductModal();
-    });
   } catch (error) {
-    console.error(error);
+    console.error("Products load failed:", error);
     document.getElementById("productGrid").innerHTML = `<div class="error">Could not load products. Please check the Google Sheets links.</div>`;
   }
+
+  renderCart();
+  setupPayPalButtons();
+
+  document.getElementById("searchInput")?.addEventListener("input", renderProducts);
+  document.getElementById("categoryFilter")?.addEventListener("change", renderProducts);
+  document.getElementById("modalClose")?.addEventListener("click", closeProductModal);
+
+  document.getElementById("productModal")?.addEventListener("click", event => {
+    if (event.target.id === "productModal") closeProductModal();
+  });
+
+  document.addEventListener("keydown", event => {
+    if (event.key === "Escape") closeProductModal();
+  });
 }
 
 init();
