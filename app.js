@@ -757,7 +757,7 @@ function renderCart() {
   summaryEl.innerHTML = `
     <div class="summary-row"><span>Subtotal</span><span>${money(subtotal)}</span></div>
     ${renderShippingSelector()}
-    <div class="summary-row"><span>Shipping fee</span><span>${!selectedShippingRegion ? "Please select region" : shipping === 0 ? "FREE" : money(shipping)}</span></div>
+    <div class="summary-row"><span>Shipping fee</span><span>${!selectedShippingRegion ? "Please select your region to see the shipping cost" : shipping === 0 ? "FREE" : money(shipping)}</span></div>
     <div class="summary-row total"><span>Total</span><span>${money(total)}</span></div>
     <p class="cart-warning">${shippingWarning}</p>
   `;
