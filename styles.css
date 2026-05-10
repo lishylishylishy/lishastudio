@@ -386,9 +386,9 @@ nav a:hover { color: var(--accent-dark); }
 }
 
 .contact-links a:hover {
-  background: var(--accent);
-  color: white;
-  border-color: var(--accent);
+  background: linear-gradient(135deg, var(--soft), var(--pink)); /* 鼠标移上去变粉橘渐变 */
+  color: var(--accent-dark);
+  border-color: var(--line);
 }
 
 footer {
