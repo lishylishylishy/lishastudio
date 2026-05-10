@@ -6,6 +6,7 @@
    - renders product cards and categories
    - opens product detail modal
    - manages cart in localStorage
+   - validates checkout form
    - calls Cloudflare Worker for PayPal payment
 
    Security rule:
@@ -175,9 +176,10 @@ async function loadShippingRules() {
         minFree: Number(row.minfree || 999999)
       }));
 
-    if (!selectedShippingRegion && shippingRules.length) {
-      selectedShippingRegion = shippingRules[0].region;
-      localStorage.setItem(SHIPPING_REGION_STORAGE_KEY, selectedShippingRegion);
+    // Do not auto-select a region. Customer must choose one before payment.
+    if (selectedShippingRegion && !shippingRules.some(rule => rule.region === selectedShippingRegion)) {
+      selectedShippingRegion = "";
+      localStorage.removeItem(SHIPPING_REGION_STORAGE_KEY);
     }
   } catch (error) {
     console.warn("Could not load shipping rules:", error);
@@ -186,7 +188,8 @@ async function loadShippingRules() {
 }
 
 function selectedShippingRule() {
-  return shippingRules.find(rule => rule.region === selectedShippingRegion) || shippingRules[0] || null;
+  if (!selectedShippingRegion) return null;
+  return shippingRules.find(rule => rule.region === selectedShippingRegion) || null;
 }
 
 function changeShippingRegion(region) {
@@ -199,9 +202,10 @@ function renderShippingSelector() {
   if (!shippingRules.length) return "";
 
   return `
-    <div class="summary-control">
-      <span>Shipping region</span>
+    <div class="summary-row">
+      <span></span>
       <select id="shippingRegionSelect" onchange="changeShippingRegion(this.value)">
+        <option value="" ${!selectedShippingRegion ? "selected" : ""}>请选择 region，以查看邮寄费用</option>
         ${shippingRules.map(rule => `
           <option value="${rule.region}" ${rule.region === selectedShippingRegion ? "selected" : ""}>
             ${rule.region}
@@ -211,6 +215,7 @@ function renderShippingSelector() {
     </div>
   `;
 }
+
 
 async function refreshShippingRulesInBackground() {
   await loadShippingRules();
@@ -702,16 +707,11 @@ function cartShipping(subtotal) {
   if (cart.length === 0) return 0;
 
   const rule = selectedShippingRule();
+  if (!rule) return 0;
 
-  if (rule) {
-    return subtotal >= rule.minFree ? 0 : rule.cost;
-  }
-
-  const freeOver = numericSetting("shipping.freeover", 100);
-  const baseFee = numericSetting("shipping.basefee", 6.99);
-
-  return subtotal >= freeOver ? 0 : baseFee;
+  return subtotal >= rule.minFree ? 0 : rule.cost;
 }
+
 
 function renderCart() {
   const count = cart.reduce((sum, item) => sum + item.qty, 0);
@@ -749,14 +749,17 @@ function renderCart() {
   const subtotal = cartSubtotal();
   const shipping = cartShipping(subtotal);
   const total = subtotal + shipping;
-  const deliveryTime = textSetting("shipping.deliverytime", "Estimated delivery time will be confirmed after checkout.");
+  const shippingWarning = textSetting(
+    "shipping.warning",
+    "Estimated delivery: 5–8 business days. Please make sure your PayPal shipping address matches the selected shipping region."
+  );
 
   summaryEl.innerHTML = `
     <div class="summary-row"><span>Subtotal</span><span>${money(subtotal)}</span></div>
     ${renderShippingSelector()}
-    <div class="summary-row"><span>Shipping</span><span>${shipping === 0 ? "FREE" : money(shipping)}</span></div>
+    <div class="summary-row"><span>Shipping fee</span><span>${!selectedShippingRegion ? "Please select region" : shipping === 0 ? "FREE" : money(shipping)}</span></div>
     <div class="summary-row total"><span>Total</span><span>${money(total)}</span></div>
-    <p class="cart-note">${deliveryTime}</p>
+    <p class="cart-warning">${shippingWarning}</p>
   `;
 }
 
@@ -775,13 +778,13 @@ function toggleCart(forceShow) {
 }
 
 /* =========================
-   11. Order payload
-   Browser sends only product references, quantity, and shipping region.
-   PayPal collects customer contact/address in its own checkout window.
-   Worker must recalculate final price from Products + Shipping CSV.
+   11. PayPal checkout
+   Customer shipping/contact details are collected in the PayPal window.
+   Browser only sends product references and selected shipping region.
+   Worker must recalculate price from Products CSV + Shipping CSV.
    ========================= */
 
-function orderPayload() {
+function buildOrderPayload() {
   return {
     currency: currencyCode(),
     shippingRegion: selectedShippingRegion,
@@ -792,12 +795,6 @@ function orderPayload() {
     }))
   };
 }
-
-/* =========================
-   12. PayPal checkout
-   PayPal opens its own checkout window.
-   Customer contact/address fields are filled there, not inside the cart.
-   ========================= */
 
 function setupPayPalButtons() {
   if (!window.paypal || paypalButtonsRendered) return;
@@ -811,10 +808,15 @@ function setupPayPalButtons() {
         throw new Error("Cart is empty");
       }
 
+      if (!selectedShippingRegion) {
+        alert("Please select a shipping region before payment.");
+        throw new Error("Missing shipping region");
+      }
+
       const response = await fetch(`${WORKER_PAYMENT_URL}/create-paypal-order`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(orderPayload())
+        body: JSON.stringify(buildOrderPayload())
       });
 
       const data = await response.json();
@@ -834,7 +836,7 @@ function setupPayPalButtons() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           paypalOrderId: data.orderID,
-          ...orderPayload(),
+          ...buildOrderPayload(),
           orderNote: "Website PayPal checkout"
         })
       });
@@ -865,7 +867,7 @@ function setupPayPalButtons() {
 }
 
 /* =========================
-   13. App startup
+   12. App startup
    ========================= */
 
 async function init() {
