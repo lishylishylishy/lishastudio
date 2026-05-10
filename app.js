@@ -1,56 +1,24 @@
-/* =========================================================
-   Lisha Studio app.js
+const SETTINGS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRQ5vcuUBnI85arPNNe2h-aqwqq_9RpCBN0oewhCexPjWd-nX7YW-j3ii_5JlwvZZ7VlyjZ_RSTVwD5/pub?gid=0&single=true&output=csv"; // Settings 表 CSV
+const PRODUCTS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRQ5vcuUBnI85arPNNe2h-aqwqq_9RpCBN0oewhCexPjWd-nX7YW-j3ii_5JlwvZZ7VlyjZ_RSTVwD5/pub?gid=22339288&single=true&output=csv"; // Products 表 CSV
+const SHIPPING_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRQ5vcuUBnI85arPNNe2h-aqwqq_9RpCBN0oewhCexPjWd-nX7YW-j3ii_5JlwvZZ7VlyjZ_RSTVwD5/pub?gid=206682554&single=true&output=csv"; // Shipping 表 CSV
 
-   This file controls behavior only:
-   - reads Settings / Products / Shipping CSV
-   - renders product cards and category filter
-   - opens product detail modal without page jump
-   - manages cart in localStorage
-   - shows shipping region selector in cart
-   - calls Cloudflare Worker for PayPal payment
+const IMAGE_BASE_URL = "https://pub-32f3f529081e4033a9e6ecf3fd1297ae.r2.dev/images/"; // 商品图片基础地址
+const WORKER_PAYMENT_URL = "https://lishastudio-payment.ldeng123.workers.dev"; // Cloudflare Worker 支付接口
 
-   Security rule:
-   The browser only shows estimated price/shipping.
-   During PayPal checkout, app.js sends productId / sku / qty / shippingRegion only.
-   Your Worker must reread Products CSV + Shipping CSV and recalculate the final amount.
-   ========================================================= */
+const CART_STORAGE_KEY = "lisha_studio_cart"; // 购物车本地缓存名
+const SHIPPING_REGION_STORAGE_KEY = "lisha_studio_shipping_region"; // 已选 region 本地缓存名
 
-/* =========================
-   1. Data source settings
-   Change CSV URLs here if you republish Google Sheets.
-   ========================= */
+let productGroups = []; // 分组后的商品
+let allProductRows = []; // Products 表原始数据
+let settings = {}; // Settings 表内容
+let cart = []; // 购物车内容
+let shippingRules = []; // Shipping 表运费规则
+let selectedShippingRegion = localStorage.getItem(SHIPPING_REGION_STORAGE_KEY) || ""; // 当前选择的 region
+let currentModalImages = []; // 商品弹窗图片
+let currentModalImageIndex = 0; // 当前弹窗图片索引
+let paypalButtonsRendered = false; // 防止 PayPal 按钮重复渲染
 
-const SETTINGS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRQ5vcuUBnI85arPNNe2h-aqwqq_9RpCBN0oewhCexPjWd-nX7YW-j3ii_5JlwvZZ7VlyjZ_RSTVwD5/pub?gid=0&single=true&output=csv";
-const PRODUCTS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRQ5vcuUBnI85arPNNe2h-aqwqq_9RpCBN0oewhCexPjWd-nX7YW-j3ii_5JlwvZZ7VlyjZ_RSTVwD5/pub?gid=22339288&single=true&output=csv";
-const SHIPPING_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRQ5vcuUBnI85arPNNe2h-aqwqq_9RpCBN0oewhCexPjWd-nX7YW-j3ii_5JlwvZZ7VlyjZ_RSTVwD5/pub?gid=206682554&single=true&output=csv";
-
-const IMAGE_BASE_URL = "https://pub-32f3f529081e4033a9e6ecf3fd1297ae.r2.dev/images/";
-const WORKER_PAYMENT_URL = "https://lishastudio-payment.ldeng123.workers.dev";
-
-const CART_STORAGE_KEY = "lisha_studio_cart";
-const SHIPPING_REGION_STORAGE_KEY = "lisha_studio_shipping_region";
-
-/* =========================
-   2. Runtime state
-   These variables hold data after the page loads.
-   ========================= */
-
-let productGroups = [];
-let allProductRows = [];
-let settings = {};
-let cart = [];
-let shippingRules = [];
-let selectedShippingRegion = localStorage.getItem(SHIPPING_REGION_STORAGE_KEY) || "";
-let currentModalImages = [];
-let currentModalImageIndex = 0;
-let paypalButtonsRendered = false;
-
-/* =========================
-   3. CSV helpers
-   Google Sheet published tabs are read as CSV.
-   ========================= */
-
-function parseCSV(text) {
+function parseCSV(text) { // 解析 CSV 文本
   const rows = [];
   let row = [];
   let value = "";
@@ -89,7 +57,7 @@ function parseCSV(text) {
   return rows;
 }
 
-function rowsToObjects(rows) {
+function rowsToObjects(rows) { // CSV 行转对象；表头会转小写
   if (!rows.length) return [];
   const headers = rows[0].map(h => h.trim().toLowerCase());
 
@@ -104,51 +72,47 @@ function rowsToObjects(rows) {
     });
 }
 
-async function loadCSV(url) {
+async function loadCSV(url) { // 读取 Google Sheet CSV
   const joiner = url.includes("?") ? "&" : "?";
   const response = await fetch(url + joiner + "cacheBust=" + Date.now());
+
   if (!response.ok) throw new Error("Could not load CSV: " + url);
 
   const text = await response.text();
   return rowsToObjects(parseCSV(text));
 }
 
-function val(row, key) {
+function val(row, key) { // 读取 row 字段，避免大小写问题
   return row[key.toLowerCase()] || "";
 }
 
-function safeSlug(text) {
+function safeSlug(text) { // SKU 转成图片文件名可用格式
   return String(text || "")
     .toLowerCase()
     .trim()
     .replace(/\s+/g, "-");
 }
 
-/* =========================
-   4. Settings and money helpers
-   Settings CSV controls text, currency, contact info, warning text.
-   ========================= */
-
-function textSetting(key, fallback) {
+function textSetting(key, fallback) { // 读取 Settings 文本
   return settings[key.toLowerCase()] || fallback;
 }
 
-function numericSetting(key, fallback) {
+function numericSetting(key, fallback) { // 读取 Settings 数字
   const value = Number(settings[key.toLowerCase()]);
   return Number.isNaN(value) ? fallback : value;
 }
 
-function currencyCode() {
+function currencyCode() { // 货币代码，比如 USD
   return textSetting("currency.code", "USD");
 }
 
-function money(value) {
+function money(value) { // 金额显示格式
   const n = Number(value);
   if (Number.isNaN(n)) return "";
   return currencyCode() + " " + n.toFixed(2);
 }
 
-function priceHTML(row) {
+function priceHTML(row) { // 商品价格 HTML，含划线价
   const price = Number(val(row, "price"));
   const compare = Number(val(row, "compareprice"));
 
@@ -161,19 +125,7 @@ function priceHTML(row) {
   return `<span>${money(price)}</span>`;
 }
 
-/* =========================
-   5. Shipping rules
-
-   Shipping CSV headers should be:
-   Region | Cost | MinFree
-
-   Important:
-   - Region values come from your Shipping sheet, for example USA / Europe / SE Asia.
-   - The cart dropdown uses this CSV only.
-   - Worker must also reread Shipping CSV for final PayPal amount.
-   ========================= */
-
-async function loadShippingRules() {
+async function loadShippingRules() { // 读取 Shipping 表：Region / Cost / MinFree
   try {
     const rows = await loadCSV(SHIPPING_CSV_URL);
 
@@ -185,7 +137,6 @@ async function loadShippingRules() {
         minFree: Number(row.minfree || 999999)
       }));
 
-    // Do not auto-select a region. Customer must choose one before payment.
     if (selectedShippingRegion && !shippingRules.some(rule => rule.region === selectedShippingRegion)) {
       selectedShippingRegion = "";
       localStorage.removeItem(SHIPPING_REGION_STORAGE_KEY);
@@ -196,12 +147,12 @@ async function loadShippingRules() {
   }
 }
 
-function selectedShippingRule() {
+function selectedShippingRule() { // 找到当前 region 对应运费规则
   if (!selectedShippingRegion) return null;
   return shippingRules.find(rule => rule.region === selectedShippingRegion) || null;
 }
 
-function changeShippingRegion(region) {
+function changeShippingRegion(region) { // 用户切换 region 后刷新购物车金额
   selectedShippingRegion = region;
 
   if (region) {
@@ -213,47 +164,27 @@ function changeShippingRegion(region) {
   renderCart();
 }
 
-function renderShippingSelector() {
+function renderShippingSelector() { // 购物车里的 region 下拉菜单；默认文字可改 Region
   if (!shippingRules.length) return "";
 
   return `
-    <div class="shipping-region-row">
-      <select class="shipping-region-select" id="shippingRegionSelect" onchange="changeShippingRegion(this.value)">
-        <option value="" ${!selectedShippingRegion ? "selected" : ""}>Region</option>
-        ${shippingRules.map(rule => `
-          <option value="${rule.region}" ${rule.region === selectedShippingRegion ? "selected" : ""}>
-            ${rule.region}
-          </option>
-        `).join("")}
-      </select>
-    </div>
+    <select class="shipping-region-select" id="shippingRegionSelect" onchange="changeShippingRegion(this.value)">
+      <option value="" ${!selectedShippingRegion ? "selected" : ""}>Region</option>
+      ${shippingRules.map(rule => `
+        <option value="${rule.region}" ${rule.region === selectedShippingRegion ? "selected" : ""}>
+          ${rule.region}
+        </option>
+      `).join("")}
+    </select>
   `;
-
-  /*
-    This controls the cart shipping dropdown.
-    Text you may change:
-    - "Shipping region" = default text before customer chooses a region.
-
-    Related style:
-    - styles.css -> .shipping-region-select
-    It is intentionally styled like the homepage "All categories" select.
-  */
 }
 
-async function refreshShippingRulesInBackground() {
+async function refreshShippingRulesInBackground() { // 打开购物车时刷新运费规则
   await loadShippingRules();
   renderCart();
 }
 
-/* =========================
-   6. Product status and image helpers
-   Image naming:
-   cover:  {id}-cover.jpg
-   sku:    {id}-{sku}.jpg
-   detail: {id}-1.jpg, {id}-2.jpg, etc.
-   ========================= */
-
-function getStatus(row) {
+function getStatus(row) { // 判断商品状态：active / soldout / comingsoon / hidden
   const status = val(row, "status").trim().toLowerCase();
 
   if (status === "hidden") return "hidden";
@@ -272,36 +203,36 @@ function getStatus(row) {
   return "active";
 }
 
-function statusLabel(status) {
+function statusLabel(status) { // 商品角标文字
   if (status === "soldout") return "Sold out";
   if (status === "comingsoon") return "Coming soon";
   return "";
 }
 
-function imageUrl(name) {
+function imageUrl(name) { // 拼图片 URL
   return IMAGE_BASE_URL + name + ".jpg";
 }
 
-function coverImage(row) {
+function coverImage(row) { // 封面图：id-cover.jpg
   return imageUrl(`${val(row, "id")}-cover`);
 }
 
-function skuImage(row) {
+function skuImage(row) { // SKU 图：id-sku.jpg
   const id = val(row, "id");
   const sku = safeSlug(val(row, "sku"));
   return sku ? imageUrl(`${id}-${sku}`) : coverImage(row);
 }
 
-function detailImage(row, number) {
+function detailImage(row, number) { // 详情图：id-1.jpg / id-2.jpg
   return imageUrl(`${val(row, "id")}-${number}`);
 }
 
-function fallbackLetter(row) {
+function fallbackLetter(row) { // 图片加载失败时显示首字母
   const name = val(row, "name");
   return name ? name.charAt(0).toUpperCase() : "✦";
 }
 
-function imageBlock(src, row, badge = "") {
+function imageBlock(src, row, badge = "") { // 商品图片块
   return `
     ${badge ? `<div class="badge">${badge}</div>` : ""}
     <span class="fallback-letter">${fallbackLetter(row)}</span>
@@ -309,12 +240,7 @@ function imageBlock(src, row, badge = "") {
   `;
 }
 
-/* =========================
-   7. Product grouping and rendering
-   Same product id = one product with multiple SKUs.
-   ========================= */
-
-function groupProducts(rows) {
+function groupProducts(rows) { // 相同 id 的商品合并成一个产品，SKU 在弹窗里选
   const visibleRows = rows.filter(row => getStatus(row) !== "hidden");
   const map = new Map();
 
@@ -348,7 +274,7 @@ function groupProducts(rows) {
   });
 }
 
-function productPrice(group) {
+function productPrice(group) { // 商品卡片价格；多 SKU 时显示 From
   const validRows = group.rows.filter(row => {
     const status = getStatus(row);
     return status === "active" || status === "soldout";
@@ -366,7 +292,7 @@ function productPrice(group) {
   return min === max ? money(min) : "From " + money(min);
 }
 
-function productStock(group) {
+function productStock(group) { // 商品卡片库存显示
   if (group.status === "comingsoon") return "Coming soon";
   if (group.status === "soldout") return "Sold out";
 
@@ -377,11 +303,11 @@ function productStock(group) {
   return total + " in stock";
 }
 
-function productDescription(group) {
+function productDescription(group) { // 商品卡片短描述
   return val(group.displayRow, "shortdescription") || val(group.displayRow, "longdescription") || "";
 }
 
-function productCard(group) {
+function productCard(group) { // 渲染单个商品卡片
   const badge = statusLabel(group.status);
   const cover = coverImage(group.displayRow);
 
@@ -402,7 +328,7 @@ function productCard(group) {
   `;
 }
 
-function renderCategories() {
+function renderCategories() { // 渲染首页 category 筛选
   const select = document.getElementById("categoryFilter");
   select.innerHTML = `<option value="all">All categories</option>`;
 
@@ -413,7 +339,7 @@ function renderCategories() {
     });
 }
 
-function renderProducts() {
+function renderProducts() { // 渲染商品列表
   const grid = document.getElementById("productGrid");
   const query = document.getElementById("searchInput").value.trim().toLowerCase();
   const category = document.getElementById("categoryFilter").value;
@@ -437,12 +363,7 @@ function renderProducts() {
     : `<div class="error">No products found.</div>`;
 }
 
-/* =========================
-   8. Settings rendering
-   Settings CSV controls text, links, warning, and hero video.
-   ========================= */
-
-function applySettings(rows) {
+function applySettings(rows) { // 应用 Settings 表内容
   rows.forEach(row => {
     const key = val(row, "key").toLowerCase();
     const value = val(row, "value");
@@ -497,11 +418,7 @@ function applySettings(rows) {
   }
 }
 
-/* =========================
-   9. Product modal
-   ========================= */
-
-function modalImagesForGroup(group) {
+function modalImagesForGroup(group) { // 商品弹窗图片列表
   const images = [coverImage(group.displayRow)];
 
   group.rows.forEach(row => {
@@ -515,7 +432,7 @@ function modalImagesForGroup(group) {
   return images;
 }
 
-function openProductModal(id) {
+function openProductModal(id) { // 打开商品弹窗
   const group = productGroups.find(group => group.id === id);
   if (!group) return;
 
@@ -530,12 +447,12 @@ function openProductModal(id) {
   document.body.style.overflow = "hidden";
 }
 
-function closeProductModal() {
+function closeProductModal() { // 关闭商品弹窗
   document.getElementById("productModal").style.display = "none";
   document.body.style.overflow = "";
 }
 
-function changeModalImage(direction) {
+function changeModalImage(direction) { // 商品弹窗切换图片
   if (!currentModalImages.length) return;
 
   currentModalImageIndex += direction;
@@ -551,7 +468,7 @@ function changeModalImage(direction) {
   }
 }
 
-function renderModal(group, selectedRow) {
+function renderModal(group, selectedRow) { // 渲染商品详情弹窗
   const status = getStatus(selectedRow);
   const badge = statusLabel(status);
   const stock = Number(val(selectedRow, "stock") || 0);
@@ -618,7 +535,7 @@ function renderModal(group, selectedRow) {
   `;
 }
 
-function selectSku(groupId, skuLabel) {
+function selectSku(groupId, skuLabel) { // 选择 SKU
   const group = productGroups.find(group => group.id === groupId);
   if (!group) return;
 
@@ -632,17 +549,11 @@ function selectSku(groupId, skuLabel) {
   renderModal(group, selected);
 }
 
-/* =========================
-   10. Cart
-   Cart is stored in browser localStorage.
-   This is for user convenience only, not final pricing security.
-   ========================= */
-
-function cartItemKey(productId, sku) {
+function cartItemKey(productId, sku) { // 购物车 item 唯一 key
   return productId + "::" + (sku || "");
 }
 
-function loadCart() {
+function loadCart() { // 从 localStorage 读取购物车
   try {
     const saved = localStorage.getItem(CART_STORAGE_KEY);
     cart = saved ? JSON.parse(saved) : [];
@@ -651,16 +562,16 @@ function loadCart() {
   }
 }
 
-function saveCart() {
+function saveCart() { // 保存购物车到 localStorage
   localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
 }
 
-function findProductRow(productId, sku) {
+function findProductRow(productId, sku) { // 根据 id + sku 找商品行
   return allProductRows.find(row => val(row, "id") === productId && val(row, "sku") === sku)
     || allProductRows.find(row => val(row, "id") === productId && !val(row, "sku"));
 }
 
-function addToCartFromRow(productId, sku) {
+function addToCartFromRow(productId, sku) { // 加入购物车
   const row = findProductRow(productId, sku);
   if (!row) return alert("Product not found.");
 
@@ -697,7 +608,7 @@ function addToCartFromRow(productId, sku) {
   toggleCart(true);
 }
 
-function updateCartQty(key, change) {
+function updateCartQty(key, change) { // 修改购物车数量
   const item = cart.find(item => item.key === key);
   if (!item) return;
 
@@ -715,17 +626,17 @@ function updateCartQty(key, change) {
   renderCart();
 }
 
-function removeFromCart(key) {
+function removeFromCart(key) { // 移除购物车 item
   cart = cart.filter(item => item.key !== key);
   saveCart();
   renderCart();
 }
 
-function cartSubtotal() {
+function cartSubtotal() { // 商品小计
   return cart.reduce((sum, item) => sum + item.price * item.qty, 0);
 }
 
-function cartShipping(subtotal) {
+function cartShipping(subtotal) { // 根据 region 算展示运费
   if (cart.length === 0) return 0;
 
   const rule = selectedShippingRule();
@@ -734,7 +645,7 @@ function cartShipping(subtotal) {
   return subtotal >= rule.minFree ? 0 : rule.cost;
 }
 
-function renderCart() {
+function renderCart() { // 渲染购物车、金额、region 下拉、红色提醒
   const count = cart.reduce((sum, item) => sum + item.qty, 0);
   document.getElementById("cartCount").textContent = count;
 
@@ -773,36 +684,30 @@ function renderCart() {
 
   const shippingWarning = textSetting(
     "shipping.warning",
-    "Estimated delivery: 5–8 business days. Please make sure your PayPal shipping address matches the selected shipping region."
+    "Estimated delivery: 5–8 business days. Please make sure your PayPal shipping address matches the selected shipping region." // 默认红色提醒；建议去 Settings 表用 shipping.warning 改
   );
 
   summaryEl.innerHTML = `
-    <div class="summary-row"><span>Subtotal</span><span>${money(subtotal)}</span></div>
-    ${renderShippingSelector()}
-    <div class="summary-row"><span>Shipping fee</span><span>${!selectedShippingRegion ? "Select region to see shipping" : shipping === 0 ? "FREE" : money(shipping)}</span></div>
-    <div class="summary-row total"><span>Total</span><span>${money(total)}</span></div>
+    <div class="summary-row">
+      <span>Subtotal</span>
+      <span>${money(subtotal)}</span>
+    </div>
+
+    <div class="summary-row shipping-fee-row">
+      ${renderShippingSelector()}
+      <span>${!selectedShippingRegion ? "Select region" : shipping === 0 ? "FREE" : money(shipping)}</span>
+    </div>
+
+    <div class="summary-row total">
+      <span>Total</span>
+      <span>${money(total)}</span>
+    </div>
+
     <p class="cart-warning">${shippingWarning}</p>
   `;
-
-  /*
-    This controls the cart price summary order.
-    Current order:
-    1. Subtotal
-    2. Shipping region dropdown
-    3. Shipping fee
-    4. Total
-    5. Red warning text
-
-    Text you may change:
-    - "Shipping fee"
-    - "Select region to see shipping"
-
-    Red warning text can be changed in Settings sheet:
-    key: shipping.warning
-  */
 }
 
-function toggleCart(forceShow) {
+function toggleCart(forceShow) { // 打开/关闭购物车抽屉
   const drawer = document.getElementById("cartDrawer");
 
   if (typeof forceShow === "boolean") {
@@ -816,14 +721,7 @@ function toggleCart(forceShow) {
   }
 }
 
-/* =========================
-   11. PayPal checkout
-   Customer shipping/contact details are collected in the PayPal window.
-   Browser only sends product references and selected shipping region.
-   Worker must recalculate price from Products CSV + Shipping CSV.
-   ========================= */
-
-function buildOrderPayload() {
+function buildOrderPayload() { // 发给 Worker 的订单数据；不传前端价格
   return {
     currency: currencyCode(),
     shippingRegion: selectedShippingRegion,
@@ -835,13 +733,13 @@ function buildOrderPayload() {
   };
 }
 
-function setupPayPalButtons() {
+function setupPayPalButtons() { // PayPal 按钮
   if (!window.paypal || paypalButtonsRendered) return;
 
   paypalButtonsRendered = true;
 
   paypal.Buttons({
-    createOrder: async () => {
+    createOrder: async () => { // 创建 PayPal 订单
       if (!cart.length) {
         alert("Your cart is empty.");
         throw new Error("Cart is empty");
@@ -869,7 +767,7 @@ function setupPayPalButtons() {
       return data.paypalOrderId;
     },
 
-    onApprove: async (data) => {
+    onApprove: async (data) => { // 买家批准后扣款并写入 Orders
       const response = await fetch(`${WORKER_PAYMENT_URL}/capture-paypal-order`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -894,24 +792,18 @@ function setupPayPalButtons() {
       }
     },
 
-    onCancel: () => {
+    onCancel: () => { // 买家取消付款
       alert("Payment cancelled.");
     },
 
-    onError: (error) => {
+    onError: (error) => { // PayPal 错误
       console.error(error);
       alert("PayPal checkout error. Please try again.");
     }
   }).render("#paypal-button-container");
 }
 
-/* =========================
-   12. App startup
-   More robust loading:
-   Product CSV failure should not prevent cart/PayPal rendering.
-   ========================= */
-
-async function init() {
+async function init() { // 页面启动
   loadCart();
 
   try {
