@@ -11,15 +11,15 @@
     @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Nunito:wght@400;500;600;700;800&display=swap');
 
     :root {
-      --bg: #fffdf8; /* 页面背景色 */
-      --text: #1f1b18; /* 主文字色 */
-      --muted: #756d66; /* 次级文字色 */
-      --line: #eee5dc; /* 分割线颜色 */
-      --soft: #fff4e4; /* 浅暖色背景 */
-      --pink: #ffe8ec; /* 浅粉色 */
-      --accent: #f08a5d; /* 强调色 */
-      --accent-dark: #d9693f; /* hover 颜色 */
-      --card: #ffffff; /* 卡片背景 */
+      --bg: #fffdf8;
+      --text: #1f1b18;
+      --muted: #756d66;
+      --line: #eee5dc;
+      --soft: #fff4e4;
+      --pink: #ffe8ec;
+      --accent: #f08a5d;
+      --accent-dark: #d9693f;
+      --card: #ffffff;
     }
 
     * { box-sizing: border-box; }
@@ -53,27 +53,8 @@
       font-weight: 800;
     }
 
-    nav a:hover,
-    nav a.active {
+    nav a:hover {
       color: var(--accent-dark);
-    }
-
-    .hero-video {
-      width: 100%;
-      max-height: 420px;
-      background: var(--soft);
-      overflow: hidden;
-      border-bottom: 1px solid var(--line);
-      display: none;
-    }
-
-    .hero-video video,
-    .hero-video iframe {
-      width: 100%;
-      height: 420px;
-      display: block;
-      object-fit: cover;
-      border: 0;
     }
 
     main {
@@ -98,7 +79,7 @@
       color: var(--muted);
       font-size: 19px;
       line-height: 1.7;
-      max-width: 680px;
+      max-width: 720px;
       margin: 0 auto;
     }
 
@@ -179,11 +160,6 @@
       .story-card {
         padding: 24px;
       }
-
-      .hero-video video,
-      .hero-video iframe {
-        height: 300px;
-      }
     }
 
     @media (max-width: 560px) {
@@ -212,29 +188,26 @@
     <nav>
       <a href="/">Home</a>
       <a href="/#products">Products</a>
-      <a href="/about.html" class="active">About</a>
       <a href="/#contact">Contact</a>
     </nav>
   </header>
 
-  <section class="hero-video" id="videoArea"></section>
-
   <main>
     <section class="intro">
       <h1 id="aboutTitle">About Lisha Studio</h1>
-      <p id="aboutSubtitle">Handmade art objects for playful everyday spaces.</p>
+      <p id="aboutSubtitle">Handmade little objects for playful everyday spaces.</p>
     </section>
 
     <section class="about-gallery" id="aboutGallery"></section>
 
     <section class="story-card">
       <h2 id="aboutStoryTitle">Hello, I’m Lisha.</h2>
-      <p id="aboutStoryText">Lisha Studio is where I create handmade objects inspired by small joys, cozy spaces, cute shapes, and everyday visual details.</p>
+      <p id="aboutStoryText">Lisha Studio is where I create small handmade objects inspired by cute shapes, cozy rooms, tiny details, and everyday joy.</p>
     </section>
 
     <section class="story-card">
       <h2 id="aboutSecondTitle">What I make</h2>
-      <p id="aboutSecondText">I make candles, decorative objects, gifts, and playful handmade art pieces.</p>
+      <p id="aboutSecondText">I make candles, decorative objects, small gifts, and playful handmade pieces for people who love soft colors, curious shapes, and a little bit of fun.</p>
     </section>
 
     <div class="highlight" id="aboutHighlight">
@@ -251,12 +224,12 @@
     const IMAGE_BASE_URL = "https://pub-32f3f529081e4033a9e6ecf3fd1297ae.r2.dev/images/"; // Cloudflare R2 图片基础地址
 
     const ABOUT_IMAGES = [
-      "about-1.jpg", // About 第 1 张图，放在 R2 的 images 文件夹
-      "about-2.jpg", // About 第 2 张图
-      "about-3.jpg"  // About 第 3 张图
+      "about-1.jpg", // 第一张 About 图片
+      "about-2.jpg", // 第二张 About 图片
+      "about-3.jpg"  // 第三张 About 图片
     ];
 
-    function parseCSV(text) { // 解析 CSV
+    function parseCSV(text) {
       const rows = [];
       let row = [];
       let value = "";
@@ -295,7 +268,7 @@
       return rows;
     }
 
-    function rowsToSettings(rows) { // Settings 表转对象，key 自动小写
+    function rowsToSettings(rows) {
       const settings = {};
 
       rows.slice(1).forEach(row => {
@@ -307,7 +280,7 @@
       return settings;
     }
 
-    async function loadSettings() { // 读取 Settings 表
+    async function loadSettings() {
       const joiner = SETTINGS_CSV_URL.includes("?") ? "&" : "?";
       const response = await fetch(SETTINGS_CSV_URL + joiner + "cacheBust=" + Date.now());
 
@@ -319,33 +292,11 @@
       return rowsToSettings(parseCSV(text));
     }
 
-    function setting(settings, key, fallback) { // 读取 Settings；支持 about.title 这种 key
+    function setting(settings, key, fallback) {
       return settings[key.toLowerCase()] || fallback;
     }
 
-    function createVideo(videoUrl) { // 顶部视频，可用 about.video 或 index.heroVideo 控制
-      const videoArea = document.getElementById("videoArea");
-
-      if (!videoUrl) {
-        videoArea.style.display = "none";
-        videoArea.innerHTML = "";
-        return;
-      }
-
-      videoArea.style.display = "block";
-
-      if (videoUrl.includes("youtube.com") || videoUrl.includes("youtu.be") || videoUrl.includes("vimeo.com")) {
-        videoArea.innerHTML = `<iframe src="${videoUrl}" allowfullscreen></iframe>`;
-      } else {
-        videoArea.innerHTML = `
-          <video autoplay muted loop playsinline>
-            <source src="${videoUrl}" type="video/mp4">
-          </video>
-        `;
-      }
-    }
-
-    function renderGallery() { // About 图片区；固定从 R2 读取 ABOUT_IMAGES
+    function renderGallery() {
       const gallery = document.getElementById("aboutGallery");
       const images = ABOUT_IMAGES.filter(Boolean);
 
@@ -364,21 +315,20 @@
     loadSettings()
       .then(settings => {
         document.getElementById("aboutTitle").textContent = setting(settings, "about.title", "About Lisha Studio");
-        document.getElementById("aboutSubtitle").textContent = setting(settings, "about.subtitle", "Handmade art objects for playful everyday spaces.");
+        document.getElementById("aboutSubtitle").textContent = setting(settings, "about.subtitle", "Handmade little objects for playful everyday spaces.");
         document.getElementById("aboutStoryTitle").textContent = setting(settings, "about.storyTitle", "Hello, I’m Lisha.");
-        document.getElementById("aboutStoryText").textContent = setting(settings, "about.storyText", "Lisha Studio is where I create handmade objects inspired by small joys, cozy spaces, cute shapes, and everyday visual details.");
+        document.getElementById("aboutStoryText").textContent = setting(settings, "about.storyText", "Lisha Studio is where I create small handmade objects inspired by cute shapes, cozy rooms, tiny details, and everyday joy.");
         document.getElementById("aboutSecondTitle").textContent = setting(settings, "about.secondTitle", "What I make");
-        document.getElementById("aboutSecondText").textContent = setting(settings, "about.secondText", "I make candles, decorative objects, gifts, and playful handmade art pieces.");
+        document.getElementById("aboutSecondText").textContent = setting(settings, "about.secondText", "I make candles, decorative objects, small gifts, and playful handmade pieces for people who love soft colors, curious shapes, and a little bit of fun.");
         document.getElementById("aboutHighlight").textContent = setting(settings, "about.highlight", "✦ handmade pieces for cozy, playful, artful everyday spaces ✦");
 
         document.title = setting(settings, "about.title", "About Lisha Studio") + " | Lisha Studio";
 
         renderGallery();
-        createVideo(setting(settings, "about.video", setting(settings, "index.heroVideo", "")));
       })
       .catch(error => {
         console.error(error);
-        renderGallery(); // 即使 Settings 读取失败，也尝试显示 R2 图片
+        renderGallery();
       });
   </script>
 </body>
