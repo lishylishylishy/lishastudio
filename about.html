@@ -33,7 +33,7 @@
       font-family: "Nunito", Arial, sans-serif;
     }
 
-    /* 顶部导航：和首页一致 */
+    /* 顶部导航：和首页保持一致 */
     header {
       padding: 26px 34px;
       display: flex;
@@ -58,14 +58,14 @@
       color: var(--accent-dark);
     }
 
-    /* 页面主体 */
+    /* 页面主体宽度和上下留白 */
     main {
       max-width: 1040px;
       margin: 0 auto;
       padding: 76px 24px 90px;
     }
 
-    /* About 标题区 */
+    /* 页面标题 */
     .intro {
       text-align: center;
       margin-bottom: 42px;
@@ -86,7 +86,7 @@
       margin: 0 auto;
     }
 
-    /* 三个小视频 */
+    /* 三个 About 小视频 */
     .about-video-grid {
       display: none;
       grid-template-columns: repeat(3, 1fr);
@@ -135,7 +135,7 @@
       white-space: pre-line;
     }
 
-    /* About 页面底部联系按钮 */
+    /* Email / WhatsApp / YouTube 按钮 */
     .about-contact-links {
       margin-top: 12px;
       display: flex;
@@ -160,17 +160,16 @@
       border-color: var(--line);
     }
 
-.footer-link {
-  color: var(--muted);
-  text-decoration: none;
-}
+    /* 底部 footer：修复你截图里左下角歪掉的问题 */
+    footer {
+      text-align: center;
+      padding: 32px 20px;
+      color: var(--muted);
+      font-size: 14px;
+      border-top: 1px solid var(--line);
+    }
 
-.footer-link:hover {
-  color: var(--accent-dark);
-  text-decoration: none;
-}
-
-    /* 底部文字链接 */
+    /* footer 变成链接，但保持原来的灰色小字、无下划线 */
     .footer-link {
       color: var(--muted);
       text-decoration: none;
@@ -178,6 +177,7 @@
 
     .footer-link:hover {
       color: var(--accent-dark);
+      text-decoration: none;
     }
 
     /* 平板 */
@@ -302,7 +302,7 @@
       return rows;
     }
 
-    function rowsToSettings(rows) { // Settings 表转对象
+    function rowsToSettings(rows) { // Settings 表转成对象
       const settings = {};
 
       rows.slice(1).forEach(row => {
@@ -350,7 +350,7 @@
       `).join("");
     }
 
-    function renderContactLinks(settings) { // 读取联系方式按钮
+    function renderContactLinks(settings) { // 渲染 Email / WhatsApp / YouTube 按钮
       const links = document.getElementById("aboutContactLinks");
 
       const email = setting(settings, "contact.email", "");
