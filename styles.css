@@ -687,7 +687,7 @@ footer {
 }
 
 .subtotal-row span:first-child {
-  padding-left: 12px; /* 数字越大，Subtotal 越往右 */
+  padding-left: 20px; /* 数字越大，Subtotal 越往右 */
 }
 
 /* region 下拉 + 运费金额同一行 */
