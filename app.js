@@ -219,7 +219,7 @@ function renderShippingSelector() {
   return `
     <div class="shipping-region-row">
       <select class="shipping-region-select" id="shippingRegionSelect" onchange="changeShippingRegion(this.value)">
-        <option value="" ${!selectedShippingRegion ? "selected" : ""}>Shipping region</option>
+        <option value="" ${!selectedShippingRegion ? "selected" : ""}>Region</option>
         ${shippingRules.map(rule => `
           <option value="${rule.region}" ${rule.region === selectedShippingRegion ? "selected" : ""}>
             ${rule.region}
