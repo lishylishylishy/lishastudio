@@ -6,13 +6,16 @@
    - renders product cards and categories
    - opens product detail modal
    - manages cart in localStorage
-   - validates checkout form
    - calls Cloudflare Worker for PayPal payment
 
+   Current checkout logic:
+   - Cart only asks customer to choose a shipping region.
+   - Customer name / email / phone / delivery address are filled inside PayPal.
+   - Worker captures PayPal payment and reads PayPal returned customer/shipping info.
+
    Security rule:
-   The browser shows estimated product price and shipping, but it is not trusted.
-   On payment, app.js sends only productId / sku / qty / shippingRegion / customer info.
-   The Worker must reread Products CSV + Shipping CSV and recalculate the final amount.
+   The browser only shows estimated product price and shipping.
+   Final PayPal amount must be recalculated by Worker from Products CSV + Shipping CSV.
    ========================================================= */
 
 /* =========================
@@ -177,6 +180,7 @@ async function loadShippingRules() {
       }));
 
     // Do not auto-select a region. Customer must choose one before payment.
+    // If the saved region no longer exists in the Shipping sheet, reset it.
     if (selectedShippingRegion && !shippingRules.some(rule => rule.region === selectedShippingRegion)) {
       selectedShippingRegion = "";
       localStorage.removeItem(SHIPPING_REGION_STORAGE_KEY);
@@ -194,7 +198,13 @@ function selectedShippingRule() {
 
 function changeShippingRegion(region) {
   selectedShippingRegion = region;
-  localStorage.setItem(SHIPPING_REGION_STORAGE_KEY, selectedShippingRegion);
+
+  if (region) {
+    localStorage.setItem(SHIPPING_REGION_STORAGE_KEY, region);
+  } else {
+    localStorage.removeItem(SHIPPING_REGION_STORAGE_KEY);
+  }
+
   renderCart();
 }
 
@@ -202,10 +212,9 @@ function renderShippingSelector() {
   if (!shippingRules.length) return "";
 
   return `
-    <div class="summary-row">
-      <span></span>
-      <select id="shippingRegionSelect" onchange="changeShippingRegion(this.value)">
-        <option value="" ${!selectedShippingRegion ? "selected" : ""}>region</option>
+    <div class="shipping-region-select-row">
+      <select class="shipping-region-select" id="shippingRegionSelect" onchange="changeShippingRegion(this.value)">
+        <option value="" ${!selectedShippingRegion ? "selected" : ""}>Shipping region</option>
         ${shippingRules.map(rule => `
           <option value="${rule.region}" ${rule.region === selectedShippingRegion ? "selected" : ""}>
             ${rule.region}
@@ -215,7 +224,16 @@ function renderShippingSelector() {
     </div>
   `;
 }
-
+/*
+  renderShippingSelector() controls the region dropdown in the cart.
+  Change default text here:
+    Shipping region
+  You can change it to:
+    Select region
+    Choose shipping area
+    请选择收货区域
+  The visible options come from the Shipping sheet Region column.
+*/
 
 async function refreshShippingRulesInBackground() {
   await loadShippingRules();
@@ -712,7 +730,6 @@ function cartShipping(subtotal) {
   return subtotal >= rule.minFree ? 0 : rule.cost;
 }
 
-
 function renderCart() {
   const count = cart.reduce((sum, item) => sum + item.qty, 0);
   document.getElementById("cartCount").textContent = count;
@@ -749,19 +766,43 @@ function renderCart() {
   const subtotal = cartSubtotal();
   const shipping = cartShipping(subtotal);
   const total = subtotal + shipping;
+
   const shippingWarning = textSetting(
     "shipping.warning",
     "Estimated delivery: 5–8 business days. Please make sure your PayPal shipping address matches the selected shipping region."
   );
 
   summaryEl.innerHTML = `
-    <div class="summary-row"><span>Subtotal</span><span>${money(subtotal)}</span></div>
+    <div class="summary-row">
+      <span>Subtotal</span>
+      <span>${money(subtotal)}</span>
+    </div>
+
     ${renderShippingSelector()}
-    <div class="summary-row"><span>Shipping fee</span><span>${!selectedShippingRegion ? "Please select your region to see the shipping cost" : shipping === 0 ? "FREE" : money(shipping)}</span></div>
-    <div class="summary-row total"><span>Total</span><span>${money(total)}</span></div>
+
+    <div class="summary-row">
+      <span>Shipping fee</span>
+      <span>${!selectedShippingRegion ? "Select region to see shipping" : shipping === 0 ? "FREE" : money(shipping)}</span>
+    </div>
+
+    <div class="summary-row total">
+      <span>Total</span>
+      <span>${money(total)}</span>
+    </div>
+
     <p class="cart-warning">${shippingWarning}</p>
   `;
 }
+/*
+  renderCart() controls the order summary display.
+  Change labels here:
+    Subtotal
+    Shipping fee
+    Total
+    Select region to see shipping
+  Change warning text from Settings sheet:
+    key: shipping.warning
+*/
 
 function toggleCart(forceShow) {
   const drawer = document.getElementById("cartDrawer");
