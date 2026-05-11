@@ -734,20 +734,30 @@ function setupPayPalButtons() { // PayPal 按钮
   paypalButtonsRendered = true;
 
   paypal.Buttons({
-    createOrder: async () => { // 点击 PayPal 后，先强制弹窗确认 region + 电话，再创建订单
+    /*
+      重要：
+      onClick 会在 PayPal 窗口继续打开之前执行。
+      所以这里可以强制先弹出你自己的确认小窗。
+      客户必须：
+      1. 已选择 shipping region
+      2. 勾选确认 region 匹配 PayPal 地址
+      3. 输入 delivery phone number
+      才能继续 PayPal。
+    */
+    onClick: async (data, actions) => {
       if (!cart.length) {
         alert("Your cart is empty.");
-        throw new Error("Cart is empty");
+        return actions.reject();
       }
 
       if (!selectedShippingRegion) {
         alert("Please select your shipping region before checkout.");
-        throw new Error("Missing shipping region");
+        return actions.reject();
       }
 
       if (typeof openCheckoutConfirmModal !== "function") {
         alert("Checkout confirmation could not load. Please refresh the page and try again.");
-        throw new Error("checkout-modal.js is missing");
+        return actions.reject();
       }
 
       const subtotal = cartSubtotal();
@@ -763,11 +773,18 @@ function setupPayPalButtons() { // PayPal 按钮
       });
 
       if (!confirmed.ok) {
-        throw new Error("Checkout confirmation cancelled");
+        return actions.reject();
       }
 
       confirmedCustomerPhone = confirmed.phone;
+      return actions.resolve();
+    },
 
+    /*
+      只有 onClick 通过后，才会执行 createOrder。
+      所以 PayPal order 不会在客户确认前创建。
+    */
+    createOrder: async () => {
       const response = await fetch(`${WORKER_PAYMENT_URL}/create-paypal-order`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -817,10 +834,14 @@ function setupPayPalButtons() { // PayPal 按钮
       alert("Payment cancelled.");
     },
 
-    onError: (error) => { // PayPal 或确认弹窗错误
+    onError: (error) => { // PayPal 错误
       const message = error && error.message ? error.message : String(error);
 
-      if (message.includes("Checkout confirmation cancelled")) {
+      // 用户取消你自己的确认弹窗时，不显示 PayPal error
+      if (
+        message.includes("Expected an order id to be passed") ||
+        message.includes("Checkout confirmation cancelled")
+      ) {
         return;
       }
 
