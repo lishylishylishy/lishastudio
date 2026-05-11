@@ -1,8 +1,7 @@
 /*
   checkout-modal.js
-  功能：PayPal 付款前弹出确认小窗。
-  客户确认 shipping region，并填写 delivery phone number。
-  这个文件会自动注入弹窗 HTML + CSS，不需要额外 css 文件。
+  功能：PayPal 付款前强制确认 region + 输入电话。
+  客户必须勾选确认框，并填写 delivery phone number，才能继续 PayPal。
 */
 
 (function () {
@@ -30,7 +29,7 @@
       }
 
       .checkout-modal {
-        width: min(430px, 100%);
+        width: min(440px, 100%);
         background: var(--bg, #fffdf8);
         border: 1px solid var(--line, #eee5dc);
         border-radius: 28px;
@@ -72,6 +71,26 @@
       .checkout-modal-row strong {
         color: var(--text, #1f1b18);
         text-align: right;
+      }
+
+      .checkout-confirm-check {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        margin: 0 0 16px;
+        color: var(--text, #1f1b18);
+        font-size: 14px;
+        line-height: 1.45;
+        font-weight: 800;
+        cursor: pointer;
+      }
+
+      .checkout-confirm-check input {
+        margin-top: 3px;
+        width: 16px;
+        height: 16px;
+        cursor: pointer;
+        accent-color: var(--accent, #f08a5d);
       }
 
       .checkout-modal-field label {
@@ -139,6 +158,10 @@
         color: var(--text, #1f1b18);
       }
 
+      .checkout-modal-btn.cancel:hover {
+        background: linear-gradient(135deg, var(--soft, #fff4e4), var(--pink, #ffe8ec));
+      }
+
       .checkout-modal-btn.continue {
         background: var(--accent, #f08a5d);
         border-color: var(--accent, #f08a5d);
@@ -150,8 +173,12 @@
         border-color: var(--accent-dark, #d9693f);
       }
 
-      .checkout-modal-btn.cancel:hover {
-        background: linear-gradient(135deg, var(--soft, #fff4e4), var(--pink, #ffe8ec));
+      .checkout-modal-btn.continue:disabled {
+        opacity: 0.45;
+        cursor: not-allowed;
+        background: #ddd;
+        border-color: #ddd;
+        color: #777;
       }
 
       @media (max-width: 560px) {
@@ -201,19 +228,26 @@
           </div>
         </div>
 
+        <label class="checkout-confirm-check">
+          <input id="checkoutRegionConfirm" type="checkbox">
+          <span>I confirm this shipping region matches my PayPal shipping address.</span>
+        </label>
+
         <div class="checkout-modal-field">
           <label for="checkoutPhoneInput">Delivery phone number *</label>
           <input id="checkoutPhoneInput" type="tel" autocomplete="tel" placeholder="Phone number for delivery">
-          <p class="checkout-modal-error" id="checkoutPhoneError">Please enter your delivery phone number.</p>
+          <p class="checkout-modal-error" id="checkoutPhoneError">
+            Please confirm the shipping region and enter your delivery phone number.
+          </p>
         </div>
 
         <p class="checkout-modal-warning">
-          Please make sure your PayPal shipping address matches the selected shipping region.
+          Your PayPal shipping address should match the selected region.
         </p>
 
         <div class="checkout-modal-actions">
           <button type="button" class="checkout-modal-btn cancel" id="checkoutModalCancel">Cancel</button>
-          <button type="button" class="checkout-modal-btn continue" id="checkoutModalContinue">Continue to PayPal</button>
+          <button type="button" class="checkout-modal-btn continue" id="checkoutModalContinue" disabled>Continue to PayPal</button>
         </div>
       </div>
     `;
@@ -222,6 +256,9 @@
 
     document.getElementById("checkoutModalCancel").addEventListener("click", closeCheckoutModalCancel);
     document.getElementById("checkoutModalContinue").addEventListener("click", confirmCheckoutModal);
+
+    document.getElementById("checkoutPhoneInput").addEventListener("input", updateContinueButton);
+    document.getElementById("checkoutRegionConfirm").addEventListener("change", updateContinueButton);
 
     wrapper.addEventListener("click", function (event) {
       if (event.target.id === "checkoutModalBackdrop") {
@@ -242,6 +279,14 @@
     return currency + " " + n.toFixed(2);
   }
 
+  function updateContinueButton() {
+    const phone = document.getElementById("checkoutPhoneInput").value.trim();
+    const confirmed = document.getElementById("checkoutRegionConfirm").checked;
+    const button = document.getElementById("checkoutModalContinue");
+
+    button.disabled = !(phone && confirmed);
+  }
+
   function closeCheckoutModalCancel() {
     const backdrop = document.getElementById("checkoutModalBackdrop");
     if (backdrop) backdrop.classList.remove("open");
@@ -254,10 +299,13 @@
 
   function confirmCheckoutModal() {
     const phoneInput = document.getElementById("checkoutPhoneInput");
+    const confirmInput = document.getElementById("checkoutRegionConfirm");
     const error = document.getElementById("checkoutPhoneError");
-    const phone = phoneInput.value.trim();
 
-    if (!phone) {
+    const phone = phoneInput.value.trim();
+    const confirmed = confirmInput.checked;
+
+    if (!phone || !confirmed) {
       error.classList.add("show");
       phoneInput.focus();
       return;
@@ -288,10 +336,14 @@
     document.getElementById("checkoutModalTotal").textContent = formatMoney(currency, options.total);
 
     const phoneInput = document.getElementById("checkoutPhoneInput");
+    const confirmInput = document.getElementById("checkoutRegionConfirm");
     const error = document.getElementById("checkoutPhoneError");
 
     phoneInput.value = options.phone || "";
+    confirmInput.checked = false;
     error.classList.remove("show");
+
+    updateContinueButton();
 
     document.getElementById("checkoutModalBackdrop").classList.add("open");
 
