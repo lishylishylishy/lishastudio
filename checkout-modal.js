@@ -2,7 +2,8 @@
   checkout-modal.js
   功能：
   - 点击购物车里的 Continue to checkout 后，弹出确认小窗
-  - 客户必须确认 shipping region
+  - 弹窗显示商品、Subtotal、Ship to region、Total
+  - 客户必须确认 delivery address 在所选 region
   - 客户必须输入 delivery phone number
   - 满足条件后，弹窗里的 PayPal 按钮才显示
 */
@@ -32,7 +33,7 @@
       }
 
       .checkout-modal {
-        width: min(450px, 100%);
+        width: min(470px, 100%);
         max-height: 92vh;
         overflow: auto;
         background: var(--bg, #fffdf8);
@@ -57,11 +58,48 @@
         line-height: 1.55;
       }
 
+      .checkout-item-list {
+        border-top: 1px solid var(--line, #eee5dc);
+        padding-top: 12px;
+        margin-top: 12px;
+      }
+
+      .checkout-item-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 14px;
+        margin: 9px 0;
+        color: var(--text, #1f1b18);
+        font-weight: 800;
+      }
+
+      .checkout-item-info {
+        min-width: 0;
+      }
+
+      .checkout-item-name {
+        display: block;
+        line-height: 1.25;
+      }
+
+      .checkout-item-meta {
+        display: block;
+        margin-top: 2px;
+        color: var(--muted, #756d66);
+        font-size: 13px;
+        font-weight: 700;
+      }
+
+      .checkout-item-price {
+        white-space: nowrap;
+        text-align: right;
+      }
+
       .checkout-modal-summary {
         border-top: 1px solid var(--line, #eee5dc);
         border-bottom: 1px solid var(--line, #eee5dc);
         padding: 12px 0;
-        margin: 0 0 16px;
+        margin: 16px 0;
       }
 
       .checkout-modal-row {
@@ -78,15 +116,23 @@
         text-align: right;
       }
 
+      .checkout-modal-row.total {
+        color: var(--text, #1f1b18);
+        font-size: 18px;
+        margin-top: 12px;
+        padding-top: 10px;
+        border-top: 1px solid var(--line, #eee5dc);
+      }
+
       .checkout-confirm-check {
         display: flex;
         align-items: flex-start;
         gap: 10px;
         margin: 0 0 16px;
-        color: var(--text, #1f1b18);
+        color: #c0392b;
         font-size: 14px;
         line-height: 1.45;
-        font-weight: 800;
+        font-weight: 900;
         cursor: pointer;
       }
 
@@ -121,12 +167,20 @@
         border-color: var(--accent, #f08a5d);
       }
 
-      .checkout-modal-warning {
-        color: #c0392b;
+      .checkout-paypal-hint {
+        color: var(--muted, #756d66);
         font-size: 13px;
-        font-weight: 800;
-        line-height: 1.45;
-        margin: 14px 0 0;
+        line-height: 1.5;
+        margin: 16px 0 0;
+        text-align: center;
+      }
+
+      .checkout-paypal-box {
+        margin-top: 16px;
+      }
+
+      .checkout-paypal-box.hidden {
+        display: none;
       }
 
       .checkout-modal-actions {
@@ -153,22 +207,6 @@
 
       .checkout-modal-btn.cancel:hover {
         background: linear-gradient(135deg, var(--soft, #fff4e4), var(--pink, #ffe8ec));
-      }
-
-      .checkout-paypal-hint {
-        color: var(--muted, #756d66);
-        font-size: 13px;
-        line-height: 1.5;
-        margin: 16px 0 0;
-        text-align: center;
-      }
-
-      .checkout-paypal-box {
-        margin-top: 16px;
-      }
-
-      .checkout-paypal-box.hidden {
-        display: none;
       }
 
       @media (max-width: 560px) {
@@ -200,19 +238,21 @@
         <h2 id="checkoutModalTitle">Confirm checkout</h2>
 
         <p class="checkout-modal-note">
-          Please confirm your shipping region and enter a phone number for delivery.
+          Please review your order, confirm your delivery region, and enter your delivery phone number.
         </p>
+
+        <div class="checkout-item-list" id="checkoutItemList"></div>
 
         <div class="checkout-modal-summary">
           <div class="checkout-modal-row">
-            <span>Shipping region</span>
-            <strong id="checkoutModalRegion"></strong>
+            <span>Subtotal</span>
+            <strong id="checkoutModalSubtotal"></strong>
           </div>
           <div class="checkout-modal-row">
-            <span>Shipping fee</span>
+            <span id="checkoutModalShippingLabel">Shipping fee</span>
             <strong id="checkoutModalShipping"></strong>
           </div>
-          <div class="checkout-modal-row">
+          <div class="checkout-modal-row total">
             <span>Total</span>
             <strong id="checkoutModalTotal"></strong>
           </div>
@@ -220,7 +260,7 @@
 
         <label class="checkout-confirm-check">
           <input id="checkoutRegionConfirm" type="checkbox">
-          <span>I confirm this shipping region matches my PayPal shipping address.</span>
+          <span id="checkoutRegionConfirmText">I confirm my delivery address is in the selected shipping region.</span>
         </label>
 
         <div class="checkout-modal-field">
@@ -228,12 +268,8 @@
           <input id="checkoutPhoneInput" type="tel" autocomplete="tel" placeholder="Phone number for delivery">
         </div>
 
-        <p class="checkout-modal-warning">
-          Your PayPal shipping address should match the selected shipping region.
-        </p>
-
         <p class="checkout-paypal-hint" id="checkoutPaypalHint">
-          Please confirm the shipping region and enter your phone number to continue.
+          Please confirm your delivery region and enter your phone number to continue.
         </p>
 
         <div class="checkout-paypal-box hidden" id="checkoutPaypalBox">
@@ -269,6 +305,31 @@
     const n = Number(amount);
     if (Number.isNaN(n)) return currency + " " + amount;
     return currency + " " + n.toFixed(2);
+  }
+
+  function renderCheckoutItems(items, currency) {
+    const list = document.getElementById("checkoutItemList");
+
+    if (!Array.isArray(items) || !items.length) {
+      list.innerHTML = "";
+      return;
+    }
+
+    list.innerHTML = items.map(item => {
+      const skuText = item.sku ? " · " + item.sku : "";
+      const qtyText = "Qty " + item.qty;
+      const lineTotal = formatMoney(currency, item.lineTotal);
+
+      return `
+        <div class="checkout-item-row">
+          <div class="checkout-item-info">
+            <span class="checkout-item-name">${item.name || "Item"}</span>
+            <span class="checkout-item-meta">${qtyText}${skuText}</span>
+          </div>
+          <strong class="checkout-item-price">${lineTotal}</strong>
+        </div>
+      `;
+    }).join("");
   }
 
   function updateCheckoutReady() {
@@ -309,13 +370,20 @@
     injectCheckoutModalHtml();
 
     const currency = options.currency || "USD";
+    const region = options.shippingRegion || "selected region";
     const shippingText = Number(options.shippingFee) === 0
       ? "FREE"
       : formatMoney(currency, options.shippingFee);
 
-    document.getElementById("checkoutModalRegion").textContent = options.shippingRegion || "";
+    renderCheckoutItems(options.items || [], currency);
+
+    document.getElementById("checkoutModalSubtotal").textContent = formatMoney(currency, options.subtotal || 0);
+    document.getElementById("checkoutModalShippingLabel").textContent = "Ship to " + region;
     document.getElementById("checkoutModalShipping").textContent = shippingText;
-    document.getElementById("checkoutModalTotal").textContent = formatMoney(currency, options.total);
+    document.getElementById("checkoutModalTotal").textContent = formatMoney(currency, options.total || 0);
+
+    document.getElementById("checkoutRegionConfirmText").textContent =
+      "I confirm my delivery address is in " + region + ".";
 
     document.getElementById("checkoutPhoneInput").value = options.phone || "";
     document.getElementById("checkoutRegionConfirm").checked = false;
