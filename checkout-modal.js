@@ -1,11 +1,14 @@
 /*
   checkout-modal.js
-  功能：PayPal 付款前强制确认 region + 输入电话。
-  客户必须勾选确认框，并填写 delivery phone number，才能继续 PayPal。
+  功能：
+  - 点击购物车里的 Continue to checkout 后，弹出确认小窗
+  - 客户必须确认 shipping region
+  - 客户必须输入 delivery phone number
+  - 满足条件后，弹窗里的 PayPal 按钮才显示
 */
 
 (function () {
-  let resolver = null;
+  let readyHandler = null;
 
   function injectCheckoutModalStyles() {
     if (document.getElementById("checkoutModalStyles")) return;
@@ -29,7 +32,9 @@
       }
 
       .checkout-modal {
-        width: min(440px, 100%);
+        width: min(450px, 100%);
+        max-height: 92vh;
+        overflow: auto;
         background: var(--bg, #fffdf8);
         border: 1px solid var(--line, #eee5dc);
         border-radius: 28px;
@@ -116,18 +121,6 @@
         border-color: var(--accent, #f08a5d);
       }
 
-      .checkout-modal-error {
-        display: none;
-        color: #c0392b;
-        font-size: 13px;
-        font-weight: 800;
-        margin: 8px 0 0;
-      }
-
-      .checkout-modal-error.show {
-        display: block;
-      }
-
       .checkout-modal-warning {
         color: #c0392b;
         font-size: 13px;
@@ -162,23 +155,20 @@
         background: linear-gradient(135deg, var(--soft, #fff4e4), var(--pink, #ffe8ec));
       }
 
-      .checkout-modal-btn.continue {
-        background: var(--accent, #f08a5d);
-        border-color: var(--accent, #f08a5d);
-        color: white;
+      .checkout-paypal-hint {
+        color: var(--muted, #756d66);
+        font-size: 13px;
+        line-height: 1.5;
+        margin: 16px 0 0;
+        text-align: center;
       }
 
-      .checkout-modal-btn.continue:hover {
-        background: var(--accent-dark, #d9693f);
-        border-color: var(--accent-dark, #d9693f);
+      .checkout-paypal-box {
+        margin-top: 16px;
       }
 
-      .checkout-modal-btn.continue:disabled {
-        opacity: 0.45;
-        cursor: not-allowed;
-        background: #ddd;
-        border-color: #ddd;
-        color: #777;
+      .checkout-paypal-box.hidden {
+        display: none;
       }
 
       @media (max-width: 560px) {
@@ -236,39 +226,41 @@
         <div class="checkout-modal-field">
           <label for="checkoutPhoneInput">Delivery phone number *</label>
           <input id="checkoutPhoneInput" type="tel" autocomplete="tel" placeholder="Phone number for delivery">
-          <p class="checkout-modal-error" id="checkoutPhoneError">
-            Please confirm the shipping region and enter your delivery phone number.
-          </p>
         </div>
 
         <p class="checkout-modal-warning">
-          Your PayPal shipping address should match the selected region.
+          Your PayPal shipping address should match the selected shipping region.
         </p>
+
+        <p class="checkout-paypal-hint" id="checkoutPaypalHint">
+          Please confirm the shipping region and enter your phone number to continue.
+        </p>
+
+        <div class="checkout-paypal-box hidden" id="checkoutPaypalBox">
+          <div id="checkoutPaypalButtonContainer"></div>
+        </div>
 
         <div class="checkout-modal-actions">
           <button type="button" class="checkout-modal-btn cancel" id="checkoutModalCancel">Cancel</button>
-          <button type="button" class="checkout-modal-btn continue" id="checkoutModalContinue" disabled>Continue to PayPal</button>
         </div>
       </div>
     `;
 
     document.body.appendChild(wrapper);
 
-    document.getElementById("checkoutModalCancel").addEventListener("click", closeCheckoutModalCancel);
-    document.getElementById("checkoutModalContinue").addEventListener("click", confirmCheckoutModal);
-
-    document.getElementById("checkoutPhoneInput").addEventListener("input", updateContinueButton);
-    document.getElementById("checkoutRegionConfirm").addEventListener("change", updateContinueButton);
+    document.getElementById("checkoutModalCancel").addEventListener("click", closeCheckoutModal);
+    document.getElementById("checkoutPhoneInput").addEventListener("input", updateCheckoutReady);
+    document.getElementById("checkoutRegionConfirm").addEventListener("change", updateCheckoutReady);
 
     wrapper.addEventListener("click", function (event) {
       if (event.target.id === "checkoutModalBackdrop") {
-        closeCheckoutModalCancel();
+        closeCheckoutModal();
       }
     });
 
     document.addEventListener("keydown", function (event) {
       if (event.key === "Escape" && wrapper.classList.contains("open")) {
-        closeCheckoutModalCancel();
+        closeCheckoutModal();
       }
     });
   }
@@ -279,50 +271,40 @@
     return currency + " " + n.toFixed(2);
   }
 
-  function updateContinueButton() {
+  function updateCheckoutReady() {
     const phone = document.getElementById("checkoutPhoneInput").value.trim();
     const confirmed = document.getElementById("checkoutRegionConfirm").checked;
-    const button = document.getElementById("checkoutModalContinue");
+    const ready = Boolean(phone && confirmed);
 
-    button.disabled = !(phone && confirmed);
+    const paypalBox = document.getElementById("checkoutPaypalBox");
+    const hint = document.getElementById("checkoutPaypalHint");
+
+    if (ready) {
+      paypalBox.classList.remove("hidden");
+      hint.style.display = "none";
+    } else {
+      paypalBox.classList.add("hidden");
+      hint.style.display = "block";
+    }
+
+    if (typeof readyHandler === "function") {
+      readyHandler({
+        ready,
+        phone
+      });
+    }
   }
 
-  function closeCheckoutModalCancel() {
+  function closeCheckoutModal() {
     const backdrop = document.getElementById("checkoutModalBackdrop");
     if (backdrop) backdrop.classList.remove("open");
-
-    if (resolver) {
-      resolver({ ok: false, phone: "" });
-      resolver = null;
-    }
   }
 
-  function confirmCheckoutModal() {
-    const phoneInput = document.getElementById("checkoutPhoneInput");
-    const confirmInput = document.getElementById("checkoutRegionConfirm");
-    const error = document.getElementById("checkoutPhoneError");
+  window.setCheckoutModalReadyHandler = function (handler) {
+    readyHandler = handler;
+  };
 
-    const phone = phoneInput.value.trim();
-    const confirmed = confirmInput.checked;
-
-    if (!phone || !confirmed) {
-      error.classList.add("show");
-      phoneInput.focus();
-      return;
-    }
-
-    error.classList.remove("show");
-
-    const backdrop = document.getElementById("checkoutModalBackdrop");
-    if (backdrop) backdrop.classList.remove("open");
-
-    if (resolver) {
-      resolver({ ok: true, phone });
-      resolver = null;
-    }
-  }
-
-  window.openCheckoutConfirmModal = function (options) {
+  window.openCheckoutModal = function (options) {
     injectCheckoutModalStyles();
     injectCheckoutModalHtml();
 
@@ -335,24 +317,17 @@
     document.getElementById("checkoutModalShipping").textContent = shippingText;
     document.getElementById("checkoutModalTotal").textContent = formatMoney(currency, options.total);
 
-    const phoneInput = document.getElementById("checkoutPhoneInput");
-    const confirmInput = document.getElementById("checkoutRegionConfirm");
-    const error = document.getElementById("checkoutPhoneError");
+    document.getElementById("checkoutPhoneInput").value = options.phone || "";
+    document.getElementById("checkoutRegionConfirm").checked = false;
 
-    phoneInput.value = options.phone || "";
-    confirmInput.checked = false;
-    error.classList.remove("show");
-
-    updateContinueButton();
+    updateCheckoutReady();
 
     document.getElementById("checkoutModalBackdrop").classList.add("open");
 
     setTimeout(function () {
-      phoneInput.focus();
+      document.getElementById("checkoutPhoneInput").focus();
     }, 80);
-
-    return new Promise(function (resolve) {
-      resolver = resolve;
-    });
   };
+
+  window.closeCheckoutModal = closeCheckoutModal;
 })();
