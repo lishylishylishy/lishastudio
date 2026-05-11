@@ -7,20 +7,14 @@
   <title>Lisha Studio | Handmade Art Objects</title>
   <meta name="description" content="Lisha Studio handmade art objects, candles, gifts, and playful little things." />
 
-  <!-- styles.css controls all visual styles: layout, cards, modal, cart drawer, mobile layout. -->
+  <!-- 页面样式 -->
   <link rel="stylesheet" href="styles.css" />
 
-  <!--
-    PayPal SDK.
-    Current client-id is Sandbox for testing.
-    When going live, replace it with your Live Client ID.
-    disable-funding=paylater hides Pay Later.
-  -->
+  <!-- PayPal SDK：现在 PayPal 按钮会放到 checkout-modal.js 弹窗里 -->
   <script src="https://www.paypal.com/sdk/js?client-id=AViE6g_MybW_s4M1JQOgpgDw0tTEbOnzPpj7lHmE5TWmG4Voe0I81wK3cRTXCoufRo887gv1KbCv_-cE&currency=USD&disable-funding=paylater"></script>
 </head>
 
 <body>
-  <!-- Header navigation stays on this same page. -->
   <header>
     <nav>
       <a href="/">Home</a>
@@ -29,9 +23,10 @@
     </nav>
   </header>
 
-  <!-- Hero area: app.js fills text/video from Settings CSV. -->
+  <!-- 首页视频区：内容由 Settings 表控制 -->
   <section class="hero-video" id="videoArea">
     <div class="hero-media" id="videoMedia"></div>
+
     <div class="hero-overlay">
       <h1 id="heroTitle"></h1>
       <a class="hero-subtitle-link" id="heroSubtitle" href="/about.html"></a>
@@ -39,7 +34,6 @@
   </section>
 
   <main>
-    <!-- Products section: app.js reads Products CSV and renders cards inside productGrid. -->
     <section class="section" id="products">
       <h2 class="section-title" id="featuredTitle">Featured Pieces</h2>
 
@@ -55,7 +49,6 @@
       </div>
     </section>
 
-    <!-- Contact section: app.js fills text and links from Settings CSV. -->
     <section class="contact" id="contact">
       <div class="contact-inner">
         <h2 class="section-title" id="contactTitle">Contact</h2>
@@ -81,12 +74,12 @@
     </section>
   </main>
 
-  <!-- Floating cart button: opens the right drawer. No page jump. -->
+  <!-- 右下角购物车按钮 -->
   <button class="cart-float" onclick="toggleCart(true)">
     Cart (<span id="cartCount">0</span>)
   </button>
 
-  <!-- Cart drawer: app.js renders cart items, shipping region selector, summary, PayPal button. -->
+  <!-- 购物车抽屉：这里不直接放 PayPal，先放自己的 checkout 按钮 -->
   <aside class="cart-drawer" id="cartDrawer">
     <div class="cart-header">
       <h2>Your Cart</h2>
@@ -99,11 +92,15 @@
 
     <div class="cart-footer">
       <div id="cartSummary"></div>
-      <div id="paypal-button-container"></div>
+
+      <!-- 第一步按钮：先打开确认弹窗；PayPal 按钮会在弹窗里显示 -->
+      <button class="button" id="checkoutStartButton" type="button">
+        Continue to checkout
+      </button>
     </div>
   </aside>
 
-  <!-- Product modal: app.js fills this when a product card is clicked. No product page jump. -->
+  <!-- 商品详情弹窗 -->
   <div class="modal-backdrop" id="productModal">
     <div class="modal">
       <button class="modal-close" id="modalClose">×</button>
@@ -111,14 +108,12 @@
     </div>
   </div>
 
-<footer>
-  <a href="/about.html" class="footer-link">@ Lisha Studio · Handmade little joy:)</a>
-</footer>
+  <footer>
+    <a href="/about.html" class="footer-link">@ Lisha Studio · Handmade little joy:)</a>
+  </footer>
 
-<!-- checkout-modal.js controls the phone + region confirmation popup before PayPal. -->
-<script src="checkout-modal.js"></script>
-
-<!-- app.js controls data loading, product rendering, cart, shipping, and PayPal. -->
-<script src="app.js"></script>
+  <!-- 先加载 checkout-modal.js，再加载 app.js -->
+  <script src="checkout-modal.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
