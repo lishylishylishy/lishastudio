@@ -98,11 +98,6 @@ function textSetting(key, fallback) { // 读取 Settings 文本
   return settings[key.toLowerCase()] || fallback;
 }
 
-function numericSetting(key, fallback) { // 读取 Settings 数字
-  const value = Number(settings[key.toLowerCase()]);
-  return Number.isNaN(value) ? fallback : value;
-}
-
 function currencyCode() { // 货币代码，比如 USD
   return textSetting("currency.code", "USD");
 }
@@ -728,63 +723,76 @@ function buildOrderPayload() { // 发给 Worker 的订单数据；不传前端�
   };
 }
 
-function setupPayPalButtons() { // PayPal 按钮
-  if (!window.paypal || paypalButtonsRendered) return;
+function setupCheckoutButton() { // 购物车 checkout 按钮：先打开确认弹窗，再显示弹窗里的 PayPal
+  const checkoutStartButton = document.getElementById("checkoutStartButton");
+
+  if (!checkoutStartButton) {
+    console.error("checkoutStartButton not found.");
+    return;
+  }
+
+  checkoutStartButton.addEventListener("click", () => {
+    if (!cart.length) {
+      alert("Your cart is empty.");
+      return;
+    }
+
+    if (!selectedShippingRegion) {
+      alert("Please select your shipping region before checkout.");
+      return;
+    }
+
+    if (typeof openCheckoutModal !== "function") {
+      alert("Checkout modal could not load. Please refresh the page and try again.");
+      return;
+    }
+
+    const subtotal = cartSubtotal();
+    const shipping = cartShipping(subtotal);
+    const total = subtotal + shipping;
+
+    openCheckoutModal({
+      shippingRegion: selectedShippingRegion,
+      shippingFee: shipping,
+      total,
+      currency: currencyCode(),
+      phone: confirmedCustomerPhone
+    });
+
+    setupModalPayPalButton();
+  });
+}
+
+function setupModalPayPalButton() { // 弹窗里的 PayPal 按钮
+  if (!window.paypal) {
+    alert("PayPal could not load. Please refresh the page and try again.");
+    return;
+  }
+
+  if (paypalButtonsRendered) return;
+
+  if (typeof setCheckoutModalReadyHandler === "function") {
+    setCheckoutModalReadyHandler(({ ready, phone }) => {
+      if (ready) {
+        confirmedCustomerPhone = phone;
+      }
+    });
+  }
 
   paypalButtonsRendered = true;
 
   paypal.Buttons({
-    /*
-      重要：
-      onClick 会在 PayPal 窗口继续打开之前执行。
-      所以这里可以强制先弹出你自己的确认小窗。
-      客户必须：
-      1. 已选择 shipping region
-      2. 勾选确认 region 匹配 PayPal 地址
-      3. 输入 delivery phone number
-      才能继续 PayPal。
-    */
-    onClick: async (data, actions) => {
-      if (!cart.length) {
-        alert("Your cart is empty.");
-        return actions.reject();
+    createOrder: async () => { // 只有弹窗里 PayPal 按钮可见并被点击后，才创建订单
+      if (!confirmedCustomerPhone) {
+        alert("Please enter your delivery phone number.");
+        throw new Error("Missing customer phone");
       }
 
       if (!selectedShippingRegion) {
         alert("Please select your shipping region before checkout.");
-        return actions.reject();
+        throw new Error("Missing shipping region");
       }
 
-      if (typeof openCheckoutConfirmModal !== "function") {
-        alert("Checkout confirmation could not load. Please refresh the page and try again.");
-        return actions.reject();
-      }
-
-      const subtotal = cartSubtotal();
-      const shipping = cartShipping(subtotal);
-      const total = subtotal + shipping;
-
-      const confirmed = await openCheckoutConfirmModal({
-        shippingRegion: selectedShippingRegion,
-        shippingFee: shipping,
-        total: total,
-        currency: currencyCode(),
-        phone: confirmedCustomerPhone
-      });
-
-      if (!confirmed.ok) {
-        return actions.reject();
-      }
-
-      confirmedCustomerPhone = confirmed.phone;
-      return actions.resolve();
-    },
-
-    /*
-      只有 onClick 通过后，才会执行 createOrder。
-      所以 PayPal order 不会在客户确认前创建。
-    */
-    createOrder: async () => {
       const response = await fetch(`${WORKER_PAYMENT_URL}/create-paypal-order`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -823,6 +831,11 @@ function setupPayPalButtons() { // PayPal 按钮
 
         saveCart();
         renderCart();
+
+        if (typeof closeCheckoutModal === "function") {
+          closeCheckoutModal();
+        }
+
         toggleCart(false);
       } else {
         console.error(result);
@@ -830,25 +843,15 @@ function setupPayPalButtons() { // PayPal 按钮
       }
     },
 
-    onCancel: () => { // 买家取消 PayPal 付款
+    onCancel: () => {
       alert("Payment cancelled.");
     },
 
-    onError: (error) => { // PayPal 错误
-      const message = error && error.message ? error.message : String(error);
-
-      // 用户取消你自己的确认弹窗时，不显示 PayPal error
-      if (
-        message.includes("Expected an order id to be passed") ||
-        message.includes("Checkout confirmation cancelled")
-      ) {
-        return;
-      }
-
+    onError: (error) => {
       console.error(error);
       alert("PayPal checkout error. Please try again.");
     }
-  }).render("#paypal-button-container");
+  }).render("#checkoutPaypalButtonContainer");
 }
 
 async function init() { // 页面启动
@@ -879,7 +882,7 @@ async function init() { // 页面启动
   }
 
   renderCart();
-  setupPayPalButtons();
+  setupCheckoutButton();
 
   document.getElementById("searchInput")?.addEventListener("input", renderProducts);
   document.getElementById("categoryFilter")?.addEventListener("change", renderProducts);
